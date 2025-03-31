@@ -1,0 +1,351 @@
+.formContainer {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form {
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background-color: #f8f9fa;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 24px;
+  text-align: center;
+  color: #2d3748;
+}
+
+.section {
+  border: 1px solid #e2e8f0;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sectionTitle {
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #4a5568;
+}
+
+.formGroup {
+  margin-bottom: 12px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.input, .select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.input:focus, .select:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.buttonConv {
+  background-color: #3182ce;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  width: 100%;
+  font-weight: 500;
+  margin-top: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.buttonConv:hover {
+  background-color: #2c5282;
+}
+
+.buttonDense {
+  background-color: #38a169;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  width: 100%;
+  font-weight: 500;
+  margin-top: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.buttonDense:hover {
+  background-color: #276749;
+}
+
+.submitButton {
+  background-color: #5a67d8;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  width: 100%;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.submitButton:hover {
+  background-color: #4c51bf;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.preview {
+  margin-top: 24px;
+  padding: 16px;
+  background-color: #f1f5f9;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.previewTitle {
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #4a5568;
+}
+
+.layersList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.layerItem {
+  padding: 8px;
+  margin-bottom: 8px;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.emptyMessage {
+  color: #718096;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Add these styles to your existing CSS module file */
+.errorMessage {
+  background-color: #fed7d7;
+  border: 1px solid #f56565;
+  color: #c53030;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin: 16px 0;
+  text-align: center;
+  font-weight: 500;
+}
+
+.architectureContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  overflow-x: auto;
+}
+
+.layerBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}
+
+.arrow {
+  font-size: 24px;
+  color: #718096;
+}
+
+.inputLayer, .convLayer, .poolingLayer, .flattenLayer, .denseLayer, .outputLayer {
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.inputLayer {
+  background-color: #ebf8ff;
+  border: 1px solid #90cdf4;
+}
+
+.convLayer {
+  background-color: #e6fffa;
+  border: 1px solid #81e6d9;
+}
+
+.poolingLayer {
+  background-color: #fefcbf;
+  border: 1px solid #f6e05e;
+}
+
+.flattenLayer {
+  background-color: #feebc8;
+  border: 1px solid #f6ad55;
+}
+
+.denseLayer {
+  background-color: #e9d8fd;
+  border: 1px solid #b794f4;
+}
+
+.outputLayer {
+  background-color: #fed7d7;
+  border: 1px solid #fc8181;
+}
+
+.inputShape, .layerDetails {
+  font-size: 12px;
+  margin-top: 5px;
+  text-align: center;
+}
+
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  margin: 5px 0;
+}
+
+.filter {
+  width: 15px;
+  height: 15px;
+  background-color: #4fd1c5;
+  border-radius: 2px;
+}
+
+.poolBox {
+  width: 30px;
+  height: 20px;
+  background-color: #ecc94b;
+  border-radius: 2px;
+  margin: 5px 0;
+}
+
+.flattenIcon {
+  font-size: 20px;
+  margin: 5px 0;
+  color: #dd6b20;
+}
+
+.neuronGroup {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+  margin: 5px 0;
+  max-width: 80px;
+}
+
+.neuron {
+  width: 12px;
+  height: 12px;
+  background-color: #9f7aea;
+  border-radius: 50%;
+}
+
+.outputLayer .neuron {
+  background-color: #f56565;
+}
+
+.moreDots {
+  font-size: 14px;
+  font-weight: bold;
+  color: #4a5568;
+}
+
+/* Make the architecture responsive */
+@media (max-width: 500px) {
+  .layerBox {
+    flex-direction: column;
+  }
+  
+  .arrow {
+    transform: rotate(90deg);
+  }
+}
+
+/* Popup notification styles */
+.popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 16px 24px;
+  background-color: #c6f6d5;
+  border-left: 4px solid #48bb78;
+  color: #2f855a;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out forwards, fadeOut 0.5s ease-out 3s forwards;
+  max-width: 300px;
+}
+
+.popupContent {
+  display: flex;
+  align-items: center;
+}
+
+.popupIcon {
+  margin-right: 12px;
+  font-size: 20px;
+}
+
+.popupMessage {
+  font-weight: 500;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Add this to your existing CSS module */
+.helperText {
+  font-size: 12px;
+  color: #718096;
+  margin-top: 4px;
+  font-style: italic;
+}

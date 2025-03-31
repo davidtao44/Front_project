@@ -1,0 +1,272 @@
+.container {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.modelGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.modelCard {
+  background-color: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.modelCard:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.selected {
+  border-color: #4299e1;
+  background-color: #ebf8ff;
+}
+
+.modelName {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #2d3748;
+}
+
+.modelInfo {
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.modelInfo p {
+  margin: 4px 0;
+}
+
+.layersInfo {
+  margin-bottom: 16px;
+}
+
+.layersInfo h4 {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #4a5568;
+}
+
+.layersList {
+  list-style-type: none;
+  padding-left: 0;
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.layerItem {
+  padding: 4px 0;
+  font-size: 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.layerItem:last-child {
+  border-bottom: none;
+}
+
+.selectButton {
+  background-color: #4299e1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s;
+}
+
+.selectButton:hover {
+  background-color: #3182ce;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #4a5568;
+  font-style: italic;
+}
+
+.error {
+  background-color: #fed7d7;
+  border: 1px solid #f56565;
+  color: #c53030;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin: 16px 0;
+}
+
+.empty {
+  text-align: center;
+  padding: 20px;
+  color: #718096;
+  font-style: italic;
+  background-color: #f7fafc;
+  border-radius: 8px;
+  border: 1px dashed #cbd5e0;
+}
+
+/* Update the header row and action buttons styles */
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+/* This is the title class that should be kept */
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2d3748;
+  margin: 0;
+  text-align: center;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.refreshButton, .deleteButton {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 120px;
+  gap: 8px;
+}
+
+.buttonText {
+  white-space: nowrap;
+}
+
+.buttonIcon {
+  font-size: 18px;
+  display: inline-block;
+}
+
+.refreshButton {
+  background-color: #3182ce;
+  color: white;
+}
+
+.refreshButton:hover {
+  background-color: #2c5282;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.deleteButton {
+  background-color: #e53e3e;
+  color: white;
+}
+
+.deleteButton:hover {
+  background-color: #c53030;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.deleteButton.disabled {
+  background-color: #cbd5e0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.refreshButton:disabled, .deleteButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .actionButtons {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .refreshButton, .deleteButton {
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .actionButtons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .refreshButton, .deleteButton {
+    width: 100%;
+  }
+  
+  .buttonText {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+/* Add styles for the success/error messages */
+.message {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  text-align: center;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.message.success {
+  background-color: #c6f6d5;
+  border: 1px solid #48bb78;
+  color: #2f855a;
+}
+
+.message.error {
+  background-color: #fed7d7;
+  border: 1px solid #f56565;
+  color: #c53030;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

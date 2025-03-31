@@ -1,0 +1,48 @@
+
+
+
+body {
+  background-color: #F0F0F0; /* Fondo gris claro para el body */
+  color: #003366; /* Color de texto principal azul oscuro */
+  font-family: Arial, sans-serif;
+}
+
+header {
+  background-color: #003366; /* Fondo azul oscuro para el encabezado */
+  color: #FFFFFF; /* Texto blanco para contraste */
+  padding: 20px;
+  text-align: center;
+}
+
+nav {
+  background-color: #0077B6; /* Fondo azul claro para la barra de navegación */
+  padding: 10px;
+}
+
+nav a {
+  color: #FFFFFF; /* Texto blanco para enlaces */
+  margin: 0 15px;
+  text-decoration: none;
+}
+
+section {
+  background-color: #FFFFFF; /* Fondo blanco para secciones de contenido */
+  margin: 20px;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+footer {
+  background-color: #003366; /* Fondo azul oscuro para el pie de página */
+  color: #FFFFFF; /* Texto blanco */
+  text-align: center;
+  padding: 10px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+button{
+  margin: 10px;
+}
+
