@@ -1,13 +1,14 @@
 import { useState } from "react";
 import CNNConfigurator from "./components/cnn/CNNconfigurator";
 import ModelSelector from "./components/cnn/ModelSelector";
+import ImageToVHDL from "./components/cnn/ImageToVHDL";
 import { useCNN } from "./hooks/useCNN";
 import "./App.css";
 
 const App = () => {
   const { createCNN, loading, error, result } = useCNN();
   const [selectedModel, setSelectedModel] = useState(null);
-  const [activeTab, setActiveTab] = useState("create"); // "create" or "select"
+  const [activeTab, setActiveTab] = useState("create"); // "create", "select" o "image"
 
   const handleSubmit = async (config) => {
     try {
@@ -48,6 +49,12 @@ const App = () => {
         >
           Seleccionar Arquitectura
         </button>
+        <button 
+          className={`tab-button ${activeTab === "image" ? "active" : ""}`}
+          onClick={() => setActiveTab("image")}
+        >
+          Imagen a VHDL
+        </button>
       </div>
       
       {activeTab === "create" && (
@@ -58,7 +65,11 @@ const App = () => {
         <ModelSelector onSelectModel={handleSelectModel} />
       )}
       
-      {selectedModel && (
+      {activeTab === "image" && (
+        <ImageToVHDL />
+      )}
+      
+      {selectedModel && activeTab === "select" && (
         <div className="selected-model-info">
           <h3>Modelo Seleccionado para Entrenamiento</h3>
           <p>{selectedModel.filename}</p>
