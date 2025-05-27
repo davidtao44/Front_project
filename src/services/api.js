@@ -46,5 +46,45 @@ export const cnnService = {
       console.error("Error al convertir imagen a VHDL:", error);
       throw error;
     }
+  },
+  
+  // Nuevo método para extraer pesos y sesgos del modelo
+  exportModelWeights: async (modelPath, bitsValue = 8) => {
+    try {
+      const response = await fetch(`${API_URL}/extract_model_weights/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model_path: modelPath,
+          output_dir: "model_weights",
+          bits_value: bitsValue
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error("Error al extraer pesos del modelo:", error);
+      throw error;
+    }
+  },
+  
+  // Método para descargar un archivo generado
+  downloadFile: async (filePath) => {
+    try {
+      const response = await fetch(`${API_URL}/download_file/?file_path=${encodeURIComponent(filePath)}`);
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error("Error al descargar archivo:", error);
+      throw error;
+    }
   }
 };

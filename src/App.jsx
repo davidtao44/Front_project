@@ -2,13 +2,14 @@ import { useState } from "react";
 import CNNConfigurator from "./components/cnn/CNNconfigurator";
 import ModelSelector from "./components/cnn/ModelSelector";
 import ImageToVHDL from "./components/cnn/ImageToVHDL";
+import ModelToVHDL from "./components/cnn/ModelToVHDL"; // Importar el nuevo componente
 import { useCNN } from "./hooks/useCNN";
 import "./App.css";
 
 const App = () => {
   const { createCNN, loading, error, result } = useCNN();
   const [selectedModel, setSelectedModel] = useState(null);
-  const [activeTab, setActiveTab] = useState("create"); // "create", "select" o "image"
+  const [activeTab, setActiveTab] = useState("create"); // "create", "select", "image" o "vhdl"
 
   const handleSubmit = async (config) => {
     try {
@@ -55,29 +56,31 @@ const App = () => {
         >
           Imagen a VHDL
         </button>
+        <button 
+          className={`tab-button ${activeTab === "vhdl" ? "active" : ""}`}
+          onClick={() => setActiveTab("vhdl")}
+        >
+          Modelo a VHDL
+        </button>
       </div>
       
-      {activeTab === "create" && (
-        <CNNConfigurator onSubmit={handleSubmit} isLoading={loading} />
-      )}
-      
-      {activeTab === "select" && (
-        <ModelSelector onSelectModel={handleSelectModel} />
-      )}
-      
-      {activeTab === "image" && (
-        <ImageToVHDL />
-      )}
-      
-      {selectedModel && activeTab === "select" && (
-        <div className="selected-model-info">
-          <h3>Modelo Seleccionado para Entrenamiento</h3>
-          <p>{selectedModel.filename}</p>
-          <button className="train-button">
-            Entrenar Modelo
-          </button>
-        </div>
-      )}
+      <div className="tab-content">
+        {activeTab === "create" && (
+          <CNNConfigurator onSubmit={handleSubmit} isLoading={loading} />
+        )}
+        
+        {activeTab === "select" && (
+          <ModelSelector onSelectModel={handleSelectModel} selectedModel={selectedModel} />
+        )}
+        
+        {activeTab === "image" && (
+          <ImageToVHDL />
+        )}
+        
+        {activeTab === "vhdl" && (
+          <ModelToVHDL selectedModel={selectedModel} />
+        )}
+      </div>
     </div>
   );
 };
