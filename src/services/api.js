@@ -1,5 +1,5 @@
 // Servicio para manejar las llamadas a la API
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://back-project-w2uw.onrender.com/";
 
 export const cnnService = {
   createCNN: async (config) => {
