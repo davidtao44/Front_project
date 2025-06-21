@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@heroui/button": "^2.2.16",
+    "@heroui/theme": "^2.4.17",
+    "framer-motion": "^12.18.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
