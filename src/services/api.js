@@ -1,7 +1,7 @@
 // Servicio para manejar las llamadas a la API
-const API_URL = "https://back-project-w2uw.onrender.com/";
+const API_URL = "https://lovely-gpl-arrangement-rendering.trycloudflare.com";
 
-export const cnnService = {
+export const cnnService = { 
   createCNN: async (config) => {
     try {
       const response = await fetch(`${API_URL}/create_cnn`, {

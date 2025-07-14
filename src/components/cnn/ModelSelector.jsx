@@ -17,7 +17,7 @@ const ModelSelector = ({ onSelectModel }) => {
   const fetchModels = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:8000/list_models/");
+      const response = await fetch("https://lovely-gpl-arrangement-rendering.trycloudflare.com/list_models/");
       
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -69,7 +69,7 @@ const ModelSelector = ({ onSelectModel }) => {
       setIsDeleting(true);
       setDeleteMessage(null);
       
-      const response = await fetch("http://localhost:8000/delete_models/", {
+      const response = await fetch("https://lovely-gpl-arrangement-rendering.trycloudflare.com/delete_models/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
