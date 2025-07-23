@@ -1,6 +1,5 @@
 // Servicio para manejar las llamadas a la API
-//const API_URL = "https://lovely-gpl-arrangement-rendering.trycloudflare.com";
-const API_URL = "http://localhost:8000";
+const API_URL = "https://marijuana-sq-zambia-sites.trycloudflare.com";
 
 export const cnnService = { 
   createCNN: async (config) => {
