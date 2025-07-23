@@ -1,5 +1,6 @@
 // Servicio para manejar las llamadas a la API
-const API_URL = "https://lovely-gpl-arrangement-rendering.trycloudflare.com";
+//const API_URL = "https://lovely-gpl-arrangement-rendering.trycloudflare.com";
+const API_URL = "http://localhost:8000";
 
 export const cnnService = { 
   createCNN: async (config) => {
