@@ -69,11 +69,43 @@ form {
   overflow-x: hidden;
 }
 
+/* Header styles */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 20px;
+  background: transparent;
+}
+
+.header-logo {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.header-logo-left {
+  order: 1;
+}
+
+.header-logo-right {
+  order: 3;
+}
+
 .app-title {
   font-size: 28px;
   font-weight: bold;
-  margin-bottom: 16px;
   color: #2d3748;
+  margin: 0;
+  order: 2;
+  flex: 1;
+  text-align: center;
+  background: transparent;
 }
 
 .error-message {
@@ -111,6 +143,36 @@ form {
   
   .app-container {
     padding: 0.5rem;
+  }
+
+  .app-header {
+    padding: 0 10px;
+  }
+
+  .header-logo {
+    height: 40px;
+  }
+
+  .app-title {
+    font-size: 22px;
+  }
+}
+
+/* Responsive adjustments for very small screens */
+@media (max-width: 480px) {
+  .app-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .header-logo-left,
+  .header-logo-right {
+    order: unset;
+  }
+
+  .app-title {
+    order: unset;
+    flex: unset;
   }
 }
 

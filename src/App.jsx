@@ -29,7 +29,19 @@ const App = () => {
 
   return (
     <div className="app-container">
-      <h1 className="app-title" style={{ textAlign: 'center' }}>Generador de CNN</h1>
+      <header className="app-header">
+        <img 
+          src="/Logo_de_la_UPTC.svg.png" 
+          alt="Logo UPTC" 
+          className="header-logo header-logo-left"
+        />
+        <h1 className="app-title">Generador de CNN</h1>
+        <img 
+          src="/logo_gira.png" 
+          alt="Logo GIRA" 
+          className="header-logo header-logo-right"
+        />
+      </header>
       
       {error && (
         <div className="error-message">
