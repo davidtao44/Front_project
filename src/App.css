@@ -1,10 +1,9 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  margin: 0;
+  padding: 0;
   background-color: #FFFFFE;
   color: #010101;
+  min-height: 100vh;
 }
 
 .logo {
@@ -70,12 +69,12 @@ form {
 }
 
 .app-container {
-  padding: 1rem;
+  padding: 0;
   max-width: 100%;
-  margin: 0 auto;
+  margin: 0;
   box-sizing: border-box;
-  overflow-x: hidden;
   background-color: #FFFFFE;
+  min-height: 100vh;
 }
 
 /* Header styles */
@@ -142,7 +141,7 @@ form {
 /* Add responsive adjustments for mobile */
 @media (max-width: 768px) {
   #root {
-    padding: 1rem;
+    padding: 0;
   }
   
   form {
@@ -151,44 +150,25 @@ form {
   }
   
   .app-container {
-    padding: 0.5rem;
+    padding: 0;
   }
 
-  .app-header {
-    padding: 0 10px;
-  }
-
-  .header-logo {
-    height: 40px;
-  }
-
-  .app-title {
-    font-size: 22px;
+  .tabs {
+    margin: 20px 15px;
   }
 }
 
 /* Responsive adjustments for very small screens */
 @media (max-width: 480px) {
-  .app-header {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .header-logo-left,
-  .header-logo-right {
-    order: unset;
-  }
-
-  .app-title {
-    order: unset;
-    flex: unset;
+  .tabs {
+    margin: 15px 10px;
   }
 }
 
 /* Tabs styles with new color palette */
 .tabs {
   display: flex;
-  margin-bottom: 20px;
+  margin: 20px 30px;
   border-bottom: 1px solid #BCBCBC;
 }
 

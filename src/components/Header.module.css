@@ -1,0 +1,179 @@
+/* ===== HEADER PRINCIPAL ===== */
+.header {
+  background-color: #FFFFFE;
+  border-bottom: 2px solid #BCBCBC;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(1, 1, 1, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* ===== SECCIÓN DEL LOGO ===== */
+.logoSection {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #010101;
+  margin: 0;
+  text-align: center;
+}
+
+/* ===== SECCIÓN DEL USUARIO ===== */
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFCD26 0%, #FE6802 100%);
+  color: #FFFFFE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(255, 205, 38, 0.3);
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.username {
+  font-weight: 600;
+  color: #010101;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.userRole {
+  font-size: 12px;
+  color: #767676;
+  text-transform: capitalize;
+  line-height: 1.2;
+}
+
+/* ===== BOTÓN DE LOGOUT ===== */
+.logoutButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: transparent;
+  border: 2px solid #FE6802;
+  border-radius: 8px;
+  color: #FE6802;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logoutButton:hover {
+  background-color: #FE6802;
+  color: #FFFFFE;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(254, 104, 2, 0.3);
+}
+
+.logoutButton:active {
+  transform: translateY(0);
+}
+
+.logoutIcon {
+  font-size: 16px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .header {
+    padding: 12px 20px;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .logoSection {
+    gap: 15px;
+  }
+  
+  .logo {
+    height: 40px;
+  }
+  
+  .title {
+    font-size: 20px;
+  }
+  
+  .userSection {
+    gap: 15px;
+  }
+  
+  .userDetails {
+    display: none;
+  }
+  
+  .logoutButton {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 10px 15px;
+  }
+  
+  .logoSection {
+    gap: 10px;
+  }
+  
+  .logo {
+    height: 35px;
+  }
+  
+  .title {
+    font-size: 18px;
+  }
+  
+  .userAvatar {
+    width: 35px;
+    height: 35px;
+    font-size: 14px;
+  }
+  
+  .logoutButton {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  .logoutIcon {
+    font-size: 14px;
+  }
+}

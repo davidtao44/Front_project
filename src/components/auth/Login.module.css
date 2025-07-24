@@ -1,0 +1,255 @@
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.loginContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #FFCD26 0%, #FE6802 100%);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* ===== TARJETA DE LOGIN ===== */
+.loginCard {
+  background-color: #FFFFFE;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(1, 1, 1, 0.15);
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+  box-sizing: border-box;
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== SECCIÓN DEL LOGO ===== */
+.logoSection {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 15px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #010101;
+  margin: 0 0 8px 0;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #767676;
+  margin: 0;
+}
+
+/* ===== FORMULARIO ===== */
+.form {
+  margin-bottom: 25px;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.label {
+  display: block;
+  font-weight: 600;
+  color: #010101;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #BCBCBC;
+  border-radius: 10px;
+  font-size: 16px;
+  background-color: #FFFFFE;
+  color: #010101;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #FFCD26;
+  box-shadow: 0 0 0 3px rgba(255, 205, 38, 0.2);
+}
+
+.input:disabled {
+  background-color: #F5F5F5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.input::placeholder {
+  color: #BCBCBC;
+}
+
+/* ===== BOTÓN DE ENVÍO ===== */
+.submitButton {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #FFCD26 0%, #FE6802 100%);
+  color: #FFFFFE;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(255, 205, 38, 0.3);
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 205, 38, 0.4);
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submitButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+}
+
+/* ===== SPINNER ===== */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid #FFFFFE;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== MENSAJE DE ERROR ===== */
+.errorMessage {
+  background-color: #FFE6E6;
+  border: 1px solid #FF6B6B;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #D63031;
+  font-size: 14px;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.errorIcon {
+  font-size: 16px;
+}
+
+/* ===== CREDENCIALES DEMO ===== */
+.demoCredentials {
+  background-color: #F8F9FA;
+  border: 1px solid #E9ECEF;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.demoCredentials h4 {
+  margin: 0 0 10px 0;
+  color: #010101;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.demoCredentials p {
+  margin: 4px 0;
+  font-size: 13px;
+  color: #767676;
+}
+
+.demoCredentials strong {
+  color: #010101;
+}
+
+/* ===== PIE DE PÁGINA ===== */
+.footer {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #E9ECEF;
+}
+
+.footerLogo {
+  width: 60px;
+  height: auto;
+  object-fit: contain;
+  opacity: 0.7;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .loginContainer {
+    padding: 15px;
+  }
+  
+  .loginCard {
+    padding: 30px 25px;
+    max-width: 100%;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+  
+  .logo {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .loginCard {
+    padding: 25px 20px;
+  }
+  
+  .title {
+    font-size: 22px;
+  }
+  
+  .input, .submitButton {
+    padding: 12px 14px;
+    font-size: 15px;
+  }
+}
