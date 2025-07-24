@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import styles from './Login.module.css';
 
-const Login = ({ onLogin }) => {
+const Login = () => {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -21,30 +23,15 @@ const Login = ({ onLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
+    setIsLoading(true);
 
     try {
-      // Por ahora usamos credenciales quemadas
-      // Cuando se conecte al backend, reemplazar esta lógica
-      if (formData.username === 'admin' && formData.password === 'admin123') {
-        // Simular delay de red
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const userData = {
-          id: 1,
-          username: 'admin',
-          email: 'admin@uptc.edu.co',
-          role: 'administrator',
-          token: 'fake-jwt-token-12345' // Token simulado
-        };
-        
-        onLogin(userData);
-      } else {
-        throw new Error('Credenciales incorrectas');
-      }
-    } catch (err) {
-      setError(err.message || 'Error al iniciar sesión');
+      // Llamar a la función de login del contexto con username y password
+      await login(formData.username, formData.password);
+      // El login exitoso será manejado automáticamente por el AuthContext
+    } catch (error) {
+      setError(error.message || 'Error al iniciar sesión');
     } finally {
       setIsLoading(false);
     }
@@ -121,11 +108,10 @@ const Login = ({ onLogin }) => {
           </button>
         </form>
 
-        <div className={styles.demoCredentials}>
-          <h4>Credenciales de prueba:</h4>
-          <p><strong>Usuario:</strong> admin</p>
-          <p><strong>Contraseña:</strong> admin123</p>
-        </div>
+        {/* <div className={styles.demoCredentials}>
+          <h4>🔗 Conectado al Backend</h4>
+          <p>Usa las credenciales proporcionadas por el administrador del sistema.</p>
+        </div> */}
 
         <div className={styles.footer}>
           <img 

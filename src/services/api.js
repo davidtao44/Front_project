@@ -1,12 +1,39 @@
 // Servicio para manejar las llamadas a la API
 const API_URL = "https://marijuana-sq-zambia-sites.trycloudflare.com";
 
+// Función helper para hacer requests autenticados
+const authenticatedFetch = async (url, options = {}) => {
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+    throw new Error('No hay token de autenticación');
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+    ...options.headers,
+  };
+
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  if (response.status === 401) {
+    // Token expirado o inválido - limpiar localStorage
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
+    throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+  }
+
+  return response;
+};
+
 export const cnnService = { 
   createCNN: async (config) => {
     try {
-      const response = await fetch(`${API_URL}/create_cnn`, {
+      const response = await authenticatedFetch(`${API_URL}/create_cnn`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config),
       });
       
@@ -31,9 +58,8 @@ export const cnnService = {
         height: options.height || 32
       };
       
-      const response = await fetch(`${API_URL}/convert_image_to_vhdl/`, {
+      const response = await authenticatedFetch(`${API_URL}/convert_image_to_vhdl/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       
@@ -51,9 +77,8 @@ export const cnnService = {
   // Nuevo método para extraer pesos y sesgos del modelo
   exportModelWeights: async (modelPath, bitsValue = 8) => {
     try {
-      const response = await fetch(`${API_URL}/extract_model_weights/`, {
+      const response = await authenticatedFetch(`${API_URL}/extract_model_weights/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model_path: modelPath,
           output_dir: "model_weights",
@@ -75,7 +100,7 @@ export const cnnService = {
   // Método para descargar un archivo generado
   downloadFile: async (filePath) => {
     try {
-      const response = await fetch(`${API_URL}/download_file/?file_path=${encodeURIComponent(filePath)}`);
+      const response = await authenticatedFetch(`${API_URL}/download_file/?file_path=${encodeURIComponent(filePath)}`);
       
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -84,6 +109,52 @@ export const cnnService = {
       return await response.json();
     } catch (error) {
       console.error("Error al descargar archivo:", error);
+      throw error;
+    }
+  }
+};
+
+// Servicios de autenticación (opcional - ya están en AuthContext)
+export const authService = {
+  login: async (username, password) => {
+    try {
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Error en el login');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error en login:', error);
+      throw error;
+    }
+  },
+
+  verifyToken: async (token) => {
+    try {
+      const response = await fetch(`${API_URL}/auth/verify-token`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Token inválido');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error verificando token:', error);
       throw error;
     }
   }
