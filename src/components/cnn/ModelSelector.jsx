@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../../contexts/AuthContext";
 import styles from "./ModelSelector.module.css";
 
 const ModelSelector = ({ onSelectModel }) => {
+  const { authenticatedFetch } = useAuth();
   const [models, setModels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,7 +19,7 @@ const ModelSelector = ({ onSelectModel }) => {
   const fetchModels = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://marijuana-sq-zambia-sites.trycloudflare.com/list_models/");
+      const response = await authenticatedFetch("https://marijuana-sq-zambia-sites.trycloudflare.com/list_models/");
       
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -69,11 +71,8 @@ const ModelSelector = ({ onSelectModel }) => {
       setIsDeleting(true);
       setDeleteMessage(null);
       
-      const response = await fetch("https://marijuana-sq-zambia-sites.trycloudflare.com/delete_models/", {
+      const response = await authenticatedFetch("https://marijuana-sq-zambia-sites.trycloudflare.com/delete_models/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(selectedForDeletion),
       });
       
