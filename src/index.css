@@ -2,39 +2,45 @@
 
 
 body {
-  background-color: #F0F0F0; /* Fondo gris claro para el body */
-  color: #003366; /* Color de texto principal azul oscuro */
+  background-color: #FFFFFE; /* Fondo blanco principal */
+  color: #010101; /* Texto negro principal */
   font-family: Arial, sans-serif;
 }
 
 header {
-  background-color: #003366; /* Fondo azul oscuro para el encabezado */
-  color: #FFFFFF; /* Texto blanco para contraste */
+  background-color: #010101; /* Fondo negro para el encabezado */
+  color: #FFFFFE; /* Texto blanco para contraste */
   padding: 20px;
   text-align: center;
 }
 
 nav {
-  background-color: #0077B6; /* Fondo azul claro para la barra de navegación */
+  background-color: #767676; /* Fondo gris medio para la barra de navegación */
   padding: 10px;
 }
 
 nav a {
-  color: #FFFFFF; /* Texto blanco para enlaces */
+  color: #FFFFFE; /* Texto blanco para enlaces */
   margin: 0 15px;
   text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+nav a:hover {
+  color: #FFCD26; /* Amarillo en hover */
 }
 
 section {
-  background-color: #FFFFFF; /* Fondo blanco para secciones de contenido */
+  background-color: #FFFFFE; /* Fondo blanco para secciones de contenido */
   margin: 20px;
   padding: 20px;
   border-radius: 8px;
+  border: 1px solid #BCBCBC; /* Borde gris claro */
 }
 
 footer {
-  background-color: #003366; /* Fondo azul oscuro para el pie de página */
-  color: #FFFFFF; /* Texto blanco */
+  background-color: #010101; /* Fondo negro para el pie de página */
+  color: #FFFFFE; /* Texto blanco */
   text-align: center;
   padding: 10px;
   position: fixed;
@@ -42,7 +48,19 @@ footer {
   width: 100%;
 }
 
-button{
+button {
   margin: 10px;
+  background-color: #FFCD26; /* Amarillo para botones */
+  color: #010101; /* Texto negro */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #FE6802; /* Naranja en hover */
+  color: #FFFFFE; /* Texto blanco en hover */
 }
 

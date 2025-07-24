@@ -73,24 +73,6 @@ const CNNConfigurator = ({ onSubmit, isLoading }) => {
       <form onSubmit={handleSubmit} className={styles.form}>
         <h2 className={styles.title}>Configurar CNN</h2>
 
-        {/* Model name input field */}
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Nombre de la Arquitectura</h3>
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Nombre:</label>
-            <input
-              type="text"
-              value={modelName}
-              onChange={(e) => setModelName(e.target.value)}
-              placeholder="Ingrese un nombre para su arquitectura"
-              className={styles.input}
-            />
-            <p className={styles.helperText}>
-              El archivo se guardará como: architecture_DD_MM_YYYY_{modelName}
-            </p>
-          </div>
-        </div>
-        
         {/* Display validation error if present */}
         {validationError && (
           <div className={styles.errorMessage}>
@@ -98,134 +80,149 @@ const CNNConfigurator = ({ onSubmit, isLoading }) => {
           </div>
         )}
 
-        {/* Capa Convolucional */}
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Añadir Capa Convolucional</h3>
-          
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Filtros:</label>
-            <input 
-              type="number" 
-              value={convParams.filters} 
-              onChange={(e) => {
-                const value = e.target.value === '' ? 0 : parseInt(e.target.value);
-                setConvParams({ ...convParams, filters: isNaN(value) ? 0 : value });
-              }} 
-              className={styles.input} 
-            />
+        {/* Grid 2x2 para las secciones principales */}
+        <div className={styles.sectionsGrid}>
+          {/* Sección 1: Nombre de la Arquitectura */}
+          <div className={styles.section}>
+            <h3 className={styles.sectionTitle}>Nombre de la Arquitectura</h3>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Nombre:</label>
+              <input
+                type="text"
+                value={modelName}
+                onChange={(e) => setModelName(e.target.value)}
+                placeholder="Ingrese un nombre para su arquitectura"
+                className={styles.input}
+              />
+              <p className={styles.helperText}>
+                El archivo se guardará como: architecture_DD_MM_YYYY_{modelName}
+              </p>
+            </div>
           </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Tamaño del Kernel:</label>
-            <input 
-              type="number" 
-              value={convParams.kernel_size} 
-              onChange={(e) => {
-                const value = e.target.value === '' ? 0 : parseInt(e.target.value);
-                setConvParams({ ...convParams, kernel_size: isNaN(value) ? 0 : value });
-              }} 
-              className={styles.input} 
-            />
-          </div>
+          {/* Sección 2: Capa Convolucional */}
+          <div className={styles.section}>
+            <h3 className={styles.sectionTitle}>Añadir Capa Convolucional</h3>
+            
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Filtros:</label>
+              <input 
+                type="number" 
+                value={convParams.filters} 
+                onChange={(e) => {
+                  const value = e.target.value === '' ? 0 : parseInt(e.target.value);
+                  setConvParams({ ...convParams, filters: isNaN(value) ? 0 : value });
+                }} 
+                className={styles.input} 
+              />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Pooling:</label>
-            <select 
-              value={convParams.pooling} 
-              onChange={(e) => setConvParams({ ...convParams, pooling: e.target.value })} 
-              className={styles.select}
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Tamaño del Kernel:</label>
+              <input 
+                type="number" 
+                value={convParams.kernel_size} 
+                onChange={(e) => {
+                  const value = e.target.value === '' ? 0 : parseInt(e.target.value);
+                  setConvParams({ ...convParams, kernel_size: isNaN(value) ? 0 : value });
+                }} 
+                className={styles.input} 
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Pooling:</label>
+              <select 
+                value={convParams.pooling} 
+                onChange={(e) => setConvParams({ ...convParams, pooling: e.target.value })} 
+                className={styles.select}
+              >
+                <option value="max">Max</option>
+                <option value="average">Average</option>
+              </select>
+            </div>
+
+            <button 
+              type="button" 
+              onClick={addConvLayer} 
+              className={styles.buttonConv}
             >
-              <option value="max">Max</option>
-              <option value="average">Average</option>
-            </select>
+              Agregar Capa Convolucional
+            </button>
           </div>
 
-          <button 
-            type="button" 
-            onClick={addConvLayer} 
-            className={styles.buttonConv}
-          >
-            Agregar Capa Convolucional
-          </button>
+          {/* Sección 3: Capa Densa */}
+          <div className={styles.section}>
+            <h3 className={styles.sectionTitle}>Añadir Capa Densa</h3>
+            
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Unidades:</label>
+              <input 
+                type="number" 
+                value={denseParams.units} 
+                onChange={(e) => {
+                  const value = e.target.value === '' ? 0 : parseInt(e.target.value);
+                  setDenseParams({ ...denseParams, units: isNaN(value) ? 0 : value });
+                }} 
+                className={styles.input} 
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Activación:</label>
+              <select 
+                value={denseParams.activation} 
+                onChange={(e) => setDenseParams({ ...denseParams, activation: e.target.value })} 
+                className={styles.select}
+              >
+                <option value="relu">ReLU</option>
+                <option value="sigmoid">Sigmoid</option>
+                <option value="tanh">Tanh</option>
+                <option value="softmax">Softmax</option>
+              </select>
+            </div>
+
+            <button 
+              type="button"
+              onClick={addDenseLayer} 
+              className={styles.buttonDense}
+            >
+              Agregar Capa Densa
+            </button>
+          </div>
+
+          {/* Sección 4: Configuración de Salida */}
+          <div className={styles.section}>
+            <h3 className={styles.sectionTitle}>Configuración de Salida</h3>
+            
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Output Units:</label>
+              <input 
+                type="number" 
+                value={outputUnits} 
+                onChange={(e) => {
+                  const value = e.target.value === '' ? 0 : parseInt(e.target.value);
+                  setOutputUnits(isNaN(value) ? 0 : value);
+                }} 
+                className={styles.input} 
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Output Activation:</label>
+              <select 
+                value={outputActivation} 
+                onChange={(e) => setOutputActivation(e.target.value)} 
+                className={styles.select}
+              >
+                <option value="softmax">Softmax</option>
+                <option value="sigmoid">Sigmoid</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        {/* Capa Densa */}
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Añadir Capa Densa</h3>
-          
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Unidades:</label>
-            <input 
-              type="number" 
-              value={denseParams.units} 
-              onChange={(e) => {
-                const value = e.target.value === '' ? 0 : parseInt(e.target.value);
-                setDenseParams({ ...denseParams, units: isNaN(value) ? 0 : value });
-              }} 
-              className={styles.input} 
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Activación:</label>
-            <select 
-              value={denseParams.activation} 
-              onChange={(e) => setDenseParams({ ...denseParams, activation: e.target.value })} 
-              className={styles.select}
-            >
-              <option value="relu">ReLU</option>
-              <option value="sigmoid">Sigmoid</option>
-              <option value="tanh">Tanh</option>
-              <option value="softmax">Softmax</option>
-            </select>
-          </div>
-
-          <button 
-            type="button"
-            onClick={addDenseLayer} 
-            className={styles.buttonDense}
-          >
-            Agregar Capa Densa
-          </button>
-        </div>
-
-        {/* Output */}
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Configuración de Salida</h3>
-          
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Output Units:</label>
-            <input 
-              type="number" 
-              value={outputUnits} 
-              onChange={(e) => {
-                const value = e.target.value === '' ? 0 : parseInt(e.target.value);
-                setOutputUnits(isNaN(value) ? 0 : value);
-              }} 
-              className={styles.input} 
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Output Activation:</label>
-            <select 
-              value={outputActivation} 
-              onChange={(e) => setOutputActivation(e.target.value)} 
-              className={styles.select}
-            >
-              <option value="softmax">Softmax</option>
-              <option value="sigmoid">Sigmoid</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Display validation error if present */}
-        {validationError && (
-          <div className={styles.errorMessage}>
-            {validationError}
-          </div>
-        )}
-
+        {/* Botón de envío fuera del grid */}
         <button 
           type="submit" 
           className={styles.submitButton}
