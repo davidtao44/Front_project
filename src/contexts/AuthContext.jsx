@@ -2,8 +2,8 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
-// URL base del backend - usando tu URL de Cloudflare Tunnel
-const API_BASE_URL = 'https://marijuana-sq-zambia-sites.trycloudflare.com';
+// URL base del backend - usando localhost
+const API_BASE_URL = 'http://localhost:8000';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

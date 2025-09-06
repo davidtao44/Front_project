@@ -1,5 +1,5 @@
 // Servicio para manejar las llamadas a la API
-const API_URL = "https://marijuana-sq-zambia-sites.trycloudflare.com";
+const API_URL = "http://localhost:8000";
 
 // Función helper para hacer requests autenticados
 const authenticatedFetch = async (url, options = {}) => {

@@ -11,6 +11,7 @@ const ModelSelector = ({ onSelectModel }) => {
   const [selectedForDeletion, setSelectedForDeletion] = useState([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState(null);
+  const [API_BASE_URL] = useState("http://localhost:8000");
 
   useEffect(() => {
     fetchModels();
@@ -19,7 +20,7 @@ const ModelSelector = ({ onSelectModel }) => {
   const fetchModels = async () => {
     try {
       setLoading(true);
-      const response = await authenticatedFetch("https://marijuana-sq-zambia-sites.trycloudflare.com/list_models/");
+      const response = await authenticatedFetch(`${API_BASE_URL}/list_models/`);
       
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -71,7 +72,7 @@ const ModelSelector = ({ onSelectModel }) => {
       setIsDeleting(true);
       setDeleteMessage(null);
       
-      const response = await authenticatedFetch("https://marijuana-sq-zambia-sites.trycloudflare.com/delete_models/", {
+      const response = await authenticatedFetch(`${API_BASE_URL}/delete_models/`, {
         method: "POST",
         body: JSON.stringify(selectedForDeletion),
       });
