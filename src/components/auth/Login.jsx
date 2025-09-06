@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import GoogleLoginButton from './GoogleLoginButton';
 import styles from './Login.module.css';
 
 const Login = () => {
@@ -107,6 +108,19 @@ const Login = () => {
             )}
           </button>
         </form>
+
+        <div className={styles.divider}>
+          <span>o</span>
+        </div>
+
+        <GoogleLoginButton 
+          onSuccess={() => {
+            // El éxito será manejado automáticamente por el AuthContext
+          }}
+          onError={(error) => {
+            setError(error.message || 'Error al iniciar sesión con Google');
+          }}
+        />
 
         {/* <div className={styles.demoCredentials}>
           <h4>🔗 Conectado al Backend</h4>

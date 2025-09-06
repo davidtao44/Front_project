@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
+import { auth, googleProvider } from '../config/firebase';
 
 const AuthContext = createContext();
 
@@ -170,12 +172,86 @@ export const AuthProvider = ({ children }) => {
     return response;
   };
 
+  // Función de login con Google
+  const loginWithGoogle = async () => {
+    try {
+      setIsLoading(true);
+      const result = await signInWithPopup(auth, googleProvider);
+      const idToken = await result.user.getIdToken();
+      
+      // Enviar el token al backend
+      const response = await fetch(`${API_BASE_URL}/auth/google`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id_token: idToken
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Error en autenticación con Google');
+      }
+
+      const data = await response.json();
+      
+      // Guardar token y datos del usuario
+      localStorage.setItem('access_token', data.data.access_token);
+      localStorage.setItem('user', JSON.stringify(data.data.user));
+      
+      setUser({
+        ...data.data.user,
+        token: data.data.access_token
+      });
+
+      return data;
+    } catch (error) {
+      console.error('Error en login con Google:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Función de logout con Google
+  const logoutWithGoogle = async () => {
+    try {
+      // Cerrar sesión en Firebase
+      await signOut(auth);
+      
+      // Cerrar sesión en el backend si hay un usuario autenticado
+      if (user && user.token) {
+        try {
+          await fetch(`${API_BASE_URL}/auth/google/logout`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${user.token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+        } catch (error) {
+          console.error('Error cerrando sesión en backend:', error);
+        }
+      }
+      
+      // Limpiar estado local
+      logout();
+    } catch (error) {
+      console.error('Error en logout con Google:', error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     isLoading,
     login,
     register,
     logout,
+    loginWithGoogle,
+    logoutWithGoogle,
     isAuthenticated,
     isTokenValid,
     authenticatedFetch, // Nueva función para requests autenticados

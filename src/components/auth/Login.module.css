@@ -239,6 +239,29 @@
   }
 }
 
+/* ===== DIVISOR ===== */
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #E5E5E5;
+}
+
+.divider span {
+  padding: 0 15px;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 @media (max-width: 480px) {
   .loginCard {
     padding: 25px 20px;
