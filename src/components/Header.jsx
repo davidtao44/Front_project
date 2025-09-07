@@ -41,7 +41,7 @@ const Header = () => {
           </div>
           <div className={styles.userDetails}>
             <span className={styles.username}>{user?.name || user?.username || 'Usuario'}</span>
-            <span className={styles.userRole}>{user?.role || 'user'}</span>
+            <span className={styles.userRole}>{user?.role || 'usuario'}</span>
           </div>
         </div>
         
