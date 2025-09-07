@@ -69,8 +69,12 @@ const AppContent = () => {
         
         <div className="tab-content">
           {activeTab === "create" && (
-            <CNNConfigurator onSubmit={handleSubmit} isLoading={loading} />
-          )}
+              <CNNConfigurator
+                onSubmit={handleSubmit} 
+                isLoading={loading}
+                onTabChange={setActiveTab}
+              />
+            )}
           
           {activeTab === "select" && (
             <ModelSelector onSelectModel={handleSelectModel} selectedModel={selectedModel} />

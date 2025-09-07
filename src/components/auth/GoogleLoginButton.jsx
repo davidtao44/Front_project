@@ -28,12 +28,33 @@ const GoogleLoginButton = ({ onSuccess, onError }) => {
     <Button
       onClick={handleGoogleLogin}
       isLoading={isLoading}
-      className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-3 py-3 px-4 rounded-lg transition-colors"
+      className=""
       variant="bordered"
+      style={{
+        width: '100%',
+        padding: '16px',
+        margin: '0',
+        background: 'linear-gradient(135deg, #FFCD26 0%, #FE6802 100%)',
+        color: '#FFFFFE',
+        border: 'none',
+        borderRadius: '10px',
+        fontSize: '16px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px',
+        boxShadow: '0 4px 12px rgba(255, 205, 38, 0.3)'
+      }}
     >
+      {isLoading ? 'Iniciando sesión...' : 'Continuar con Google'}
       {!isLoading && (
         <svg
-          className="w-5 h-5"
+          width="18"
+          height="18"
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -55,7 +76,6 @@ const GoogleLoginButton = ({ onSuccess, onError }) => {
           />
         </svg>
       )}
-      {isLoading ? 'Iniciando sesión...' : 'Continuar con Google'}
     </Button>
   );
 };

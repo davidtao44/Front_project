@@ -105,6 +105,7 @@
 
 /* ===== BOTÓN DE ENVÍO ===== */
 .submitButton {
+  margin: 0;
   width: 100%;
   padding: 16px;
   background: linear-gradient(135deg, #FFCD26 0%, #FE6802 100%);
@@ -177,32 +178,6 @@
   font-size: 16px;
 }
 
-/* ===== CREDENCIALES DEMO ===== */
-.demoCredentials {
-  background-color: #F8F9FA;
-  border: 1px solid #E9ECEF;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.demoCredentials h4 {
-  margin: 0 0 10px 0;
-  color: #010101;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.demoCredentials p {
-  margin: 4px 0;
-  font-size: 13px;
-  color: #767676;
-}
-
-.demoCredentials strong {
-  color: #010101;
-}
 
 /* ===== PIE DE PÁGINA ===== */
 .footer {

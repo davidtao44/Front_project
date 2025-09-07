@@ -6,7 +6,7 @@ import { getFirestore } from 'firebase/firestore';
 
 // Configuración de Firebase
 // NOTA: Estos valores deben ser reemplazados con los valores reales de tu proyecto Firebase
-const firebaseConfig = JSON.parse(process.env.FIREBASE_API_KEY);
+const firebaseConfig = JSON.parse(import.meta.env.VITE_FIREBASE_API_KEY);
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
