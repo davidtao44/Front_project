@@ -29,10 +29,18 @@ const Header = () => {
       <div className={styles.userSection}>
         <div className={styles.userInfo}>
           <div className={styles.userAvatar}>
-            {user?.username?.charAt(0).toUpperCase() || 'U'}
+            {user?.picture ? (
+              <img 
+                src={user.picture} 
+                alt="Foto de perfil" 
+                className={styles.userAvatarImage}
+              />
+            ) : (
+              (user?.name || user?.username || 'Usuario').charAt(0).toUpperCase()
+            )}
           </div>
           <div className={styles.userDetails}>
-            <span className={styles.username}>{user?.username || 'Usuario'}</span>
+            <span className={styles.username}>{user?.name || user?.username || 'Usuario'}</span>
             <span className={styles.userRole}>{user?.role || 'user'}</span>
           </div>
         </div>
