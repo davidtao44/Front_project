@@ -1,61 +1,57 @@
 import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Header from "./components/Header";
-import ModelSelector from "./components/cnn/ModelSelector";
-import ImageToVHDL from "./components/cnn/ImageToVHDL";
-import ModelToVHDL from "./components/cnn/ModelToVHDL";
+
+import ModelUpload from "./components/ModelUpload";
+import FaultInjectorCard from "./components/FaultInjectorCard";
+import VHDLToolsCard from "./components/VHDLToolsCard";
+import FaultInjector from './pages/FaultInjector';
+import VHDLTools from './pages/VHDLTools';
 import "./App.css";
 
-const AppContent = () => {
+const HomePage = () => {
   const [selectedModel, setSelectedModel] = useState(null);
-  const [activeTab, setActiveTab] = useState("select");
+  const navigate = useNavigate();
 
   const handleSelectModel = (model) => {
     setSelectedModel(model);
     console.log("Modelo seleccionado:", model);
   };
 
+  const handleFaultInjectorClick = () => {
+    navigate('/fault-injector');
+  };
+
+  const handleVHDLToolsClick = () => {
+    navigate('/vhdl-tools');
+  };
+
   return (
     <div className="app-container">
       <Header />
       
-      <div style={{ padding: '0 30px 30px 30px' }}>
-        <div className="tabs">
-          <button 
-            className={`tab-button ${activeTab === "select" ? "active" : ""}`}
-            onClick={() => setActiveTab("select")}
-          >
-            Seleccionar Arquitectura
-          </button>
-          <button 
-            className={`tab-button ${activeTab === "image" ? "active" : ""}`}
-            onClick={() => setActiveTab("image")}
-          >
-            Imagen a VHDL
-          </button>
-          <button 
-            className={`tab-button ${activeTab === "vhdl" ? "active" : ""}`}
-            onClick={() => setActiveTab("vhdl")}
-          >
-            Modelo a VHDL
-          </button>
-        </div>
-        
-        <div className="tab-content">
-          {activeTab === "select" && (
-            <ModelSelector onSelectModel={handleSelectModel} selectedModel={selectedModel} />
-          )}
-          
-          {activeTab === "image" && (
-            <ImageToVHDL />
-          )}
-          
-          {activeTab === "vhdl" && (
-            <ModelToVHDL selectedModel={selectedModel} />
-          )}
+      {/* Model Upload Section */}
+      <div className="model-upload-section">
+        <div className="container">
+          <h2 className="section-title">Subir Modelos CNN Pre-entrenados</h2>
+          <ModelUpload />
         </div>
       </div>
+      
+      {/* Feature Cards Section */}
+      <div className="feature-cards-section">
+        <div className="container">
+          <h2 className="section-title">Herramientas Disponibles</h2>
+          <div className="cards-grid">
+            <FaultInjectorCard onClick={handleFaultInjectorClick} />
+            <VHDLToolsCard onClick={handleVHDLToolsClick} />
+          </div>
+        </div>
+      </div>
+      
+
     </div>
   );
 };
@@ -64,7 +60,13 @@ const App = () => {
   return (
     <AuthProvider>
       <ProtectedRoute>
-        <AppContent />
+        <Router>
+          <Routes>
+             <Route path="/" element={<HomePage />} />
+             <Route path="/fault-injector" element={<FaultInjector />} />
+             <Route path="/vhdl-tools" element={<VHDLTools />} />
+           </Routes>
+        </Router>
       </ProtectedRoute>
     </AuthProvider>
   );
