@@ -1,11 +1,10 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, googleProvider } from '../config/firebase';
+//import { jwtDecode } from 'jwt-decode';
+import { API_BASE_URL } from '../config/api';
 
 const AuthContext = createContext();
-
-// URL base del backend - usando localhost
-const API_BASE_URL = 'http://localhost:8000';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -47,9 +46,14 @@ export const AuthProvider = ({ children }) => {
           token: token
         });
       } else {
-        // Token inválido, limpiar localStorage
+        // Token inválido o expirado
+        console.log('Token verification failed:', response.status, response.statusText);
+        if (response.status === 401) {
+          console.log('Token expirado o inválido. El usuario necesita hacer login nuevamente.');
+        }
         localStorage.removeItem('access_token');
         localStorage.removeItem('user');
+        setUser(null);
       }
     } catch (error) {
       console.error('Error verificando token:', error);

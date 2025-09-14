@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
+import { API_BASE_URL } from "../../config/api";
 import styles from "./ModelSelector.module.css";
 
 const ModelSelector = ({ onSelectModel }) => {
@@ -11,7 +12,6 @@ const ModelSelector = ({ onSelectModel }) => {
   const [selectedForDeletion, setSelectedForDeletion] = useState([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState(null);
-  const [API_BASE_URL] = useState("http://localhost:8000");
 
   useEffect(() => {
     fetchModels();

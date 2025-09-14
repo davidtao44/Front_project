@@ -1,5 +1,7 @@
-// Servicio para manejar las llamadas a la API
-const API_URL = "http://localhost:8000";
+// API configuration
+import { API_BASE_URL, buildUrl } from '../config/api';
+
+const API_URL = API_BASE_URL;
 
 // Función helper para hacer requests autenticados
 const authenticatedFetch = async (url, options = {}) => {
@@ -127,6 +129,46 @@ export const cnnService = {
       throw error;
     }
   }
+};
+
+// Servicio para FaultInjector
+export const faultInjectorService = {
+  performInference: async (imageFile, modelPath) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        throw new Error('No hay token de autenticación');
+      }
+
+      const formData = new FormData();
+      formData.append('file', imageFile);
+      formData.append('model_path', modelPath);
+
+      const response = await fetch(`${API_URL}/fault_injector/inference/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.status === 401) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Error: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error en la inferencia de FaultInjector:', error);
+      throw error;
+    }
+  },
 };
 
 // Servicios de autenticación (opcional - ya están en AuthContext)

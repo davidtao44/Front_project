@@ -1,6 +1,6 @@
 .fault-injector-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  background: linear-gradient(135deg, #ff2525 0%, #ffc760 50%);
 }
 
 .fault-injector-container {
@@ -45,42 +45,340 @@
   line-height: 1.6;
 }
 
-.content-placeholder {
+.fault-injector-content {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 400px;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
 }
 
-.placeholder-card {
-  background: white;
-  border-radius: 16px;
-  padding: 3rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e1e5e9;
+.section {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  color: #000;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-content {
+  color: #000;
+}
+
+/* Image Upload Styles */
+.image-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.upload-area {
+  position: relative;
+}
+
+.file-input {
+  display: none;
+}
+
+.upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 2rem;
+}
+
+.upload-label:hover {
+  border-color: #000000;
+  background: rgba(255, 215, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.upload-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.upload-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #000;
+}
+
+.upload-hint {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.image-preview {
   text-align: center;
-  max-width: 600px;
-  width: 100%;
+}
+
+.image-preview h3 {
+  color: #000;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.preview-image {
+  max-width: 300px;
+  max-height: 300px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Inference Button */
+.inference-button {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #000;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 15px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 200px;
+  margin: 0 auto;
+}
+
+.inference-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+}
+
+.inference-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.button-icon {
+  font-size: 1.2rem;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #000;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Results Placeholder */
+.results-placeholder {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
 }
 
 .placeholder-icon {
-  font-size: 4rem;
-  margin-bottom: 1.5rem;
-  opacity: 0.7;
+  font-size: 3rem;
+  margin-bottom: 1rem;
 }
 
-.placeholder-card h3 {
+.results-placeholder p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Error Message */
+.error-message {
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error-icon {
   font-size: 1.5rem;
-  color: #2d3748;
-  margin: 0 0 1rem 0;
+}
+
+.error-message p {
+  color: #ff6b6b;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Results Container */
+.results-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.result-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 1.5rem;
+}
+
+.result-card h3 {
+  color: #373737;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
   font-weight: 600;
 }
 
-.placeholder-card p {
-  color: #4a5568;
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
+/* Prediction Result */
+.prediction-result {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.predicted-class,
+.confidence {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.label {
+  color: #333;
+  font-weight: 500;
+}
+
+.value {
+  color: #000;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Model Info */
+.model-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+/* Probabilities */
+.probabilities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.probability-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.class-index {
+  color: #333;
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.probability-bar {
+  flex: 1;
+  position: relative;
+  height: 25px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.probability-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FFD700, #FFA500);
+  border-radius: 12px;
+  transition: width 0.3s ease;
+}
+
+.probability-value {
+  position: absolute;
+  right: 8px;
+  color: #000;
+  font-weight: 600;
+  font-size: 0.9rem;
+  z-index: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .fault-injector-content {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+  
+  .section {
+    padding: 1.5rem;
+  }
+  
+  .prediction-result {
+    gap: 0.75rem;
+  }
+  
+  .predicted-class,
+  .confidence {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .probability-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .class-index {
+    min-width: auto;
+  }
 }
 
 .feature-list {

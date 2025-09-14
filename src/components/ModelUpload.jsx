@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { buildUrl } from '../config/api';
 import './ModelUpload.css';
 
 const ModelUpload = () => {
@@ -62,7 +64,7 @@ const ModelUpload = () => {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetch('http://localhost:8000/upload_model/', {
+        const response = await fetch(buildUrl('/upload_model/'), {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
