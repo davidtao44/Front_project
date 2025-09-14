@@ -29,10 +29,25 @@ const authenticatedFetch = async (url, options = {}) => {
   return response;
 };
 
-export const cnnService = { 
-  createCNN: async (config) => {
+export const cnnService = {
+  getModels: async () => {
     try {
-      const response = await authenticatedFetch(`${API_URL}/create_cnn`, {
+      const response = await authenticatedFetch(`${API_URL}/models`);
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error("Error al obtener modelos:", error);
+      throw error;
+    }
+  },
+
+  trainModel: async (config) => {
+    try {
+      const response = await authenticatedFetch(`${API_URL}/train_model`, {
         method: "POST",
         body: JSON.stringify(config),
       });
@@ -43,7 +58,7 @@ export const cnnService = {
       
       return await response.json();
     } catch (error) {
-      console.error("Error al crear CNN:", error);
+      console.error("Error al entrenar modelo:", error);
       throw error;
     }
   },

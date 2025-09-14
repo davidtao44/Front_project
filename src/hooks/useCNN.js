@@ -4,18 +4,37 @@ import { cnnService } from '../services/api';
 export const useCNN = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [result, setResult] = useState(null);
+  const [models, setModels] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const createCNN = async (config) => {
+  const loadModels = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const data = await cnnService.getModels();
+      setModels(data.models || []);
+      return data;
+    } catch (err) {
+      setError(err.message || 'Error al cargar los modelos');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const trainModel = async (modelName, trainingConfig) => {
     setLoading(true);
     setError(null);
     
     try {
-      const data = await cnnService.createCNN(config);
-      setResult(data);
+      const data = await cnnService.trainModel({
+        model_name: modelName,
+        ...trainingConfig
+      });
       return data;
     } catch (err) {
-      setError(err.message || 'Error al crear el modelo CNN');
+      setError(err.message || 'Error al entrenar el modelo');
       throw err;
     } finally {
       setLoading(false);
@@ -23,9 +42,11 @@ export const useCNN = () => {
   };
 
   return {
-    createCNN,
+    loadModels,
+    trainModel,
     loading,
     error,
-    result
+    models,
+    isLoading
   };
 };
