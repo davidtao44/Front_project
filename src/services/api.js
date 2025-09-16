@@ -123,7 +123,9 @@ export const cnnService = {
         throw new Error(`Error: ${response.status}`);
       }
       
-      return await response.json();
+      // Devolver el contenido del archivo como texto
+      const content = await response.text();
+      return { content };
     } catch (error) {
       console.error("Error al descargar archivo:", error);
       throw error;
