@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Header from '../components/Header';
 import ModelSelector from '../components/cnn/ModelSelector';
 import { faultInjectorService } from '../services/api';
+import { API_BASE_URL } from '../config/api';
 import './FaultInjector.css';
 
 const FaultInjector = () => {
@@ -232,6 +233,69 @@ const FaultInjector = () => {
                                         style={{ width: `${prob * 100}%` }}
                                       ></div>
                                       <span className="probability-value">{(prob * 100).toFixed(2)}%</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {results.layer_outputs && (
+                            <div className="result-card">
+                              <h5>Salidas de Capas</h5>
+                              <div className="layer-outputs-container">
+                                {Object.entries(results.layer_outputs).map(([layerName, shape]) => (
+                                  <div key={layerName} className="layer-output-item">
+                                    <div className="layer-header">
+                                      <span className="layer-name">{layerName}</span>
+                                      <span className="layer-shape">Forma: {Array.isArray(shape) ? shape.join(' × ') : shape}</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {results.excel_files && results.excel_files.length > 0 && (
+                            <div className="result-card">
+                              <h5>Archivos Excel de Capas</h5>
+                              <div className="excel-files-container">
+                                {results.excel_files.map((filePath, index) => (
+                                  <div key={index} className="excel-file-item">
+                                    <span className="file-name">{filePath.split('/').pop()}</span>
+                                    <button 
+                                      className="download-button"
+                                      onClick={() => window.open(`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(filePath)}`, '_blank')}
+                                    >
+                                      📥 Descargar
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {results.image_files && results.image_files.length > 0 && (
+                            <div className="result-card">
+                              <h5>Imágenes de Mapas de Características</h5>
+                              <div className="image-files-container">
+                                {results.image_files.map((imagePath, index) => (
+                                  <div key={index} className="image-file-item">
+                                    <div className="image-preview-small">
+                                      <img 
+                                        src={`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(imagePath)}`}
+                                        alt={`Mapa de características ${index + 1}`}
+                                        className="feature-map-image"
+                                      />
+                                    </div>
+                                    <div className="image-info">
+                                      <span className="image-name">{imagePath.split('/').pop()}</span>
+                                      <button 
+                                        className="download-button"
+                                        onClick={() => window.open(`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(imagePath)}`, '_blank')}
+                                      >
+                                        📥 Descargar
+                                      </button>
                                     </div>
                                   </div>
                                 ))}
