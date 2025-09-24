@@ -135,7 +135,7 @@ export const cnnService = {
 
 // Servicio para FaultInjector
 export const faultInjectorService = {
-  performInference: async (imageFile, modelPath) => {
+  performInference: async (imageFile, modelPath, faultConfig = null) => {
     try {
       const token = localStorage.getItem('access_token');
       if (!token) {
@@ -145,6 +145,10 @@ export const faultInjectorService = {
       const formData = new FormData();
       formData.append('file', imageFile);
       formData.append('model_path', modelPath);
+      
+      if (faultConfig) {
+        formData.append('fault_config', JSON.stringify(faultConfig));
+      }
 
       const response = await fetch(`${API_URL}/fault_injector/inference/`, {
         method: 'POST',
@@ -171,6 +175,47 @@ export const faultInjectorService = {
       throw error;
     }
   },
+
+  configureFaultInjection: async (faultConfig) => {
+    try {
+      const response = await authenticatedFetch(`${API_URL}/fault_injector/configure/`, {
+        method: 'POST',
+        body: JSON.stringify(faultConfig),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Error: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error al configurar inyección de fallos:', error);
+      throw error;
+    }
+  },
+
+  getAvailableLayers: async (modelPath) => {
+    try {
+      // Esta función podría implementarse en el backend para obtener las capas disponibles
+      // Por ahora, retornamos capas típicas de una CNN
+      return {
+        layers: [
+          { name: 'conv2d_1', type: 'convolutional', description: 'Primera capa convolucional' },
+          { name: 'maxpooling2d_1', type: 'pooling', description: 'Primera capa de maxpooling' },
+          { name: 'conv2d_2', type: 'convolutional', description: 'Segunda capa convolucional' },
+          { name: 'maxpooling2d_2', type: 'pooling', description: 'Segunda capa de maxpooling' },
+          { name: 'flatten', type: 'flatten', description: 'Capa de aplanamiento' },
+          { name: 'dense_1', type: 'dense', description: 'Primera capa densa' },
+          { name: 'dense_2', type: 'dense', description: 'Segunda capa densa' },
+          { name: 'dense_3', type: 'dense', description: 'Capa de salida' }
+        ]
+      };
+    } catch (error) {
+      console.error('Error al obtener capas disponibles:', error);
+      throw error;
+    }
+  }
 };
 
 // Servicios de autenticación (opcional - ya están en AuthContext)

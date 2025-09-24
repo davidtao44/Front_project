@@ -1,0 +1,298 @@
+.bit-selector {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e9ecef;
+  margin-top: 16px;
+}
+
+.bit-selector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.bit-selector-header h6 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+}
+
+.bit-selector-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-preset {
+  padding: 6px 12px;
+  border: 1px solid #007bff;
+  background: #ffffff;
+  color: #007bff;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-preset:hover:not(:disabled) {
+  background: #007bff;
+  color: #ffffff;
+}
+
+.btn-preset:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bit-selector-info {
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #e7f3ff;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+}
+
+.bit-selector-info p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #495057;
+  line-height: 1.4;
+}
+
+.selected-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: #007bff;
+}
+
+.selected-count .count {
+  background: #007bff;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.selected-list {
+  font-size: 12px;
+  color: #6c757d;
+  font-weight: normal;
+  margin-left: 8px;
+  font-family: 'Courier New', monospace;
+}
+
+.bit-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.bit-section {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #dee2e6;
+}
+
+.section-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 12px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sign-section .section-label {
+  color: #dc3545;
+}
+
+.exponent-section .section-label {
+  color: #fd7e14;
+}
+
+.mantissa-section .section-label {
+  color: #20c997;
+}
+
+.bit-row {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.bit-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bit-button {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #dee2e6;
+  background: #ffffff;
+  color: #495057;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.bit-button:hover:not(:disabled) {
+  border-color: #007bff;
+  background: #f8f9fa;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.bit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bit-button.selected {
+  background: #007bff;
+  color: #ffffff;
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.bit-button.sign {
+  border-color: #dc3545;
+}
+
+.bit-button.sign.selected {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+
+.bit-button.exponent {
+  border-color: #fd7e14;
+}
+
+.bit-button.exponent.selected {
+  background: #fd7e14;
+  border-color: #fd7e14;
+}
+
+.bit-button.mantissa {
+  border-color: #20c997;
+}
+
+.bit-button.mantissa.selected {
+  background: #20c997;
+  border-color: #20c997;
+}
+
+.bit-selector-legend {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  border-top: 1px solid #dee2e6;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #495057;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 2px solid;
+}
+
+.legend-color.sign {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+
+.legend-color.exponent {
+  background: #fd7e14;
+  border-color: #fd7e14;
+}
+
+.legend-color.mantissa {
+  background: #20c997;
+  border-color: #20c997;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .bit-selector {
+    padding: 16px;
+  }
+  
+  .bit-selector-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .bit-selector-controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .btn-preset {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+  }
+  
+  .bit-button {
+    width: 36px;
+    height: 36px;
+    font-size: 11px;
+  }
+  
+  .bit-row {
+    gap: 3px;
+  }
+  
+  .bit-selector-legend {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .bit-button {
+    width: 32px;
+    height: 32px;
+    font-size: 10px;
+  }
+  
+  .bit-row {
+    gap: 2px;
+  }
+  
+  .selected-list {
+    display: block;
+    margin-top: 4px;
+    margin-left: 0;
+    word-break: break-all;
+  }
+}

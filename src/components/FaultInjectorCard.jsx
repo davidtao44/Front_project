@@ -15,7 +15,7 @@ const FaultInjectorCard = ({ onClick }) => {
         <div className="card-icon fault-injector-icon">
           ⚡
         </div>
-        <h3 className="card-title">FaultInjector</h3>
+        <h3 className="card-title">Fault Injector</h3>
       </div>
       
       <div className="card-content">
@@ -42,7 +42,7 @@ const FaultInjectorCard = ({ onClick }) => {
       
       <div className="card-footer">
         <div className="card-status">
-          <span className="status-badge coming-soon">Próximamente</span>
+          <span className="status-badge available">Disponible</span>
         </div>
         <div className="card-arrow">
           →

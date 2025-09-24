@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import Header from '../components/Header';
 import ModelSelector from '../components/cnn/ModelSelector';
+import FaultInjectionConfig from '../components/FaultInjectionConfig';
+import WeightFaultConfig from '../components/WeightFaultConfig';
 import { faultInjectorService } from '../services/api';
 import { API_BASE_URL } from '../config/api';
 import './FaultInjector.css';
@@ -13,6 +15,9 @@ const FaultInjector = () => {
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('inference');
+  const [faultConfig, setFaultConfig] = useState(null);
+  const [weightFaultConfig, setWeightFaultConfig] = useState({ enabled: false, layers: {} });
+  const [faultResults, setFaultResults] = useState(null);
 
   const handleSelectModel = (model) => {
     setSelectedModel(model);
@@ -55,6 +60,55 @@ const FaultInjector = () => {
     }
   };
 
+  const handleFaultConfigChange = (config) => {
+    setFaultConfig(config);
+  };
+
+  const handleWeightFaultConfigChange = (config) => {
+    setWeightFaultConfig(config);
+  };
+
+  const handleFaultInjectionInference = async () => {
+    if (!selectedModel || !selectedImage) {
+      setError('Por favor selecciona un modelo y una imagen');
+      return;
+    }
+
+    // Verificar que al menos una configuración de fallos esté habilitada
+    const hasActivationFaults = faultConfig?.enabled && Object.keys(faultConfig.layers).length > 0;
+    const hasWeightFaults = weightFaultConfig?.enabled && Object.keys(weightFaultConfig.layers).length > 0;
+    
+    if (!hasActivationFaults && !hasWeightFaults) {
+      setError('Por favor configura al menos un tipo de inyección de fallos antes de ejecutar');
+      return;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+    setFaultResults(null);
+    
+    try {
+      // Combinar configuraciones de fallos
+      const combinedConfig = {
+        activation_faults: hasActivationFaults ? faultConfig : null,
+        weight_faults: hasWeightFaults ? weightFaultConfig : null
+      };
+
+      const response = await faultInjectorService.performInference(
+        selectedImage,
+        selectedModel.path,
+        combinedConfig
+      );
+      
+      setFaultResults(response);
+    } catch (error) {
+      console.error('Error en la inferencia con fallos:', error);
+      setError(error.message || 'Error al realizar la inferencia con fallos');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="fault-injector-page">
       <Header />
@@ -63,7 +117,7 @@ const FaultInjector = () => {
         <div className="page-header">
           <h1 className="page-title">
             <span className="title-icon">⚡</span>
-            FaultInjector
+            Fault Injector
           </h1>
           <p className="page-subtitle">
             Herramienta para inyección de fallos en redes neuronales convolucionales
@@ -265,7 +319,7 @@ const FaultInjector = () => {
                                     <span className="file-name">{filePath.split('/').pop()}</span>
                                     <button 
                                       className="download-button"
-                                      onClick={() => window.open(`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(filePath)}`, '_blank')}
+                                      onClick={() => window.open(`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(filePath)}&t=${results.session_id}`, '_blank')}
                                     >
                                       📥 Descargar
                                     </button>
@@ -283,7 +337,7 @@ const FaultInjector = () => {
                                   <div key={index} className="image-file-item">
                                     <div className="image-preview-small">
                                       <img 
-                                        src={`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(imagePath)}`}
+                                        src={`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(imagePath)}&t=${results.session_id}`}
                                         alt={`Mapa de características ${index + 1}`}
                                         className="feature-map-image"
                                       />
@@ -292,7 +346,7 @@ const FaultInjector = () => {
                                       <span className="image-name">{imagePath.split('/').pop()}</span>
                                       <button 
                                         className="download-button"
-                                        onClick={() => window.open(`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(imagePath)}`, '_blank')}
+                                        onClick={() => window.open(`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(imagePath)}&t=${results.session_id}`, '_blank')}
                                       >
                                         📥 Descargar
                                       </button>
@@ -320,10 +374,187 @@ const FaultInjector = () => {
                   <p className="panel-description">
                     Configura y ejecuta inyección de fallos en diferentes capas de la red neuronal.
                   </p>
-                  <div className="coming-soon">
-                    <div className="coming-soon-icon">🚧</div>
-                    <h4>Próximamente</h4>
-                    <p>Esta funcionalidad estará disponible en una próxima actualización.</p>
+                  
+                  {/* Selección de Modelo */}
+                  <div className="section">
+                    <h4 className="section-title">Seleccionar Arquitectura</h4>
+                    <div className="section-content">
+                      <ModelSelector 
+                        selectedModel={selectedModel} 
+                        onSelectModel={handleSelectModel} 
+                      />
+                    </div>
+                  </div>
+
+                  {/* Carga de Imagen */}
+                  <div className="section">
+                    <h4 className="section-title">Subir Imagen para Inferencia</h4>
+                    <div className="section-content">
+                      <div className="image-upload-container">
+                        <div className="upload-area">
+                          <input
+                            type="file"
+                            id="fault-image-upload"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="file-input"
+                          />
+                          <label htmlFor="fault-image-upload" className="upload-label">
+                            <div className="upload-icon">📁</div>
+                            <div className="upload-text">
+                              {selectedImage ? selectedImage.name : 'Seleccionar imagen'}
+                            </div>
+                            <div className="upload-hint">
+                              Formatos soportados: JPG, PNG, BMP
+                            </div>
+                          </label>
+                        </div>
+                        
+                        {imagePreview && (
+                          <div className="image-preview">
+                            <h5>Vista previa:</h5>
+                            <img src={imagePreview} alt="Preview" className="preview-image" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Configuración de Inyección de Fallos en Activaciones */}
+                  <div className="section">
+                    <h4 className="section-title">Configuración de Inyección de Fallos en Activaciones</h4>
+                    <div className="section-content">
+                      <FaultInjectionConfig
+                        selectedModel={selectedModel}
+                        onConfigChange={handleFaultConfigChange}
+                        initialConfig={faultConfig}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Configuración de Inyección de Fallos en Pesos */}
+                  <div className="section">
+                    <div className="section-content">
+                      <WeightFaultConfig
+                        selectedModel={selectedModel}
+                        onConfigChange={handleWeightFaultConfigChange}
+                        initialConfig={weightFaultConfig}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Botón de Inferencia con Fallos */}
+                  <div className="section">
+                    <div className="section-content">
+                      <button
+                        className="inference-button fault-injection-button"
+                        onClick={handleFaultInjectionInference}
+                        disabled={(() => {
+                          const hasModel = !!selectedModel;
+                          const hasImage = !!selectedImage;
+                          const hasActivationFaults = !!faultConfig?.enabled;
+                          const hasWeightFaults = !!weightFaultConfig?.enabled;
+                          const hasFaults = hasActivationFaults || hasWeightFaults;
+                          const isDisabled = !hasModel || !hasImage || !hasFaults || isLoading;
+                          
+                          console.log('Button state:', {
+                            hasModel,
+                            hasImage,
+                            hasActivationFaults,
+                            hasWeightFaults,
+                            hasFaults,
+                            isLoading,
+                            isDisabled
+                          });
+                          
+                          return isDisabled;
+                        })()}
+                      >
+                        {isLoading ? (
+                          <>
+                            <span className="loading-spinner"></span>
+                            Procesando...
+                          </>
+                        ) : (
+                          <>
+                            <span className="button-icon">⚡</span>
+                            Ejecutar Inferencia con Fallos
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Resultados de Inyección de Fallos */}
+                  <div className="section">
+                    <h4 className="section-title">Resultados con Inyección de Fallos</h4>
+                    <div className="section-content">
+                      {error && (
+                        <div className="error-message">
+                          <div className="error-icon">⚠️</div>
+                          <p>{error}</p>
+                        </div>
+                      )}
+                      
+                      {faultResults ? (
+                        <div className="results-container">
+                          <div className="result-card">
+                            <h5>Predicción con Fallos</h5>
+                            <div className="prediction-result">
+                              <div className="predicted-class">
+                                <span className="label">Clase predicha:</span>
+                                <span className="value">{faultResults.predicted_class}</span>
+                              </div>
+                              <div className="confidence">
+                                <span className="label">Confianza:</span>
+                                <span className="value">{(faultResults.confidence * 100).toFixed(2)}%</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {faultResults.fault_injection && (
+                            <div className="result-card">
+                              <h5>Información de Inyección de Fallos</h5>
+                              <div className="fault-info">
+                                <div className="info-item">
+                                  <span className="label">Fallos aplicados:</span>
+                                  <span className="value">{faultResults.fault_injection.total_faults_applied || 0}</span>
+                                </div>
+                                <div className="info-item">
+                                  <span className="label">Capas afectadas:</span>
+                                  <span className="value">{Object.keys(faultResults.fault_injection.layers_affected || {}).length}</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {faultResults.all_probabilities && (
+                            <div className="result-card">
+                              <h5>Probabilidades con Fallos</h5>
+                              <div className="probabilities-list">
+                                {faultResults.all_probabilities.map((prob, index) => (
+                                  <div key={index} className="probability-item">
+                                    <span className="class-index">Clase {index}:</span>
+                                    <div className="probability-bar">
+                                      <div 
+                                        className="probability-fill" 
+                                        style={{ width: `${prob * 100}%` }}
+                                      ></div>
+                                      <span className="probability-value">{(prob * 100).toFixed(2)}%</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="results-placeholder">
+                          <div className="placeholder-icon">⚡</div>
+                          <p>Los resultados de la inferencia con fallos aparecerán aquí</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
