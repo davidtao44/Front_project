@@ -15,7 +15,7 @@ const FaultInjector = () => {
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('inference');
-  const [faultConfig, setFaultConfig] = useState(null);
+  const [faultConfig, setFaultConfig] = useState({ enabled: false, layers: {} });
   const [weightFaultConfig, setWeightFaultConfig] = useState({ enabled: false, layers: {} });
   const [faultResults, setFaultResults] = useState(null);
 
@@ -90,8 +90,8 @@ const FaultInjector = () => {
     try {
       // Combinar configuraciones de fallos
       const combinedConfig = {
-        activation_faults: hasActivationFaults ? faultConfig : null,
-        weight_faults: hasWeightFaults ? weightFaultConfig : null
+        activation_faults: faultConfig,
+        weight_faults: weightFaultConfig
       };
 
       const response = await faultInjectorService.performInference(
@@ -100,7 +100,38 @@ const FaultInjector = () => {
         combinedConfig
       );
       
-      setFaultResults(response);
+      // Verificar si hay errores de overflow/underflow
+      if (!response.success && response.error_type === 'numerical_overflow_underflow') {
+        // Mostrar información detallada del error
+        const errorDetails = response.error_details;
+        const errorMessage = `
+🔥 Error Numérico Detectado - Overflow/Underflow
+
+📊 Detalles del Error:
+• Overflow detectado: ${errorDetails.error_details.overflow_detected ? 'Sí' : 'No'}
+• Underflow detectado: ${errorDetails.error_details.underflow_detected ? 'Sí' : 'No'}  
+• NaN detectado: ${errorDetails.error_details.nan_detected ? 'Sí' : 'No'}
+• Valores overflow: ${errorDetails.error_details.overflow_count}
+• Valores underflow: ${errorDetails.error_details.underflow_count}
+• Valores NaN: ${errorDetails.error_details.nan_count}
+
+⚡ Causa: ${errorDetails.error_details.description}
+
+🎯 Predicción Intentada:
+• Clase predicha: ${errorDetails.attempted_prediction.predicted_class}
+• Confianza: ${errorDetails.attempted_prediction.confidence}
+• Probabilidades con errores: ${errorDetails.attempted_prediction.probabilities_with_errors}
+
+💡 Los fallos inyectados han causado valores numéricos fuera del rango IEEE 754, 
+   lo que impide la serialización JSON de los resultados.
+        `.trim();
+        
+        setError(errorMessage);
+        // Aún así, guardar la respuesta para mostrar información disponible
+        setFaultResults(response);
+      } else {
+        setFaultResults(response);
+      }
     } catch (error) {
       console.error('Error en la inferencia con fallos:', error);
       setError(error.message || 'Error al realizar la inferencia con fallos');
@@ -240,7 +271,11 @@ const FaultInjector = () => {
                       {error && (
                         <div className="error-message">
                           <div className="error-icon">⚠️</div>
-                          <p>{error}</p>
+                          <p style={{
+                            color: error.includes('🔥 Error Numérico Detectado') ? '#ffffff' : undefined,
+                            textShadow: error.includes('🔥 Error Numérico Detectado') ? '1px 1px 2px rgba(0, 0, 0, 0.5)' : undefined,
+                            whiteSpace: 'pre-line'
+                          }}>{error}</p>
                         </div>
                       )}
                       
@@ -492,22 +527,68 @@ const FaultInjector = () => {
                       {error && (
                         <div className="error-message">
                           <div className="error-icon">⚠️</div>
-                          <p>{error}</p>
+                          <p style={{
+                            color: error.includes('🔥 Error Numérico Detectado') ? 'rgb(255,255,255)' : undefined,
+                            textShadow: error.includes('🔥 Error Numérico Detectado') ? '1px 1px 2px rgba(0, 0, 0, 0.5)' : undefined,
+                            whiteSpace: 'pre-line'
+                          }}>{error}</p>
                         </div>
                       )}
                       
                       {faultResults ? (
                         <div className="results-container">
+                          {/* Mostrar información de error si existe */}
+                          {!faultResults.success && faultResults.error_type === 'numerical_overflow_underflow' && (
+                            <div className="result-card error-card">
+                              <h5>🔥 Error Numérico Detectado</h5>
+                              <div className="error-details">
+                                <div className="error-summary">
+                                  <p><strong>Tipo:</strong> Overflow/Underflow IEEE 754</p>
+                                  <p><strong>Causa:</strong> Los fallos inyectados han producido valores numéricos extremos</p>
+                                </div>
+                                
+                                <div className="error-metrics">
+                                  <div className="metric-item">
+                                    <span className="metric-label">Overflow:</span>
+                                    <span className="metric-value">
+                                      {faultResults.error_details?.error_details?.overflow_detected ? 
+                                        `Sí (${faultResults.error_details.error_details.overflow_count} valores)` : 'No'}
+                                    </span>
+                                  </div>
+                                  <div className="metric-item">
+                                    <span className="metric-label">Underflow:</span>
+                                    <span className="metric-value">
+                                      {faultResults.error_details?.error_details?.underflow_detected ? 
+                                        `Sí (${faultResults.error_details.error_details.underflow_count} valores)` : 'No'}
+                                    </span>
+                                  </div>
+                                  <div className="metric-item">
+                                    <span className="metric-label">NaN:</span>
+                                    <span className="metric-value">
+                                      {faultResults.error_details?.error_details?.nan_detected ? 
+                                        `Sí (${faultResults.error_details.error_details.nan_count} valores)` : 'No'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
                           <div className="result-card">
-                            <h5>Predicción con Fallos</h5>
+                            <h5>{faultResults.success ? 'Predicción con Fallos' : 'Predicción Intentada (con errores)'}</h5>
                             <div className="prediction-result">
                               <div className="predicted-class">
                                 <span className="label">Clase predicha:</span>
-                                <span className="value">{faultResults.predicted_class}</span>
+                                <span className="value">
+                                  {faultResults.predicted_class !== undefined ? faultResults.predicted_class : 'Error'}
+                                </span>
                               </div>
                               <div className="confidence">
                                 <span className="label">Confianza:</span>
-                                <span className="value">{(faultResults.confidence * 100).toFixed(2)}%</span>
+                                <span className="value">
+                                  {faultResults.confidence !== undefined ? 
+                                    `${(faultResults.confidence * 100).toFixed(2)}%` : 'Error'}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -518,11 +599,27 @@ const FaultInjector = () => {
                               <div className="fault-info">
                                 <div className="info-item">
                                   <span className="label">Fallos aplicados:</span>
-                                  <span className="value">{faultResults.fault_injection.total_faults_applied || 0}</span>
+                                  <span className="value">{faultResults.fault_injection.total_faults || 0}</span>
                                 </div>
                                 <div className="info-item">
-                                  <span className="label">Capas afectadas:</span>
-                                  <span className="value">{Object.keys(faultResults.fault_injection.layers_affected || {}).length}</span>
+                                  <span className="label">Fallos en activaciones:</span>
+                                  <span className="value">{faultResults.fault_injection.activation_faults?.total_faults || 0}</span>
+                                </div>
+                                <div className="info-item">
+                                  <span className="label">Fallos en pesos:</span>
+                                  <span className="value">{faultResults.fault_injection.weight_faults?.total_faults || 0}</span>
+                                </div>
+                                <div className="info-item">
+                                  <span className="label">Capas afectadas (activaciones):</span>
+                                  <span className="value">
+                                    {Object.keys(faultResults.fault_injection.activation_faults?.faults_by_layer || {}).length}
+                                  </span>
+                                </div>
+                                <div className="info-item">
+                                  <span className="label">Capas afectadas (pesos):</span>
+                                  <span className="value">
+                                    {Object.keys(faultResults.fault_injection.weight_faults?.faults_by_layer || {}).length}
+                                  </span>
                                 </div>
                               </div>
                             </div>

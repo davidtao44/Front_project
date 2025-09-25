@@ -22,10 +22,10 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
   // Capas típicas de LeNet-5
   const defaultLayers = [
     { name: 'conv2d_1', type: 'Conv2D', weights: { kernel: [5, 5, 1, 6], bias: [6] } },
-    { name: 'conv2d_2', type: 'Conv2D', weights: { kernel: [5, 5, 6, 16], bias: [16] } },
-    { name: 'dense_1', type: 'Dense', weights: { kernel: [400, 120], bias: [120] } },
-    { name: 'dense_2', type: 'Dense', weights: { kernel: [120, 84], bias: [84] } },
-    { name: 'dense_3', type: 'Dense', weights: { kernel: [84, 10], bias: [10] } }
+    { name: 'conv2d_3', type: 'Conv2D', weights: { kernel: [5, 5, 6, 16], bias: [16] } },
+    { name: 'dense_6', type: 'Dense', weights: { kernel: [400, 120], bias: [120] } },
+    { name: 'dense_7', type: 'Dense', weights: { kernel: [120, 84], bias: [84] } },
+    { name: 'dense_8', type: 'Dense', weights: { kernel: [84, 10], bias: [10] } }
   ];
 
   useEffect(() => {
@@ -58,7 +58,8 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
         ...config.layers,
         [selectedLayer]: {
           target_type: 'kernel',
-          positions: []
+          positions: [],
+          bit_positions: [15] // Configuración global de bits para todas las posiciones
         }
       }
     };
@@ -96,97 +97,6 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
     onConfigChange(newConfig);
   };
 
-  const addPosition = (layerName) => {
-    const layerConfig = config.layers[layerName];
-    if (!layerConfig) return;
-
-    const layer = availableLayers.find(l => l.name === layerName);
-    const weightShape = layer?.weights[layerConfig.target_type];
-    
-    if (!weightShape) return;
-
-    // Create default position (all zeros)
-    const defaultPosition = new Array(weightShape.length).fill(0);
-
-    const newConfig = {
-      ...config,
-      layers: {
-        ...config.layers,
-        [layerName]: {
-          ...config.layers[layerName],
-          positions: [
-            ...config.layers[layerName].positions,
-            {
-              position: defaultPosition,
-              bit_positions: [15] // Default bit position
-            }
-          ]
-        }
-      }
-    };
-    setConfig(newConfig);
-    onConfigChange(newConfig);
-  };
-
-  const removePosition = (layerName, positionIndex) => {
-    const newConfig = {
-      ...config,
-      layers: {
-        ...config.layers,
-        [layerName]: {
-          ...config.layers[layerName],
-          positions: config.layers[layerName].positions.filter((_, index) => index !== positionIndex)
-        }
-      }
-    };
-    setConfig(newConfig);
-    onConfigChange(newConfig);
-  };
-
-  const updatePosition = (layerName, positionIndex, dimensionIndex, value) => {
-    const newPositions = [...config.layers[layerName].positions];
-    const newPosition = [...newPositions[positionIndex].position];
-    newPosition[dimensionIndex] = parseInt(value) || 0;
-    newPositions[positionIndex] = {
-      ...newPositions[positionIndex],
-      position: newPosition
-    };
-
-    const newConfig = {
-      ...config,
-      layers: {
-        ...config.layers,
-        [layerName]: {
-          ...config.layers[layerName],
-          positions: newPositions
-        }
-      }
-    };
-    setConfig(newConfig);
-    onConfigChange(newConfig);
-  };
-
-  const updateBitPositions = (layerName, positionIndex, bitPositions) => {
-    const newPositions = [...config.layers[layerName].positions];
-    newPositions[positionIndex] = {
-      ...newPositions[positionIndex],
-      bit_positions: bitPositions
-    };
-
-    const newConfig = {
-      ...config,
-      layers: {
-        ...config.layers,
-        [layerName]: {
-          ...config.layers[layerName],
-          positions: newPositions
-        }
-      }
-    };
-    setConfig(newConfig);
-    onConfigChange(newConfig);
-  };
-
   // Función para manejar la selección visual de posiciones
   const handleVisualPositionToggle = (layerName, position, isSelected) => {
     const layerConfig = config.layers[layerName];
@@ -195,18 +105,12 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
     let newPositions;
     
     if (isSelected) {
-      // Agregar nueva posición con bits por defecto
-      newPositions = [
-        ...layerConfig.positions,
-        {
-          position: position,
-          bit_positions: [15] // Bit por defecto
-        }
-      ];
+      // Agregar nueva posición (sin configuración de bits individual)
+      newPositions = [...layerConfig.positions, position];
     } else {
       // Remover posición
-      newPositions = layerConfig.positions.filter(posConfig => 
-        JSON.stringify(posConfig.position) !== JSON.stringify(position)
+      newPositions = layerConfig.positions.filter(pos => 
+        JSON.stringify(pos) !== JSON.stringify(position)
       );
     }
 
@@ -229,7 +133,23 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
     const layerConfig = config.layers[layerName];
     if (!layerConfig) return [];
     
-    return layerConfig.positions.map(posConfig => posConfig.position);
+    return layerConfig.positions || [];
+  };
+
+  // Función para actualizar la configuración global de bits
+  const updateGlobalBitPositions = (layerName, bitPositions) => {
+    const newConfig = {
+      ...config,
+      layers: {
+        ...config.layers,
+        [layerName]: {
+          ...config.layers[layerName],
+          bit_positions: bitPositions
+        }
+      }
+    };
+    setConfig(newConfig);
+    onConfigChange(newConfig);
   };
 
   const getWeightShape = (layerName, targetType) => {
@@ -325,8 +245,24 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                   <p><strong>Total elementos:</strong> {weightShape.reduce((a, b) => a * b, 1)}</p>
                 </div>
 
+                {/* Configuración Global de Bits */}
+                <div className="global-bit-config">
+                  <h5>Configuración de Bits (Aplicada a todas las posiciones)</h5>
+                  <div className="bit-selector-container">
+                    <BitSelector
+                      selectedBits={layerConfig.bit_positions || [15]}
+                      onBitsChange={(bits) => updateGlobalBitPositions(layerName, bits)}
+                    />
+                  </div>
+                  <div className="bit-config-info">
+                    <p><strong>Bits seleccionados:</strong> {(layerConfig.bit_positions || [15]).join(', ')}</p>
+                    <p><strong>Se aplicará a:</strong> {layerConfig.positions?.length || 0} posiciones</p>
+                  </div>
+                </div>
+
                 {/* Selector Visual de Posiciones */}
                 <div className="positions-section">
+                  <h5>Seleccionar Posiciones del {layerConfig.target_type === 'kernel' ? 'Kernel' : 'Bias'}</h5>
                   <KernelVisualizer
                     shape={weightShape}
                     selectedPositions={getSelectedPositions(layerName)}
@@ -337,32 +273,26 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                   />
                 </div>
 
-                {/* Configuración de bits para cada posición seleccionada */}
-                {layerConfig.positions.length > 0 && (
-                  <div className="bit-configuration-section">
-                    <h5>Configuración de Bits</h5>
-                    {layerConfig.positions.map((posConfig, posIndex) => (
-                      <div key={posIndex} className="position-bit-config">
-                        <div className="position-header">
-                          <h6>Posición [{posConfig.position.join(', ')}]</h6>
-                          <button
-                            onClick={() => removePosition(layerName, posIndex)}
-                            className="remove-position-btn"
-                          >
-                            ✕
-                          </button>
-                        </div>
-
-                        {/* Selector de bits */}
-                        <div className="bit-selector">
-                          <label>Bits a afectar:</label>
-                          <BitSelector
-                            selectedBits={posConfig.bit_positions}
-                            onBitsChange={(bits) => updateBitPositions(layerName, posIndex, bits)}
-                          />
+                {/* Resumen de configuración */}
+                {layerConfig.positions && layerConfig.positions.length > 0 && (
+                  <div className="config-summary">
+                    <h5>Resumen de Configuración</h5>
+                    <div className="summary-content">
+                      <p><strong>Posiciones seleccionadas:</strong> {layerConfig.positions.length}</p>
+                      <p><strong>Bits afectados por posición:</strong> {(layerConfig.bit_positions || [15]).length}</p>
+                      <p><strong>Total de fallos a inyectar:</strong> {layerConfig.positions.length * (layerConfig.bit_positions || [15]).length}</p>
+                      
+                      <div className="positions-list">
+                        <h6>Posiciones:</h6>
+                        <div className="positions-grid">
+                          {layerConfig.positions.map((position, index) => (
+                            <span key={index} className="position-tag">
+                              [{position.join(', ')}]
+                            </span>
+                          ))}
                         </div>
                       </div>
-                    ))}
+                    </div>
                   </div>
                 )}
               </div>

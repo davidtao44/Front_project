@@ -77,37 +77,39 @@ const KernelVisualizer = ({
           </div>
         )}
         
-        <div className="kernel-grid" style={{
-          gridTemplateColumns: `repeat(${width}, 1fr)`,
-          gridTemplateRows: `repeat(${height}, 1fr)`
-        }}>
-          {Array.from({length: height}, (_, row) =>
-            Array.from({length: width}, (_, col) => {
-              const position = remainingDims.length === 0 
-                ? [row, col]
-                : remainingDims.length === 1
-                ? [row, col, currentChannel]
-                : [row, col, currentChannel, currentFilter];
-              
-              const isSelected = isPositionSelected(position);
-              const isHovered = hoveredPosition && 
-                JSON.stringify(hoveredPosition) === JSON.stringify(position);
-              
-              return (
-                <div
-                  key={`${row}-${col}`}
-                  className={`kernel-cell ${isSelected ? 'selected' : ''} ${isHovered ? 'hovered' : ''} ${disabled ? 'disabled' : ''}`}
-                  onClick={() => handlePositionClick(position)}
-                  onMouseEnter={() => setHoveredPosition(position)}
-                  onMouseLeave={() => setHoveredPosition(null)}
-                  title={`Posición: [${position.join(', ')}]`}
-                >
-                  <span className="cell-coords">{row},{col}</span>
-                  {isSelected && <span className="selection-indicator">✓</span>}
-                </div>
-              );
-            })
-          )}
+        <div className="kernel-grid-container">
+          <div className="kernel-grid" style={{
+            gridTemplateColumns: `repeat(${width}, 1fr)`,
+            gridTemplateRows: `repeat(${height}, 1fr)`
+          }}>
+            {Array.from({length: height}, (_, row) =>
+              Array.from({length: width}, (_, col) => {
+                const position = remainingDims.length === 0 
+                  ? [row, col]
+                  : remainingDims.length === 1
+                  ? [row, col, currentChannel]
+                  : [row, col, currentChannel, currentFilter];
+                
+                const isSelected = isPositionSelected(position);
+                const isHovered = hoveredPosition && 
+                  JSON.stringify(hoveredPosition) === JSON.stringify(position);
+                
+                return (
+                  <div
+                    key={`${row}-${col}`}
+                    className={`kernel-cell ${isSelected ? 'selected' : ''} ${isHovered ? 'hovered' : ''} ${disabled ? 'disabled' : ''}`}
+                    onClick={() => handlePositionClick(position)}
+                    onMouseEnter={() => setHoveredPosition(position)}
+                    onMouseLeave={() => setHoveredPosition(null)}
+                    title={`Posición: [${position.join(', ')}]`}
+                  >
+                    <span className="cell-coords">{row},{col}</span>
+                    {isSelected && <span className="selection-indicator">✓</span>}
+                  </div>
+                );
+              })
+            )}
+          </div>
         </div>
       </div>
     );

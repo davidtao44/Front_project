@@ -38,6 +38,15 @@
   gap: 12px;
 }
 
+.kernel-grid-container {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 70vh;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 8px;
+}
+
 .dimension-controls {
   display: flex;
   gap: 16px;
@@ -69,7 +78,7 @@
 .kernel-grid {
   display: grid;
   gap: 2px;
-  max-width: 400px;
+  width: fit-content;
   margin: 0 auto;
 }
 
@@ -85,8 +94,9 @@
   background: #fff;
   transition: all 0.2s ease;
   position: relative;
-  min-height: 40px;
-  font-size: 10px;
+  min-height: 25px;
+  min-width: 25px;
+  font-size: 8px;
 }
 
 .kernel-cell:hover:not(.disabled) {
@@ -113,8 +123,9 @@
 }
 
 .cell-coords {
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 500;
+  line-height: 1;
 }
 
 .selection-indicator {

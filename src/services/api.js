@@ -203,12 +203,12 @@ export const faultInjectorService = {
         layers: [
           { name: 'conv2d_1', type: 'convolutional', description: 'Primera capa convolucional' },
           { name: 'maxpooling2d_1', type: 'pooling', description: 'Primera capa de maxpooling' },
-          { name: 'conv2d_2', type: 'convolutional', description: 'Segunda capa convolucional' },
+          { name: 'conv2d_3', type: 'convolutional', description: 'Segunda capa convolucional' },
           { name: 'maxpooling2d_2', type: 'pooling', description: 'Segunda capa de maxpooling' },
           { name: 'flatten', type: 'flatten', description: 'Capa de aplanamiento' },
-          { name: 'dense_1', type: 'dense', description: 'Primera capa densa' },
-          { name: 'dense_2', type: 'dense', description: 'Segunda capa densa' },
-          { name: 'dense_3', type: 'dense', description: 'Capa de salida' }
+          { name: 'dense_6', type: 'dense', description: 'Primera capa densa' },
+          { name: 'dense_7', type: 'dense', description: 'Segunda capa densa' },
+          { name: 'dense_8', type: 'dense', description: 'Capa de salida' }
         ]
       };
     } catch (error) {
