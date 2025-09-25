@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import BitSelector from './BitSelector';
+import KernelVisualizer from './KernelVisualizer';
 import './WeightFaultConfig.css';
 
 const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null }) => {
@@ -186,6 +187,51 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
     onConfigChange(newConfig);
   };
 
+  // Función para manejar la selección visual de posiciones
+  const handleVisualPositionToggle = (layerName, position, isSelected) => {
+    const layerConfig = config.layers[layerName];
+    if (!layerConfig) return;
+
+    let newPositions;
+    
+    if (isSelected) {
+      // Agregar nueva posición con bits por defecto
+      newPositions = [
+        ...layerConfig.positions,
+        {
+          position: position,
+          bit_positions: [15] // Bit por defecto
+        }
+      ];
+    } else {
+      // Remover posición
+      newPositions = layerConfig.positions.filter(posConfig => 
+        JSON.stringify(posConfig.position) !== JSON.stringify(position)
+      );
+    }
+
+    const newConfig = {
+      ...config,
+      layers: {
+        ...config.layers,
+        [layerName]: {
+          ...layerConfig,
+          positions: newPositions
+        }
+      }
+    };
+    setConfig(newConfig);
+    onConfigChange(newConfig);
+  };
+
+  // Función para obtener las posiciones seleccionadas para el visualizador
+  const getSelectedPositions = (layerName) => {
+    const layerConfig = config.layers[layerName];
+    if (!layerConfig) return [];
+    
+    return layerConfig.positions.map(posConfig => posConfig.position);
+  };
+
   const getWeightShape = (layerName, targetType) => {
     const layer = availableLayers.find(l => l.name === layerName);
     return layer?.weights[targetType] || [];
@@ -279,25 +325,26 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                   <p><strong>Total elementos:</strong> {weightShape.reduce((a, b) => a * b, 1)}</p>
                 </div>
 
-                {/* Posiciones de fallos */}
+                {/* Selector Visual de Posiciones */}
                 <div className="positions-section">
-                  <div className="positions-header">
-                    <h5>Posiciones de Fallos</h5>
-                    <button
-                      onClick={() => addPosition(layerName)}
-                      className="add-position-btn"
-                    >
-                      + Añadir Posición
-                    </button>
-                  </div>
+                  <KernelVisualizer
+                    shape={weightShape}
+                    selectedPositions={getSelectedPositions(layerName)}
+                    onPositionToggle={(position, isSelected) => 
+                      handleVisualPositionToggle(layerName, position, isSelected)
+                    }
+                    disabled={false}
+                  />
+                </div>
 
-                  {layerConfig.positions.map((posConfig, posIndex) => {
-                    const isValid = isValidPosition(posConfig.position, weightShape);
-                    
-                    return (
-                      <div key={posIndex} className="position-config">
+                {/* Configuración de bits para cada posición seleccionada */}
+                {layerConfig.positions.length > 0 && (
+                  <div className="bit-configuration-section">
+                    <h5>Configuración de Bits</h5>
+                    {layerConfig.positions.map((posConfig, posIndex) => (
+                      <div key={posIndex} className="position-bit-config">
                         <div className="position-header">
-                          <h6>Posición {posIndex + 1}</h6>
+                          <h6>Posición [{posConfig.position.join(', ')}]</h6>
                           <button
                             onClick={() => removePosition(layerName, posIndex)}
                             className="remove-position-btn"
@@ -305,30 +352,6 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                             ✕
                           </button>
                         </div>
-
-                        {/* Dimensiones */}
-                        <div className="dimensions-input">
-                          {posConfig.position.map((dim, dimIndex) => (
-                            <div key={dimIndex} className="dimension-input">
-                              <label>Dim {dimIndex + 1}</label>
-                              <input
-                                type="number"
-                                min="0"
-                                max={weightShape[dimIndex] - 1}
-                                value={dim}
-                                onChange={(e) => updatePosition(layerName, posIndex, dimIndex, e.target.value)}
-                                className={!isValid ? 'invalid' : ''}
-                              />
-                              <span className="max-value">max: {weightShape[dimIndex] - 1}</span>
-                            </div>
-                          ))}
-                        </div>
-
-                        {!isValid && (
-                          <div className="error-message">
-                            Posición inválida para las dimensiones [{weightShape.join(', ')}]
-                          </div>
-                        )}
 
                         {/* Selector de bits */}
                         <div className="bit-selector">
@@ -339,9 +362,9 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                           />
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}
