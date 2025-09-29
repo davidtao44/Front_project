@@ -19,6 +19,13 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
     { value: 'bias', label: 'Bias', description: 'Términos de sesgo' }
   ];
 
+  // Tipos de fallo disponibles para pesos
+  const faultTypes = [
+    { value: 'bitflip', label: 'Bitflip', description: 'Invierte el valor del bit (0→1, 1→0)' },
+    { value: 'stuck_at_0', label: 'Stuck-at-0', description: 'Fuerza el bit a 0' },
+    { value: 'stuck_at_1', label: 'Stuck-at-1', description: 'Fuerza el bit a 1' }
+  ];
+
   // Capas típicas de LeNet-5
   const defaultLayers = [
     { name: 'conv2d_1', type: 'Conv2D', weights: { kernel: [5, 5, 1, 6], bias: [6] } },
@@ -58,6 +65,7 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
         ...config.layers,
         [selectedLayer]: {
           target_type: 'kernel',
+          fault_type: 'bitflip', // Tipo de fallo por defecto
           positions: [],
           bit_positions: [15] // Configuración global de bits para todas las posiciones
         }
@@ -90,6 +98,22 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
           ...config.layers[layerName],
           target_type: targetType,
           positions: [] // Reset positions when changing target type
+        }
+      }
+    };
+    setConfig(newConfig);
+    onConfigChange(newConfig);
+  };
+
+  // Función para manejar cambios de tipo de fallo
+  const updateLayerFaultType = (layerName, faultType) => {
+    const newConfig = {
+      ...config,
+      layers: {
+        ...config.layers,
+        [layerName]: {
+          ...config.layers[layerName],
+          fault_type: faultType
         }
       }
     };
@@ -237,6 +261,24 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                       </option>
                     ))}
                   </select>
+                </div>
+
+                {/* Tipo de fallo */}
+                <div className="option-group">
+                  <label>Tipo de Fallo:</label>
+                  <select
+                    value={layerConfig.fault_type || 'bitflip'}
+                    onChange={(e) => updateLayerFaultType(layerName, e.target.value)}
+                  >
+                    {faultTypes.map(type => (
+                      <option key={type.value} value={type.value} title={type.description}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                  <small className="fault-type-description">
+                    {faultTypes.find(t => t.value === (layerConfig.fault_type || 'bitflip'))?.description}
+                  </small>
                 </div>
 
                 {/* Información de pesos */}

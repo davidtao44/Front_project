@@ -172,9 +172,31 @@ input:checked + .slider:before {
 }
 
 .option-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.option-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.option-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+}
+
+.fault-type-description {
+  display: block;
+  margin-top: 5px;
+  color: #6c757d;
+  font-style: italic;
+  font-size: 12px;
 }
 
 .option-group label {
