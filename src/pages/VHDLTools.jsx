@@ -3,6 +3,7 @@ import Header from '../components/Header';
 import ModelSelector from '../components/cnn/ModelSelector';
 import ImageToVHDL from '../components/cnn/ImageToVHDL';
 import ModelToVHDL from '../components/cnn/ModelToVHDL';
+import HardwareFaultInjection from '../components/HardwareFaultInjection';
 import './VHDLTools.css';
 
 const VHDLTools = () => {
@@ -52,6 +53,13 @@ const VHDLTools = () => {
                 <span className="tab-icon">⚖️</span>
                 Modelo a VHDL
               </button>
+              <button 
+                className={`tab-button ${activeTab === 'hardware-fault' ? 'active' : ''}`}
+                onClick={() => setActiveTab('hardware-fault')}
+              >
+                <span className="tab-icon">🔥</span>
+                Hardware Fault Injection
+              </button>
             </div>
             
             <div className="tab-content">
@@ -85,6 +93,16 @@ const VHDLTools = () => {
                     Extrae los pesos y bias del modelo seleccionado y genera código VHDL correspondiente.
                   </p>
                   <ModelToVHDL selectedModel={selectedModel} />
+                </div>
+              )}
+              
+              {activeTab === 'hardware-fault' && (
+                <div className="tab-panel">
+                  <h3 className="panel-title">Inyección de Fallos en Hardware</h3>
+                  <p className="panel-description">
+                    Inyecta fallos en archivos VHDL de la primera capa convolucional (FMAP_1 a FMAP_6 y BIAS_VAL_1 a BIAS_VAL_6) y ejecuta simulaciones en Vivado.
+                  </p>
+                  <HardwareFaultInjection />
                 </div>
               )}
             </div>
