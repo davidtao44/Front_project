@@ -96,7 +96,11 @@ const ChannelMatrixViewer = ({ csvProcessingResults }) => {
         <h3>📊 Descarga de Datos Excel</h3>
         <p>Los datos de simulación están listos para descargar en formato Excel con números formateados con coma decimal.</p>
         
-        {results.map((csvResult, fileIndex) => {
+        {results.filter((csvResult) => {
+          // Filtrar archivos que contengan "Conv1_TF" en el nombre
+          const fileName = csvResult.file ? csvResult.file.split('/').pop().replace('.csv', '') : '';
+          return !fileName.includes('Conv1_TF');
+        }).map((csvResult, fileIndex) => {
           // Validar que csvResult existe y tiene la estructura esperada
           if (!csvResult || typeof csvResult !== 'object' || !csvResult.result || !csvResult.result.matrices) {
             return (
@@ -113,7 +117,7 @@ const ChannelMatrixViewer = ({ csvProcessingResults }) => {
           return (
             <div key={fileIndex} className="file-section">
               <div className="file-header">
-                <h4>📁 {fileName}</h4>
+                <h4>simulation_output_Conv1_Golden</h4>
                 <p>Canales disponibles: {channelCount}</p>
               </div>
               
@@ -149,7 +153,7 @@ const ChannelMatrixViewer = ({ csvProcessingResults }) => {
               <div className="file-info">
                 <div className="info-grid">
                   <div className="info-item">
-                    <strong>Archivo original:</strong> {csvResult.file || 'N/A'}
+                    <strong>Archivo original:</strong> simulation_output_Conv1_Golden
                   </div>
                   <div className="info-item">
                     <strong>Número de canales:</strong> {channelCount}
@@ -167,16 +171,6 @@ const ChannelMatrixViewer = ({ csvProcessingResults }) => {
             </div>
           );
         })}
-        
-        <div className="format-info">
-          <h4>ℹ️ Formato de los archivos Excel</h4>
-          <ul>
-            <li>Cada archivo incluye información del canal y dimensiones</li>
-            <li>Los datos están organizados en filas y columnas con encabezados</li>
-            <li>Los valores numéricos se formatean con 6 decimales de precisión y coma decimal</li>
-            <li>Los archivos consolidados incluyen todos los canales en hojas separadas</li>
-          </ul>
-        </div>
       </div>
     </div>
   );
