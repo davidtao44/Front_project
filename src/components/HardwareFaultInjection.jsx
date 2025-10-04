@@ -73,7 +73,7 @@ const HardwareFaultInjection = () => {
       row: 0,
       col: 0,
       bit_position: 0,
-      fault_type: 'bitflip'
+      fault_type: 'stuck_at_0'
     }]);
   };
 
@@ -91,7 +91,7 @@ const HardwareFaultInjection = () => {
     setBiasFaults([...biasFaults, {
       bias_name: 'BIAS_VAL_1',
       bit_position: 0,
-      fault_type: 'bitflip'
+      fault_type: 'stuck_at_0'
     }]);
   };
 
@@ -103,6 +103,66 @@ const HardwareFaultInjection = () => {
 
   const removeBiasFault = (index) => {
     setBiasFaults(biasFaults.filter((_, i) => i !== index));
+  };
+
+  const refreshVhdlFile = async () => {
+    try {
+      setIsLoading(true);
+      const filePath = useDefaultPath ? vhdlFilePath : (vhdlFile ? vhdlFile.name : '');
+      
+      if (!filePath) {
+        setError('No hay archivo VHDL seleccionado para refrescar');
+        return;
+      }
+
+      const response = await api.get(`/vhdl/file_status/?file_path=${encodeURIComponent(vhdlFilePath)}`);
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        // Mostrar notificación de archivo refrescado
+        const notification = document.createElement('div');
+        notification.className = 'file-update-notification';
+        notification.innerHTML = `
+          <div class="notification-content">
+            <span class="notification-icon">🔄</span>
+            <span class="notification-text">Archivo VHDL refrescado</span>
+            <span class="notification-details">Última modificación: ${new Date(data.file_info.last_modified_ms).toLocaleTimeString()}</span>
+          </div>
+        `;
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #2196F3;
+          color: white;
+          padding: 15px 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          z-index: 1000;
+          animation: slideIn 0.3s ease-out;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.style.animation = 'slideOut 0.3s ease-in';
+            setTimeout(() => {
+              if (notification.parentNode) {
+                document.body.removeChild(notification);
+              }
+            }, 300);
+          }
+        }, 3000);
+        
+        console.log('✅ Archivo VHDL refrescado:', data.file_info);
+      }
+    } catch (error) {
+      console.error('❌ ERROR refrescando archivo:', error);
+      setError('Error al refrescar el archivo VHDL');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
 
@@ -157,6 +217,49 @@ const HardwareFaultInjection = () => {
             }
           }
         });
+      }
+      
+      // Si la inyección fue exitosa y el archivo fue modificado, notificar al usuario
+      if (data.file_modified && data.file_info) {
+        console.log('✅ Archivo VHDL modificado exitosamente:', data.file_info.path);
+        console.log('📅 Timestamp de modificación:', new Date(data.modification_timestamp));
+        
+        // Mostrar notificación al usuario sobre la modificación del archivo
+        const notification = document.createElement('div');
+        notification.className = 'file-update-notification';
+        notification.innerHTML = `
+          <div class="notification-content">
+            <span class="notification-icon">✅</span>
+            <span class="notification-text">Archivo VHDL actualizado exitosamente</span>
+            <span class="notification-details">Modificado: ${new Date(data.modification_timestamp).toLocaleTimeString()}</span>
+          </div>
+        `;
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #4CAF50;
+          color: white;
+          padding: 15px 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          z-index: 1000;
+          animation: slideIn 0.3s ease-out;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Remover la notificación después de 5 segundos
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.style.animation = 'slideOut 0.3s ease-in';
+            setTimeout(() => {
+              if (notification.parentNode) {
+                document.body.removeChild(notification);
+              }
+            }, 300);
+          }
+        }, 5000);
       }
       
       setResults(data);
@@ -214,6 +317,16 @@ const HardwareFaultInjection = () => {
               />
               <div className="path-info">
                 <small>📍 Ruta por defecto: CONV_LAYER_1.vhd (Primera capa convolucional)</small>
+              </div>
+              <div className="file-actions">
+                <button 
+                  onClick={refreshVhdlFile} 
+                  className="refresh-file-btn"
+                  disabled={isLoading}
+                >
+                  <span className="btn-icon">🔄</span>
+                  {isLoading ? 'Refrescando...' : 'Refrescar archivo'}
+                </button>
               </div>
             </div>
           ) : (

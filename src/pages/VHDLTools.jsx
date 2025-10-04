@@ -3,6 +3,7 @@ import Header from '../components/Header';
 import ModelSelector from '../components/cnn/ModelSelector';
 import ImageToVHDL from '../components/cnn/ImageToVHDL';
 import ModelToVHDL from '../components/cnn/ModelToVHDL';
+import GoldenSimulationHardware from '../components/GoldenSimulationHardware';
 import HardwareFaultInjection from '../components/HardwareFaultInjection';
 import './VHDLTools.css';
 
@@ -54,6 +55,13 @@ const VHDLTools = () => {
                 Modelo a VHDL
               </button>
               <button 
+                className={`tab-button ${activeTab === 'golden-simulation' ? 'active' : ''}`}
+                onClick={() => setActiveTab('golden-simulation')}
+              >
+                <span className="tab-icon">🌟</span>
+                Golden Simulation Hardware
+              </button>
+              <button 
                 className={`tab-button ${activeTab === 'hardware-fault' ? 'active' : ''}`}
                 onClick={() => setActiveTab('hardware-fault')}
               >
@@ -93,6 +101,16 @@ const VHDLTools = () => {
                     Extrae los pesos y bias del modelo seleccionado y genera código VHDL correspondiente.
                   </p>
                   <ModelToVHDL selectedModel={selectedModel} />
+                </div>
+              )}
+              
+              {activeTab === 'golden-simulation' && (
+                <div className="tab-panel">
+                  <h3 className="panel-title">Simulación Golden Hardware</h3>
+                  <p className="panel-description">
+                    Ejecuta la simulación con los valores originales (golden) de FMAP y BIAS para establecer una referencia base antes de la inyección de fallos.
+                  </p>
+                  <GoldenSimulationHardware />
                 </div>
               )}
               

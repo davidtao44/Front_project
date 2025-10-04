@@ -161,11 +161,11 @@ const ChannelMatrixViewer = ({ csvProcessingResults }) => {
                   <div className="info-item">
                     <strong>Canales:</strong> {Object.keys(matrices).join(', ')}
                   </div>
-                  {csvResult.result.metadata && (
+                  {/* {csvResult.result.metadata && (
                     <div className="info-item">
                       <strong>Metadatos:</strong> Disponibles
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>
