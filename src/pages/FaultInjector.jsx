@@ -3,7 +3,7 @@ import Header from '../components/Header';
 import ModelSelector from '../components/cnn/ModelSelector';
 import FaultInjectionConfig from '../components/FaultInjectionConfig';
 import WeightFaultConfig from '../components/WeightFaultConfig';
-import { faultInjectorService } from '../services/api';
+import { faultInjectorService, faultCampaignService } from '../services/api';
 import { API_BASE_URL } from '../config/api';
 import './FaultInjector.css';
 
@@ -18,6 +18,15 @@ const FaultInjector = () => {
   const [faultConfig, setFaultConfig] = useState({ enabled: false, layers: {} });
   const [weightFaultConfig, setWeightFaultConfig] = useState({ enabled: false, layers: {} });
   const [faultResults, setFaultResults] = useState(null);
+  
+  // Estados para campaña de fallos
+  const [availableModels, setAvailableModels] = useState([]);
+  const [campaignType, setCampaignType] = useState('activation');
+  const [numSamples, setNumSamples] = useState(100);
+  const [imageDir, setImageDir] = useState('/home/davidgonzalez/Documentos/project/Back_project/images/mnist');
+  const [campaignResults, setCampaignResults] = useState(null);
+  const [isCampaignLoading, setIsCampaignLoading] = useState(false);
+  const [campaignError, setCampaignError] = useState(null);
 
   const handleSelectModel = (model) => {
     setSelectedModel(model);
@@ -138,6 +147,287 @@ const FaultInjector = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Funciones para campaña de fallos
+  const loadAvailableModels = async () => {
+    try {
+      const models = await faultCampaignService.getAvailableModels();
+      setAvailableModels(models);
+    } catch (error) {
+      console.error('Error cargando modelos:', error);
+      setCampaignError('Error al cargar los modelos disponibles');
+    }
+  };
+
+  const runFaultCampaign = async () => {
+    if (!selectedModel) {
+      setCampaignError('Por favor selecciona un modelo');
+      return;
+    }
+
+    // Si no hay configuración específica, usar configuración por defecto
+    let configToUse = {};
+    
+    if (campaignType === 'activation') {
+      configToUse = faultConfig.enabled ? faultConfig : {
+        enabled: true,
+        layers: {},
+        faultType: 'stuck_at',
+        faultValue: 0,
+        faultProbability: 0.1
+      };
+    } else if (campaignType === 'weight') {
+      configToUse = weightFaultConfig.enabled ? weightFaultConfig : {
+        enabled: true,
+        layers: {},
+        faultType: 'stuck_at',
+        faultValue: 0,
+        faultProbability: 0.1
+      };
+    }
+
+    setIsCampaignLoading(true);
+    setCampaignError(null);
+    setCampaignResults(null);
+
+    try {
+      let response;
+      if (campaignType === 'activation') {
+        response = await faultCampaignService.runActivationFaultCampaign({
+          model_path: selectedModel.path,
+          num_samples: numSamples,
+          fault_config: configToUse,
+          image_dir: imageDir
+        });
+      } else {
+        response = await faultCampaignService.runWeightFaultCampaign({
+          model_path: selectedModel.path,
+          num_samples: numSamples,
+          weight_fault_config: configToUse,
+          image_dir: imageDir
+        });
+      }
+      setCampaignResults(response);
+    } catch (error) {
+      console.error('Error en la campaña de fallos:', error);
+      setCampaignError(error.message || 'Error al ejecutar la campaña de fallos');
+    } finally {
+      setIsCampaignLoading(false);
+    }
+  };
+
+  const formatMetrics = (metrics) => {
+    if (!metrics) return 'N/A';
+    return Object.entries(metrics)
+      .map(([key, value]) => `${key}: ${typeof value === 'number' ? value.toFixed(4) : value}`)
+      .join(', ');
+  };
+
+  const renderDetailedMetrics = (metrics, title) => {
+    console.log(`🔍 DEBUG renderDetailedMetrics: Rendering metrics for ${title}:`, metrics); // Debug log
+    console.log(`🔍 DEBUG renderDetailedMetrics: Type of metrics:`, typeof metrics); // Debug log
+    console.log(`🔍 DEBUG renderDetailedMetrics: JSON.stringify metrics:`, JSON.stringify(metrics, null, 2)); // Debug log
+    
+    if (!metrics) {
+      return (
+        <div className="result-card">
+          <h5>{title}</h5>
+          <p>No hay métricas disponibles (metrics is null/undefined)</p>
+        </div>
+      );
+    }
+
+    // Si metrics es un objeto que contiene las métricas en una propiedad anidada
+    let actualMetrics = metrics;
+    if (metrics && typeof metrics === 'object') {
+      // Buscar las métricas en diferentes posibles ubicaciones
+      if (metrics.metrics && typeof metrics.metrics === 'object') {
+        actualMetrics = metrics.metrics;
+        console.log(`Using metrics.metrics:`, actualMetrics);
+      } else if (metrics.evaluation_metrics && typeof metrics.evaluation_metrics === 'object') {
+        actualMetrics = metrics.evaluation_metrics;
+        console.log(`Using metrics.evaluation_metrics:`, actualMetrics);
+      } else if (metrics.results && typeof metrics.results === 'object') {
+        actualMetrics = metrics.results;
+        console.log(`Using metrics.results:`, actualMetrics);
+      } else {
+        // Si no hay estructura anidada, usar el objeto directamente
+        actualMetrics = metrics;
+        console.log(`Using metrics directly:`, actualMetrics);
+      }
+    }
+
+    console.log(`Final actualMetrics for ${title}:`, actualMetrics); // Debug log
+    console.log(`actualMetrics keys:`, Object.keys(actualMetrics || {})); // Debug log
+
+    // Verificar si actualMetrics es válido
+    if (!actualMetrics || typeof actualMetrics !== 'object') {
+      return (
+        <div className="result-card">
+          <h5>{title}</h5>
+          <p>No hay métricas válidas disponibles (invalid structure)</p>
+          <pre style={{fontSize: '10px', color: '#666'}}>
+            Debug: {JSON.stringify(metrics, null, 2)}
+          </pre>
+        </div>
+      );
+    }
+
+    const metricLabels = {
+      accuracy: 'Exactitud (Accuracy)',
+      precision: 'Precisión (Precision)',
+      recall: 'Sensibilidad (Recall)',
+      f1_score: 'F1-Score',
+      specificity: 'Especificidad',
+      auc: 'AUC',
+      loss: 'Pérdida',
+      top_1_accuracy: 'Top-1 Accuracy',
+      top_5_accuracy: 'Top-5 Accuracy',
+      num_samples: 'Número de Muestras',
+      correct_predictions: 'Predicciones Correctas',
+      incorrect_predictions: 'Predicciones Incorrectas'
+    };
+
+    // Definir el orden de prioridad para las métricas principales
+    const priorityMetrics = ['accuracy', 'precision', 'recall', 'f1_score'];
+    const countMetrics = ['num_samples', 'correct_predictions', 'incorrect_predictions'];
+    
+    // Filtrar y organizar métricas
+    const allMetrics = Object.entries(actualMetrics).filter(([key, value]) => {
+      return !['confusion_matrix', 'classification_report'].includes(key) && 
+             typeof value !== 'object';
+    });
+
+    console.log(`All metrics found for ${title}:`, allMetrics); // Debug log
+
+    // Si no hay métricas válidas, mostrar mensaje de debug
+    if (allMetrics.length === 0) {
+      return (
+        <div className="result-card">
+          <h5>{title}</h5>
+          <p>No se encontraron métricas válidas</p>
+          <div style={{fontSize: '12px', color: '#666', marginTop: '10px'}}>
+            <strong>Claves disponibles:</strong> {Object.keys(actualMetrics).join(', ')}
+          </div>
+          <pre style={{fontSize: '10px', color: '#666', marginTop: '10px'}}>
+            {JSON.stringify(actualMetrics, null, 2)}
+          </pre>
+        </div>
+      );
+    }
+
+    // Separar métricas por categorías
+    const mainMetrics = allMetrics.filter(([key]) => priorityMetrics.includes(key));
+    const countingMetrics = allMetrics.filter(([key]) => countMetrics.includes(key));
+    const otherMetrics = allMetrics.filter(([key]) => 
+      !priorityMetrics.includes(key) && !countMetrics.includes(key)
+    );
+
+    console.log(`Main metrics for ${title}:`, mainMetrics); // Debug log
+    console.log(`Counting metrics for ${title}:`, countingMetrics); // Debug log
+    console.log(`Other metrics for ${title}:`, otherMetrics); // Debug log
+
+    const formatValue = (key, value) => {
+      if (typeof value === 'number') {
+        if (key === 'loss') {
+          return value.toFixed(6);
+        } else if (['accuracy', 'precision', 'recall', 'f1_score', 'specificity', 'auc', 'top_1_accuracy', 'top_5_accuracy'].includes(key)) {
+          return (value * 100).toFixed(2) + '%';
+        } else {
+          return value.toString();
+        }
+      }
+      return value?.toString() || 'N/A';
+    };
+
+    const renderMetricSection = (metricsArray, sectionTitle) => {
+      if (metricsArray.length === 0) return null;
+      
+      return (
+        <div className="metric-section">
+          {sectionTitle && <h6 className="metric-section-title">{sectionTitle}</h6>}
+          <div className="metrics-grid">
+            {metricsArray.map(([key, value]) => (
+              <div key={key} className="metric-item">
+                <span className="metric-label">
+                  {metricLabels[key] || key.charAt(0).toUpperCase() + key.slice(1)}:
+                </span>
+                <span className="metric-value">
+                  {formatValue(key, value)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <div className="result-card">
+        <h5>{title}</h5>
+        
+        {/* Métricas principales de rendimiento */}
+        {renderMetricSection(mainMetrics, "Métricas de Rendimiento")}
+        
+        {/* Métricas de conteo */}
+        {renderMetricSection(countingMetrics, "Estadísticas de Predicción")}
+        
+        {/* Otras métricas */}
+        {renderMetricSection(otherMetrics, otherMetrics.length > 0 ? "Otras Métricas" : null)}
+        
+        {/* Mostrar matriz de confusión si existe */}
+        {actualMetrics.confusion_matrix && Array.isArray(actualMetrics.confusion_matrix) && (
+          <div className="confusion-matrix-section">
+            <h6>Matriz de Confusión</h6>
+            <div className="confusion-matrix-container">
+              <div className="confusion-matrix">
+                {actualMetrics.confusion_matrix.map((row, i) => (
+                  <div key={i} className="confusion-row">
+                    {Array.isArray(row) && row.map((cell, j) => (
+                      <span key={j} className="confusion-cell">{cell}</span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <div className="confusion-matrix-info">
+                <p>Filas: Clases reales | Columnas: Clases predichas</p>
+                <p>Dimensión: {actualMetrics.confusion_matrix.length}x{actualMetrics.confusion_matrix[0]?.length || 0}</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Mostrar reporte de clasificación si existe */}
+        {actualMetrics.classification_report && typeof actualMetrics.classification_report === 'string' && (
+          <div className="classification-report-section">
+            <h6>Reporte de Clasificación</h6>
+            <pre className="classification-report">
+              {actualMetrics.classification_report}
+            </pre>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const calculateMetricComparison = (goldenMetrics, faultMetrics) => {
+    if (!goldenMetrics || !faultMetrics) return null;
+
+    const comparisons = {};
+    Object.keys(goldenMetrics).forEach(key => {
+      if (typeof goldenMetrics[key] === 'number' && typeof faultMetrics[key] === 'number') {
+        const degradation = goldenMetrics[key] - faultMetrics[key];
+        const degradationPercent = (degradation / goldenMetrics[key]) * 100;
+        comparisons[key] = {
+          golden: goldenMetrics[key],
+          fault: faultMetrics[key],
+          degradation: degradation,
+          degradationPercent: degradationPercent
+        };
+      }
+    });
+    return comparisons;
   };
 
   return (
@@ -658,15 +948,249 @@ const FaultInjector = () => {
               
               {activeTab === 'analysis' && (
                 <div className="tab-panel">
-                  <h3 className="panel-title">Análisis de Resultados</h3>
+                  <h3 className="panel-title">Campaña de Inyección de Fallos</h3>
                   <p className="panel-description">
-                    Analiza el impacto de los fallos inyectados en el rendimiento del modelo.
+                    Ejecuta campañas de inyección de fallos para analizar el impacto en múltiples muestras.
                   </p>
-                  <div className="coming-soon">
-                    <div className="coming-soon-icon">🚧</div>
-                    <h4>Próximamente</h4>
-                    <p>Esta funcionalidad estará disponible en una próxima actualización.</p>
+                  
+                  <div className="campaign-config">
+                    <div className="config-section">
+                      <h4>Configuración de Campaña</h4>
+                      
+                      {/* Selección de Modelo */}
+                      <div className="input-group">
+                        <label>Seleccionar Modelo:</label>
+                        <ModelSelector 
+                          selectedModel={selectedModel} 
+                          onSelectModel={handleSelectModel} 
+                        />
+                      </div>
+                      
+                      <div className="input-group">
+                        <label>Tipo de Campaña:</label>
+                        <select 
+                          value={campaignType} 
+                          onChange={(e) => setCampaignType(e.target.value)}
+                          className="campaign-select"
+                        >
+                          <option value="activation">Fallos de Activación</option>
+                          <option value="weight">Fallos de Pesos</option>
+                        </select>
+                      </div>
+                      
+                      <div className="input-group">
+                        <label>Número de Muestras:</label>
+                        <input
+                          type="number"
+                          value={numSamples}
+                          onChange={(e) => setNumSamples(parseInt(e.target.value))}
+                          min="1"
+                          max="1000"
+                          className="campaign-input"
+                        />
+                      </div>
+                      
+                      {/* Configuración específica según el tipo de campaña */}
+                      {campaignType === 'activation' && (
+                        <div className="fault-config-section">
+                          <h5>Configuración de Fallos de Activación</h5>
+                          <FaultInjectionConfig
+                            selectedModel={selectedModel}
+                            onConfigChange={setFaultConfig}
+                            initialConfig={faultConfig}
+                          />
+                        </div>
+                      )}
+                      
+                      {campaignType === 'weight' && (
+                        <div className="fault-config-section">
+                          <h5>Configuración de Fallos de Pesos</h5>
+                          <WeightFaultConfig
+                            selectedModel={selectedModel}
+                            onConfigChange={setWeightFaultConfig}
+                            initialConfig={weightFaultConfig}
+                          />
+                        </div>
+                      )}
+
+                      <button 
+                        onClick={runFaultCampaign}
+                        disabled={!selectedModel || isCampaignLoading}
+                        className="run-campaign-btn"
+                      >
+                        {isCampaignLoading ? (
+                          <>
+                            <div className="loading-spinner"></div>
+                            Ejecutando Campaña...
+                          </>
+                        ) : (
+                          'Ejecutar Campaña'
+                        )}
+                      </button>
+                    </div>
                   </div>
+                  
+                  {campaignError && (
+                    <div className="error-message">
+                      <strong>Error:</strong> {campaignError}
+                    </div>
+                  )}
+                  
+                  {campaignResults && campaignResults.results && (
+                    <div className="campaign-results">
+                      <h4>Resultados de la Campaña</h4>
+                      
+                      {/* Información general de la campaña */}
+                      <div className="campaign-info">
+                        <div className="result-card">
+                          <h5>Información de la Campaña</h5>
+                          <div className="info-grid">
+                            <div className="info-item">
+                              <span className="info-label">Modelo:</span>
+                              <span className="info-value">{campaignResults.results.campaign_info?.model_path || 'N/A'}</span>
+                            </div>
+                            <div className="info-item">
+                              <span className="info-label">Muestras procesadas:</span>
+                              <span className="info-value">{campaignResults.results.campaign_info?.num_samples || 'N/A'}</span>
+                            </div>
+                            <div className="info-item">
+                              <span className="info-label">Tipo de campaña:</span>
+                              <span className="info-value">{campaignType === 'activation' ? 'Fallos de Activación' : 'Fallos de Pesos'}</span>
+                            </div>
+                            {campaignResults.results.campaign_info?.execution_time_seconds && (
+                              <div className="info-item">
+                                <span className="info-label">Duración:</span>
+                                <span className="info-value">{campaignResults.results.campaign_info.execution_time_seconds.toFixed(2)}s</span>
+                              </div>
+                            )}
+                            {campaignResults.results.campaign_info?.session_id && (
+                              <div className="info-item">
+                                <span className="info-label">ID de Sesión:</span>
+                                <span className="info-value">{campaignResults.results.campaign_info.session_id}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Métricas detalladas */}
+                      <div className="metrics-comparison">
+                        <div className="metrics-row">
+                          {(() => {
+                            console.log(`🔍 DEBUG campaignResults.results:`, campaignResults.results);
+                            console.log(`🔍 DEBUG golden_results:`, campaignResults.results.golden_results);
+                            console.log(`🔍 DEBUG fault_results:`, campaignResults.results.fault_results);
+                            console.log(`🔍 DEBUG golden_results?.metrics:`, campaignResults.results.golden_results?.metrics);
+                            console.log(`🔍 DEBUG fault_results?.metrics:`, campaignResults.results.fault_results?.metrics);
+                            return null;
+                          })()}
+                          {renderDetailedMetrics(campaignResults.results.golden_results?.metrics, "Métricas Golden (Sin Fallos)")}
+                          {renderDetailedMetrics(campaignResults.results.fault_results?.metrics, "Métricas con Fallos")}
+                        </div>
+                      </div>
+                      
+                      {/* Análisis de comparación detallado */}
+                      {(() => {
+                        const comparisons = calculateMetricComparison(campaignResults.results.golden_results?.metrics, campaignResults.results.fault_results?.metrics);
+                        if (!comparisons) return null;
+                        
+                        return (
+                          <div className="detailed-comparison">
+                            <h5>Análisis Detallado de Degradación</h5>
+                            <div className="comparison-grid">
+                              {Object.entries(comparisons).map(([metric, data]) => (
+                                <div key={metric} className="comparison-item">
+                                  <div className="comparison-header">
+                                    <span className="metric-name">
+                                      {metric === 'accuracy' ? 'Precisión (Accuracy)' : 
+                                       metric === 'precision' ? 'Precisión (Precision)' :
+                                       metric === 'recall' ? 'Sensibilidad (Recall)' :
+                                       metric === 'f1_score' ? 'F1-Score' :
+                                       metric === 'correct_predictions' ? 'Predicciones Correctas' :
+                                       metric === 'incorrect_predictions' ? 'Predicciones Incorrectas' :
+                                       metric.charAt(0).toUpperCase() + metric.slice(1)}
+                                    </span>
+                                  </div>
+                                  <div className="comparison-values">
+                                    <div className="value-item golden">
+                                      <span className="value-label">Golden:</span>
+                                      <span className="value-number">
+                                        {metric.includes('predictions') ? 
+                                          data.golden : 
+                                          (metric === 'loss' ? data.golden.toFixed(6) : (data.golden * 100).toFixed(2) + '%')
+                                        }
+                                      </span>
+                                    </div>
+                                    <div className="value-item fault">
+                                      <span className="value-label">Con Fallos:</span>
+                                      <span className="value-number">
+                                        {metric.includes('predictions') ? 
+                                          data.fault : 
+                                          (metric === 'loss' ? data.fault.toFixed(6) : (data.fault * 100).toFixed(2) + '%')
+                                        }
+                                      </span>
+                                    </div>
+                                    <div className={`value-item degradation ${Math.abs(data.degradationPercent) > 10 ? 'high' : Math.abs(data.degradationPercent) > 5 ? 'medium' : 'low'}`}>
+                                      <span className="value-label">Degradación:</span>
+                                      <span className="value-number">
+                                        {data.degradationPercent > 0 ? '+' : ''}{data.degradationPercent.toFixed(2)}%
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()}
+                      
+                      {/* Información de comparación adicional */}
+                      {campaignResults.results.comparison && (
+                        <div className="comparison-summary">
+                          <h5>Resumen de Comparación</h5>
+                          <div className="comparison-stats">
+                            <div className="stat-item">
+                              <span className="stat-label">Predicciones Iguales:</span>
+                              <span className="stat-value">{campaignResults.results.comparison.same_predictions}</span>
+                            </div>
+                            <div className="stat-item">
+                              <span className="stat-label">Predicciones Diferentes:</span>
+                              <span className="stat-value">{campaignResults.results.comparison.different_predictions}</span>
+                            </div>
+                            <div className="stat-item">
+                              <span className="stat-label">Porcentaje de Diferencia:</span>
+                              <span className="stat-value">{campaignResults.results.comparison.percentage_different}%</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Información del fallo inyectado */}
+                      {campaignResults.results.campaign_info?.fault && (
+                        <div className="fault-info">
+                          <h5>Información del Fallo Inyectado</h5>
+                          <div className="fault-details">
+                            <div className="fault-item">
+                              <span className="fault-label">Capa:</span>
+                              <span className="fault-value">{campaignResults.results.campaign_info.fault.layer}</span>
+                            </div>
+                            <div className="fault-item">
+                              <span className="fault-label">Tipo de Fallo:</span>
+                              <span className="fault-value">{campaignResults.results.campaign_info.fault.type}</span>
+                            </div>
+                            <div className="fault-item">
+                              <span className="fault-label">Posiciones Afectadas:</span>
+                              <span className="fault-value">{campaignResults.results.campaign_info.fault.positions?.length || 0} posiciones</span>
+                            </div>
+                            <div className="fault-item">
+                              <span className="fault-label">Bits Afectados:</span>
+                              <span className="fault-value">{campaignResults.results.campaign_info.fault.bit_positions?.join(', ') || 'N/A'}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
               

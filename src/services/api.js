@@ -244,11 +244,11 @@ export const authService = {
 
   verifyToken: async (token) => {
     try {
-      const response = await fetch(`${API_URL}/auth/verify-token`, {
+      const response = await fetch(`${API_URL}/verify-token`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
       });
 
@@ -258,8 +258,72 @@ export const authService = {
 
       return await response.json();
     } catch (error) {
-      console.error('Error verificando token:', error);
+      console.error("Error al verificar token:", error);
       throw error;
     }
-  }
+  },
+};
+
+export const faultCampaignService = {
+  getAvailableModels: async () => {
+    try {
+      const response = await authenticatedFetch(`${API_URL}/fault_campaign/models/`);
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error("Error al obtener modelos para campaña:", error);
+      throw error;
+    }
+  },
+
+  runActivationFaultCampaign: async (campaignConfig) => {
+    try {
+      const response = await authenticatedFetch(`${API_URL}/fault_campaign/run/`, {
+        method: 'POST',
+        body: JSON.stringify(campaignConfig),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Error: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error ejecutando campaña de fallos en activaciones:", error);
+      throw error;
+    }
+  },
+
+  runWeightFaultCampaign: async (campaignConfig) => {
+    try {
+      console.log('🚀 Iniciando petición HTTP para campaña de fallos en pesos');
+      console.log('📤 URL:', `${API_URL}/fault_campaign/weight/run/`);
+      console.log('📤 Config enviada:', JSON.stringify(campaignConfig, null, 2));
+      
+      const response = await authenticatedFetch(`${API_URL}/fault_campaign/weight/run/`, {
+        method: 'POST',
+        body: JSON.stringify(campaignConfig),
+      });
+
+      console.log('📥 Respuesta HTTP recibida:', response.status, response.statusText);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ Error en respuesta HTTP:', errorData);
+        throw new Error(errorData.detail || `Error: ${response.status}`);
+      }
+
+      const jsonResponse = await response.json();
+      console.log('✅ Respuesta JSON recibida:', JSON.stringify(jsonResponse, null, 2));
+      return jsonResponse;
+    } catch (error) {
+      console.error("❌ Error ejecutando campaña de fallos en pesos:", error);
+      throw error;
+    }
+  },
 };
