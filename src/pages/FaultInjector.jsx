@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import Header from '../components/Header';
 import ModelSelector from '../components/cnn/ModelSelector';
-import FaultInjectionConfig from '../components/FaultInjectionConfig';
 import WeightFaultConfig from '../components/WeightFaultConfig';
 import MetricsChart from '../components/MetricsChart';
+import FaultMetricsComparison from '../components/FaultMetricsComparison';
 import { faultInjectorService, faultCampaignService } from '../services/api';
 import { API_BASE_URL } from '../config/api';
 import './FaultInjector.css';
@@ -85,12 +85,11 @@ const FaultInjector = () => {
       return;
     }
 
-    // Verificar que al menos una configuración de fallos esté habilitada
-    const hasActivationFaults = faultConfig?.enabled && Object.keys(faultConfig.layers).length > 0;
+    // Verificar que la configuración de fallos de pesos esté habilitada
     const hasWeightFaults = weightFaultConfig?.enabled && Object.keys(weightFaultConfig.layers).length > 0;
     
-    if (!hasActivationFaults && !hasWeightFaults) {
-      setError('Por favor configura al menos un tipo de inyección de fallos antes de ejecutar');
+    if (!hasWeightFaults) {
+      setError('Por favor configura la inyección de fallos de pesos antes de ejecutar');
       return;
     }
     
@@ -99,9 +98,8 @@ const FaultInjector = () => {
     setFaultResults(null);
     
     try {
-      // Combinar configuraciones de fallos
+      // Configuración de fallos de pesos
       const combinedConfig = {
-        activation_faults: faultConfig,
         weight_faults: weightFaultConfig
       };
 
@@ -169,47 +167,25 @@ const FaultInjector = () => {
     }
 
     // Si no hay configuración específica, usar configuración por defecto
-    let configToUse = {};
-    
-    if (campaignType === 'activation') {
-      configToUse = faultConfig.enabled ? faultConfig : {
-        enabled: true,
-        layers: {},
-        faultType: 'stuck_at',
-        faultValue: 0,
-        faultProbability: 0.1
-      };
-    } else if (campaignType === 'weight') {
-      configToUse = weightFaultConfig.enabled ? weightFaultConfig : {
-        enabled: true,
-        layers: {},
-        faultType: 'stuck_at',
-        faultValue: 0,
-        faultProbability: 0.1
-      };
-    }
+    const configToUse = weightFaultConfig.enabled ? weightFaultConfig : {
+      enabled: true,
+      layers: {},
+      faultType: 'stuck_at',
+      faultValue: 0,
+      faultProbability: 0.1
+    };
 
     setIsCampaignLoading(true);
     setCampaignError(null);
     setCampaignResults(null);
 
     try {
-      let response;
-      if (campaignType === 'activation') {
-        response = await faultCampaignService.runActivationFaultCampaign({
-          model_path: selectedModel.path,
-          num_samples: numSamples,
-          fault_config: configToUse,
-          image_dir: imageDir
-        });
-      } else {
-        response = await faultCampaignService.runWeightFaultCampaign({
-          model_path: selectedModel.path,
-          num_samples: numSamples,
-          weight_fault_config: configToUse,
-          image_dir: imageDir
-        });
-      }
+      const response = await faultCampaignService.runWeightFaultCampaign({
+        model_path: selectedModel.path,
+        num_samples: numSamples,
+        weight_fault_config: configToUse,
+        image_dir: imageDir
+      });
       setCampaignResults(response);
     } catch (error) {
       console.error('Error en la campaña de fallos:', error);
@@ -808,17 +784,13 @@ const FaultInjector = () => {
                         disabled={(() => {
                           const hasModel = !!selectedModel;
                           const hasImage = !!selectedImage;
-                          const hasActivationFaults = !!faultConfig?.enabled;
                           const hasWeightFaults = !!weightFaultConfig?.enabled;
-                          const hasFaults = hasActivationFaults || hasWeightFaults;
-                          const isDisabled = !hasModel || !hasImage || !hasFaults || isLoading;
+                          const isDisabled = !hasModel || !hasImage || !hasWeightFaults || isLoading;
                           
                           console.log('Button state:', {
                             hasModel,
                             hasImage,
-                            hasActivationFaults,
                             hasWeightFaults,
-                            hasFaults,
                             isLoading,
                             isDisabled
                           });
@@ -923,18 +895,8 @@ const FaultInjector = () => {
                                   <span className="value">{faultResults.fault_injection.total_faults || 0}</span>
                                 </div>
                                 <div className="info-item">
-                                  <span className="label">Fallos en activaciones:</span>
-                                  <span className="value">{faultResults.fault_injection.activation_faults?.total_faults || 0}</span>
-                                </div>
-                                <div className="info-item">
                                   <span className="label">Fallos en pesos:</span>
                                   <span className="value">{faultResults.fault_injection.weight_faults?.total_faults || 0}</span>
-                                </div>
-                                <div className="info-item">
-                                  <span className="label">Capas afectadas (activaciones):</span>
-                                  <span className="value">
-                                    {Object.keys(faultResults.fault_injection.activation_faults?.faults_by_layer || {}).length}
-                                  </span>
                                 </div>
                                 <div className="info-item">
                                   <span className="label">Capas afectadas (pesos):</span>
@@ -1004,7 +966,6 @@ const FaultInjector = () => {
                           onChange={(e) => setCampaignType(e.target.value)}
                           className="campaign-select"
                         >
-                          <option value="activation">Fallos de Activación</option>
                           <option value="weight">Fallos de Pesos</option>
                         </select>
                       </div>
@@ -1022,17 +983,6 @@ const FaultInjector = () => {
                       </div>
                       
                       {/* Configuración específica según el tipo de campaña */}
-                      {campaignType === 'activation' && (
-                        <div className="fault-config-section">
-                          <h5>Configuración de Fallos de Activación</h5>
-                          <FaultInjectionConfig
-                            selectedModel={selectedModel}
-                            onConfigChange={setFaultConfig}
-                            initialConfig={faultConfig}
-                          />
-                        </div>
-                      )}
-                      
                       {campaignType === 'weight' && (
                         <div className="fault-config-section">
                           <h5>Configuración de Fallos de Pesos</h5>
@@ -1083,7 +1033,7 @@ const FaultInjector = () => {
 
                             <div className="info-item">
                               <span className="info-label">Tipo de campaña:</span>
-                              <span className="info-value">{campaignType === 'activation' ? 'Fallos de Activación' : 'Fallos de Pesos'}</span>
+                              <span className="info-value">Fallos de Pesos</span>
                             </div>
                             {campaignResults.results.campaign_info?.execution_time_seconds && (
                               <div className="info-item">
@@ -1235,11 +1185,19 @@ const FaultInjector = () => {
                   <p className="panel-description">
                     Compara los resultados entre inferencias golden y con fallos inyectados.
                   </p>
-                  <div className="coming-soon">
-                    <div className="coming-soon-icon">🚧</div>
-                    <h4>Próximamente</h4>
-                    <p>Esta funcionalidad estará disponible en una próxima actualización.</p>
-                  </div>
+                  
+                  {campaignResults ? (
+                    <FaultMetricsComparison 
+                      campaignResults={campaignResults.results}
+                      numSamples={10}
+                    />
+                  ) : (
+                    <div className="coming-soon">
+                      <div className="coming-soon-icon">📊</div>
+                      <h4>Datos de Comparación</h4>
+                      <p>Ejecuta primero una campaña de inyección de fallos para ver la comparación de métricas entre inferencias golden y con fallos.</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
