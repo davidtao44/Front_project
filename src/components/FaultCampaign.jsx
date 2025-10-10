@@ -142,16 +142,8 @@ const FaultCampaign = () => {
           </span>
         </div>
         <div className="metric-item">
-          <span className="metric-label">Muestras:</span>
-          <span className="metric-value">{metrics.num_samples || 'N/A'}</span>
-        </div>
-        <div className="metric-item">
           <span className="metric-label">Predicciones correctas:</span>
           <span className="metric-value">{metrics.correct_predictions || 'N/A'}</span>
-        </div>
-        <div className="metric-item">
-          <span className="metric-label">Predicciones incorrectas:</span>
-          <span className="metric-value">{metrics.incorrect_predictions || 'N/A'}</span>
         </div>
       </div>
     );
@@ -313,10 +305,7 @@ const FaultCampaign = () => {
                 <span className="label">Modelo:</span>
                 <span className="value">{results.campaign_info?.model_path?.split('/').pop()}</span>
               </div>
-              <div className="info-item">
-                <span className="label">Muestras Procesadas:</span>
-                <span className="value">{results.campaign_info?.num_samples}</span>
-              </div>
+
               <div className="info-item">
                 <span className="label">Tiempo de Ejecución:</span>
                 <span className="value">{results.campaign_info?.execution_time_seconds?.toFixed(2)}s</span>

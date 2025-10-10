@@ -12,9 +12,11 @@
   "dependencies": {
     "@heroui/button": "^2.2.16",
     "@heroui/theme": "^2.4.17",
+    "chart.js": "^4.5.0",
     "firebase": "^10.7.1",
     "framer-motion": "^12.18.1",
     "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.9.1",
     "xlsx": "^0.18.5"

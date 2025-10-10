@@ -3,9 +3,11 @@ import Header from '../components/Header';
 import ModelSelector from '../components/cnn/ModelSelector';
 import FaultInjectionConfig from '../components/FaultInjectionConfig';
 import WeightFaultConfig from '../components/WeightFaultConfig';
+import MetricsChart from '../components/MetricsChart';
 import { faultInjectorService, faultCampaignService } from '../services/api';
 import { API_BASE_URL } from '../config/api';
 import './FaultInjector.css';
+import '../components/MetricsChart.css';
 
 const FaultInjector = () => {
   const [selectedModel, setSelectedModel] = useState(null);
@@ -21,7 +23,7 @@ const FaultInjector = () => {
   
   // Estados para campaña de fallos
   const [availableModels, setAvailableModels] = useState([]);
-  const [campaignType, setCampaignType] = useState('activation');
+  const [campaignType, setCampaignType] = useState('weight');
   const [numSamples, setNumSamples] = useState(100);
   const [imageDir, setImageDir] = useState('/home/davidgonzalez/Documentos/project/Back_project/images/mnist');
   const [campaignResults, setCampaignResults] = useState(null);
@@ -284,25 +286,46 @@ const FaultInjector = () => {
       loss: 'Pérdida',
       top_1_accuracy: 'Top-1 Accuracy',
       top_5_accuracy: 'Top-5 Accuracy',
-      num_samples: 'Número de Muestras',
       correct_predictions: 'Predicciones Correctas',
-      incorrect_predictions: 'Predicciones Incorrectas'
+      // macro_avg_precision: 'Precisión Macro Avg',
+      // macro_avg_recall: 'Recall Macro Avg',
+      // macro_avg_f1_score: 'F1-Score Macro Avg'
+      weighted_avg_precision: 'Precisión Weighted Avg',
+      weighted_avg_recall: 'Recall Weighted Avg',
+      weighted_avg_f1_score: 'F1-Score Weighted Avg'
     };
+
+    // Extraer métricas de weighted average del classification_report si existe
+    let weightedAvgMetrics = {};
+    if (actualMetrics.classification_report && typeof actualMetrics.classification_report === 'object') {
+      const classReport = actualMetrics.classification_report;
+      if (classReport['weighted avg']) {
+        weightedAvgMetrics = {
+          weighted_avg_precision: classReport['weighted avg']['precision'],
+          weighted_avg_recall: classReport['weighted avg']['recall'],
+          weighted_avg_f1_score: classReport['weighted avg']['f1-score']
+        };
+      }
+    }
 
     // Definir el orden de prioridad para las métricas principales
     const priorityMetrics = ['accuracy', 'precision', 'recall', 'f1_score'];
-    const countMetrics = ['num_samples', 'correct_predictions', 'incorrect_predictions'];
+    const weightedMetrics = ['weighted_avg_precision', 'weighted_avg_recall', 'weighted_avg_f1_score'];
+    const countMetrics = ['correct_predictions'];
     
-    // Filtrar y organizar métricas
+    // Filtrar y organizar métricas (excluyendo num_samples e incorrect_predictions)
     const allMetrics = Object.entries(actualMetrics).filter(([key, value]) => {
-      return !['confusion_matrix', 'classification_report'].includes(key) && 
+      return !['confusion_matrix', 'classification_report', 'num_samples', 'incorrect_predictions'].includes(key) && 
              typeof value !== 'object';
     });
 
-    console.log(`All metrics found for ${title}:`, allMetrics); // Debug log
+    // Agregar métricas de weighted average
+    const allMetricsWithWeighted = [...allMetrics, ...Object.entries(weightedAvgMetrics)];
+
+    console.log(`All metrics found for ${title}:`, allMetricsWithWeighted); // Debug log
 
     // Si no hay métricas válidas, mostrar mensaje de debug
-    if (allMetrics.length === 0) {
+    if (allMetricsWithWeighted.length === 0) {
       return (
         <div className="result-card">
           <h5>{title}</h5>
@@ -318,13 +341,15 @@ const FaultInjector = () => {
     }
 
     // Separar métricas por categorías
-    const mainMetrics = allMetrics.filter(([key]) => priorityMetrics.includes(key));
-    const countingMetrics = allMetrics.filter(([key]) => countMetrics.includes(key));
-    const otherMetrics = allMetrics.filter(([key]) => 
-      !priorityMetrics.includes(key) && !countMetrics.includes(key)
+    const mainMetrics = allMetricsWithWeighted.filter(([key]) => priorityMetrics.includes(key));
+    const weightedAvgMetrics_filtered = allMetricsWithWeighted.filter(([key]) => weightedMetrics.includes(key));
+    const countingMetrics = allMetricsWithWeighted.filter(([key]) => countMetrics.includes(key));
+    const otherMetrics = allMetricsWithWeighted.filter(([key]) => 
+      !priorityMetrics.includes(key) && !weightedMetrics.includes(key) && !countMetrics.includes(key)
     );
 
     console.log(`Main metrics for ${title}:`, mainMetrics); // Debug log
+    console.log(`Weighted avg metrics for ${title}:`, weightedAvgMetrics_filtered); // Debug log
     console.log(`Counting metrics for ${title}:`, countingMetrics); // Debug log
     console.log(`Other metrics for ${title}:`, otherMetrics); // Debug log
 
@@ -332,7 +357,7 @@ const FaultInjector = () => {
       if (typeof value === 'number') {
         if (key === 'loss') {
           return value.toFixed(6);
-        } else if (['accuracy', 'precision', 'recall', 'f1_score', 'specificity', 'auc', 'top_1_accuracy', 'top_5_accuracy'].includes(key)) {
+        } else if (['accuracy', 'precision', 'recall', 'f1_score', 'specificity', 'auc', 'top_1_accuracy', 'top_5_accuracy', 'weighted_avg_precision', 'weighted_avg_recall', 'weighted_avg_f1_score'].includes(key)) {
           return (value * 100).toFixed(2) + '%';
         } else {
           return value.toString();
@@ -369,6 +394,9 @@ const FaultInjector = () => {
         
         {/* Métricas principales de rendimiento */}
         {renderMetricSection(mainMetrics, "Métricas de Rendimiento")}
+        
+        {/* Métricas de Weighted Average */}
+        {renderMetricSection(weightedAvgMetrics_filtered, "Métricas Weighted Average")}
         
         {/* Métricas de conteo */}
         {renderMetricSection(countingMetrics, "Estadísticas de Predicción")}
@@ -415,8 +443,11 @@ const FaultInjector = () => {
     if (!goldenMetrics || !faultMetrics) return null;
 
     const comparisons = {};
+    // Exclude num_samples and incorrect_predictions from comparison
+    const excludedKeys = ['num_samples', 'incorrect_predictions'];
+    
     Object.keys(goldenMetrics).forEach(key => {
-      if (typeof goldenMetrics[key] === 'number' && typeof faultMetrics[key] === 'number') {
+      if (!excludedKeys.includes(key) && typeof goldenMetrics[key] === 'number' && typeof faultMetrics[key] === 'number') {
         const degradation = goldenMetrics[key] - faultMetrics[key];
         const degradationPercent = (degradation / goldenMetrics[key]) * 100;
         comparisons[key] = {
@@ -1049,10 +1080,7 @@ const FaultInjector = () => {
                               <span className="info-label">Modelo:</span>
                               <span className="info-value">{campaignResults.results.campaign_info?.model_path || 'N/A'}</span>
                             </div>
-                            <div className="info-item">
-                              <span className="info-label">Muestras procesadas:</span>
-                              <span className="info-value">{campaignResults.results.campaign_info?.num_samples || 'N/A'}</span>
-                            </div>
+
                             <div className="info-item">
                               <span className="info-label">Tipo de campaña:</span>
                               <span className="info-value">{campaignType === 'activation' ? 'Fallos de Activación' : 'Fallos de Pesos'}</span>
@@ -1107,7 +1135,6 @@ const FaultInjector = () => {
                                        metric === 'recall' ? 'Sensibilidad (Recall)' :
                                        metric === 'f1_score' ? 'F1-Score' :
                                        metric === 'correct_predictions' ? 'Predicciones Correctas' :
-                                       metric === 'incorrect_predictions' ? 'Predicciones Incorrectas' :
                                        metric.charAt(0).toUpperCase() + metric.slice(1)}
                                     </span>
                                   </div>
@@ -1144,8 +1171,16 @@ const FaultInjector = () => {
                         );
                       })()}
                       
+                      {/* Gráficas de métricas */}
+                      <MetricsChart 
+                        goldenMetrics={campaignResults.results.golden_results?.metrics}
+                        faultMetrics={campaignResults.results.fault_results?.metrics}
+                        campaignResults={campaignResults.results}
+                        numSamples={numSamples}
+                      />
+                      
                       {/* Información de comparación adicional */}
-                      {campaignResults.results.comparison && (
+                      {/* {campaignResults.results.comparison && (
                         <div className="comparison-summary">
                           <h5>Resumen de Comparación</h5>
                           <div className="comparison-stats">
@@ -1163,7 +1198,7 @@ const FaultInjector = () => {
                             </div>
                           </div>
                         </div>
-                      )}
+                      )} */}
                       
                       {/* Información del fallo inyectado */}
                       {campaignResults.results.campaign_info?.fault && (
