@@ -17,7 +17,6 @@ const FaultInjector = () => {
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('inference');
-  const [faultConfig, setFaultConfig] = useState({ enabled: false, layers: {} });
   const [weightFaultConfig, setWeightFaultConfig] = useState({ enabled: false, layers: {} });
   const [faultResults, setFaultResults] = useState(null);
   
@@ -69,10 +68,6 @@ const FaultInjector = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleFaultConfigChange = (config) => {
-    setFaultConfig(config);
   };
 
   const handleWeightFaultConfigChange = (config) => {
@@ -749,18 +744,6 @@ const FaultInjector = () => {
                           </div>
                         )}
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Configuración de Inyección de Fallos en Activaciones */}
-                  <div className="section">
-                    <h4 className="section-title">Configuración de Inyección de Fallos en Activaciones</h4>
-                    <div className="section-content">
-                      <FaultInjectionConfig
-                        selectedModel={selectedModel}
-                        onConfigChange={handleFaultConfigChange}
-                        initialConfig={faultConfig}
-                      />
                     </div>
                   </div>
 
