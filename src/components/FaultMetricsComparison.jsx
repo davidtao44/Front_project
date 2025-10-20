@@ -100,7 +100,7 @@ const FaultMetricsComparison = ({ campaignResults, numSamples }) => {
       },
       title: {
         display: true,
-        text: 'Clasificación de Fallos por Tipo',
+        text: 'Resultados por Tipo',
         font: {
           size: 16,
           weight: 'bold',
@@ -121,7 +121,7 @@ const FaultMetricsComparison = ({ campaignResults, numSamples }) => {
       x: {
         title: {
           display: true,
-          text: 'Tipo de Fallo',
+          text: 'Clasificación de resultados',
           font: {
             size: 14,
             weight: 'bold',
@@ -184,7 +184,7 @@ const FaultMetricsComparison = ({ campaignResults, numSamples }) => {
               <h5>SDC (Silent Data Corruption)</h5>
               <div className="metric-value">{faultAnalysis.sdc}</div>
               <div className="metric-percentage">{getPercentage(faultAnalysis.sdc)}%</div>
-              <p>Fallos que producen resultados incorrectos sin detección</p>
+              <p>Resultados de la red neuronal que difieren del resultado esperado (golden output), sin que se detecte un error evidente durante la ejecución.</p>
             </div>
           </div>
 
@@ -194,7 +194,7 @@ const FaultMetricsComparison = ({ campaignResults, numSamples }) => {
               <h5>Fault Masked</h5>
               <div className="metric-value">{faultAnalysis.faultMasked}</div>
               <div className="metric-percentage">{getPercentage(faultAnalysis.faultMasked)}%</div>
-              <p>Fallos enmascarados que no afectan el resultado</p>
+              <p>Fallos enmascarados que no afectan el resultado de la red</p>
             </div>
           </div>
         </div>
