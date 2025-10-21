@@ -21,7 +21,7 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
 
   // Tipos de fallo disponibles para pesos
   const faultTypes = [
-    { value: 'bitflip', label: 'Bitflip', description: 'Invierte el valor del bit (0→1, 1→0)' },
+    //{ value: 'bitflip', label: 'Bitflip', description: 'Invierte el valor del bit (0→1, 1→0)' },
     { value: 'stuck_at_0', label: 'Stuck-at-0', description: 'Fuerza el bit a 0' },
     { value: 'stuck_at_1', label: 'Stuck-at-1', description: 'Fuerza el bit a 1' }
   ];
@@ -65,7 +65,7 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
         ...config.layers,
         [selectedLayer]: {
           target_type: 'kernel',
-          fault_type: 'bitflip', // Tipo de fallo por defecto
+          fault_type: 'stuck_at_0', // Tipo de fallo por defecto
           positions: [],
           bit_positions: [15] // Configuración global de bits para todas las posiciones
         }
@@ -267,7 +267,7 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                 <div className="option-group">
                   <label>Tipo de Fallo:</label>
                   <select
-                    value={layerConfig.fault_type || 'bitflip'}
+                    value={layerConfig.fault_type}
                     onChange={(e) => updateLayerFaultType(layerName, e.target.value)}
                   >
                     {faultTypes.map(type => (
@@ -277,7 +277,7 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                     ))}
                   </select>
                   <small className="fault-type-description">
-                    {faultTypes.find(t => t.value === (layerConfig.fault_type || 'bitflip'))?.description}
+                    {faultTypes.find(t => t.value === (layerConfig.fault_type ))?.description}
                   </small>
                 </div>
 
