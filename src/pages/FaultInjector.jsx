@@ -468,8 +468,8 @@ const FaultInjector = () => {
                 className={`tab-button ${activeTab === 'analysis' ? 'active' : ''}`}
                 onClick={() => setActiveTab('analysis')}
               >
-                <span className="tab-icon">📊</span>
-                Análisis de Resultados
+                <span className="tab-icon">♺</span>
+                Campaña de fallos 
               </button>
               <button 
                 className={`tab-button ${activeTab === 'comparison' ? 'active' : ''}`}
