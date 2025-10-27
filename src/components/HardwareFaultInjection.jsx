@@ -105,71 +105,80 @@ const HardwareFaultInjection = () => {
     setBiasFaults(biasFaults.filter((_, i) => i !== index));
   };
 
-  const refreshVhdlFile = async () => {
-    try {
-      setIsLoading(true);
-      const filePath = useDefaultPath ? vhdlFilePath : (vhdlFile ? vhdlFile.name : '');
-      
-      if (!filePath) {
-        setError('No hay archivo VHDL seleccionado para refrescar');
-        return;
-      }
-
-      const response = await api.get(`/vhdl/file_status/?file_path=${encodeURIComponent(vhdlFilePath)}`);
-      const data = await response.json();
-      
-      if (data.status === 'success') {
-        // Mostrar notificación de archivo refrescado
-        const notification = document.createElement('div');
-        notification.className = 'file-update-notification';
-        notification.innerHTML = `
-          <div class="notification-content">
-            <span class="notification-icon">🔄</span>
-            <span class="notification-text">Archivo VHDL refrescado</span>
-            <span class="notification-details">Última modificación: ${new Date(data.file_info.last_modified_ms).toLocaleTimeString()}</span>
-          </div>
-        `;
-        notification.style.cssText = `
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          background: #2196F3;
-          color: white;
-          padding: 15px 20px;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          z-index: 1000;
-          animation: slideIn 0.3s ease-out;
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          if (notification.parentNode) {
-            notification.style.animation = 'slideOut 0.3s ease-in';
-            setTimeout(() => {
-              if (notification.parentNode) {
-                document.body.removeChild(notification);
-              }
-            }, 300);
-          }
-        }, 3000);
-        
-        console.log('✅ Archivo VHDL refrescado:', data.file_info);
-      }
-    } catch (error) {
-      console.error('❌ ERROR refrescando archivo:', error);
-      setError('Error al refrescar el archivo VHDL');
-    } finally {
-      setIsLoading(false);
-    }
+  // Simple alert helper
+  const showAlert = (message) => {
+    // Prefer a lightweight inline alert; can be replaced by toast later
+    alert(message);
   };
 
+  // Validation helpers
+  const validateFilterFault = (fault, index) => {
+    const required = ['filter_name', 'row', 'col', 'bit_position', 'fault_type'];
+    const fieldNames = {
+      'filter_name': 'filtro',
+      'row': 'fila',
+      'col': 'columna',
+      'bit_position': 'posición del bit',
+      'fault_type': 'tipo de fallo'
+    };
+    
+    for (const key of required) {
+      const val = fault[key];
+      if (val === undefined || val === null || val === '' || Number.isNaN(val)) {
+        return `Fallo en Filtro #${index + 1}: el campo "${fieldNames[key]}" está vacío o inválido`;
+      }
+    }
+    // Ranges
+    if (fault.row < 0 || fault.row > 4) return `Fallo en Filtro #${index + 1}: "fila" debe estar entre 0 y 4`;
+    if (fault.col < 0 || fault.col > 4) return `Fallo en Filtro #${index + 1}: "columna" debe estar entre 0 y 4`;
+    if (fault.bit_position < 0 || fault.bit_position > 7) return `Fallo en Filtro #${index + 1}: "posición del bit" debe estar entre 0 y 7`;
+    return null;
+  };
 
+  const validateBiasFault = (fault, index) => {
+    const required = ['bias_name', 'bit_position', 'fault_type'];
+    const fieldNames = {
+      'bias_name': 'sesgo',
+      'bit_position': 'posición del bit',
+      'fault_type': 'tipo de fallo'
+    };
+    
+    for (const key of required) {
+      const val = fault[key];
+      if (val === undefined || val === null || val === '' || Number.isNaN(val)) {
+        return `Fallo en Sesgo #${index + 1}: el campo "${fieldNames[key]}" está vacío o inválido`;
+      }
+    }
+    if (fault.bit_position < 0 || fault.bit_position > 15) return `Fallo en Sesgo #${index + 1}: "posición del bit" debe estar entre 0 y 15`;
+    return null;
+  };
+
+  const validateFaults = () => {
+    if (filterFaults.length === 0 && biasFaults.length === 0) {
+      return 'Debe agregar al menos un fallo (filtro o sesgo)';
+    }
+    for (let i = 0; i < filterFaults.length; i++) {
+      const err = validateFilterFault(filterFaults[i], i);
+      if (err) return err;
+    }
+    for (let i = 0; i < biasFaults.length; i++) {
+      const err = validateBiasFault(biasFaults[i], i);
+      if (err) return err;
+    }
+    return null;
+  };
 
   const handleInjectFaults = async () => {
+    const validationError = validateFaults();
+    if (validationError) {
+      setError(validationError);
+      showAlert(validationError);
+      return;
+    }
+
     if (filterFaults.length === 0 && biasFaults.length === 0) {
       setError('Debe agregar al menos un fallo (filtro o sesgo)');
+      showAlert('Debe agregar al menos un fallo (filtro o sesgo)');
       return;
     }
 
@@ -270,6 +279,68 @@ const HardwareFaultInjection = () => {
       setIsLoading(false);
     }
   };
+
+  const refreshVhdlFile = async () => {
+    try {
+      setIsLoading(true);
+      const filePath = useDefaultPath ? vhdlFilePath : (vhdlFile ? vhdlFile.name : '');
+      
+      if (!filePath) {
+        setError('No hay archivo VHDL seleccionado para refrescar');
+        return;
+      }
+
+      const response = await api.get(`/vhdl/file_status/?file_path=${encodeURIComponent(vhdlFilePath)}`);
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        // Mostrar notificación de archivo refrescado
+        const notification = document.createElement('div');
+        notification.className = 'file-update-notification';
+        notification.innerHTML = `
+          <div class="notification-content">
+            <span class="notification-icon">🔄</span>
+            <span class="notification-text">Archivo VHDL refrescado</span>
+            <span class="notification-details">Última modificación: ${new Date(data.file_info.last_modified_ms).toLocaleTimeString()}</span>
+          </div>
+        `;
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #2196F3;
+          color: white;
+          padding: 15px 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          z-index: 1000;
+          animation: slideIn 0.3s ease-out;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.style.animation = 'slideOut 0.3s ease-in';
+            setTimeout(() => {
+              if (notification.parentNode) {
+                document.body.removeChild(notification);
+              }
+            }, 300);
+          }
+        }, 3000);
+        
+        console.log('✅ Archivo VHDL refrescado:', data.file_info);
+      }
+    } catch (error) {
+      console.error('❌ ERROR refrescando archivo:', error);
+      setError('Error al refrescar el archivo VHDL');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
 
   if (!supportedFaults) {
     return <div className="loading">Cargando información de fallos soportados...</div>;
