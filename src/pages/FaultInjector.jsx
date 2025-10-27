@@ -380,12 +380,24 @@ const FaultInjector = () => {
           <div className="confusion-matrix-section">
             <h6>Matriz de Confusión</h6>
             <div className="confusion-matrix-container">
-              <div className="confusion-matrix">
+              <div className="confusion-matrix-with-labels">
+                {/* Encabezado con etiquetas de columnas */}
+                <div className="confusion-matrix-header">
+                  <div className="confusion-corner-cell"></div>
+                  {actualMetrics.confusion_matrix[0] && Array.from({length: actualMetrics.confusion_matrix[0].length}, (_, j) => (
+                    <div key={j} className="confusion-column-label">{j}</div>
+                  ))}
+                </div>
+                
+                {/* Filas de la matriz con etiquetas de fila */}
                 {actualMetrics.confusion_matrix.map((row, i) => (
-                  <div key={i} className="confusion-row">
-                    {Array.isArray(row) && row.map((cell, j) => (
-                      <span key={j} className="confusion-cell">{cell}</span>
-                    ))}
+                  <div key={i} className="confusion-row-with-label">
+                    <div className="confusion-row-label">{i}</div>
+                    <div className="confusion-row">
+                      {Array.isArray(row) && row.map((cell, j) => (
+                        <span key={j} className="confusion-cell">{cell}</span>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>

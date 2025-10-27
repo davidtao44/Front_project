@@ -1172,6 +1172,78 @@
   max-width: 100%;
 }
 
+/* Styles for confusion matrix with labels */
+.confusion-matrix-with-labels {
+  display: inline-block;
+  border: 2px solid #dee2e6;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  min-width: fit-content;
+  max-width: 100%;
+}
+
+.confusion-matrix-header {
+  display: flex;
+  background-color: #f8f9fa;
+}
+
+.confusion-corner-cell {
+  width: clamp(20px, 3vw, 35px);
+  height: clamp(20px, 3vw, 35px);
+  min-width: clamp(20px, 3vw, 35px);
+  max-width: clamp(20px, 3vw, 35px);
+  border-right: 1px solid #dee2e6;
+  border-bottom: 1px solid #dee2e6;
+  background-color: #e9ecef;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.confusion-column-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(20px, 3vw, 35px);
+  height: clamp(20px, 3vw, 35px);
+  min-width: clamp(20px, 3vw, 35px);
+  max-width: clamp(20px, 3vw, 35px);
+  border-right: 1px solid #dee2e6;
+  border-bottom: 1px solid #dee2e6;
+  background-color: #f8f9fa;
+  font-weight: 600;
+  font-size: clamp(8px, 1.5vw, 12px);
+  color: #495057;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.confusion-column-label:last-child {
+  border-right: none;
+}
+
+.confusion-row-with-label {
+  display: flex;
+}
+
+.confusion-row-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(20px, 3vw, 35px);
+  height: clamp(20px, 3vw, 35px);
+  min-width: clamp(20px, 3vw, 35px);
+  max-width: clamp(20px, 3vw, 35px);
+  border-right: 1px solid #dee2e6;
+  background-color: #f8f9fa;
+  font-weight: 600;
+  font-size: clamp(8px, 1.5vw, 12px);
+  color: #495057;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
 .confusion-row {
   display: flex;
 }
@@ -1180,8 +1252,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: clamp(20px, 3vw, 35px);
+  width: clamp(20px, 3vw, 35px);
   height: clamp(20px, 3vw, 35px);
+  min-width: clamp(20px, 3vw, 35px);
+  max-width: clamp(20px, 3vw, 35px);
   border-right: 1px solid #dee2e6;
   border-bottom: 1px solid #dee2e6;
   background: #ffffff;
@@ -1189,6 +1263,7 @@
   font-size: clamp(8px, 1.5vw, 12px);
   transition: background-color 0.2s ease;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .confusion-cell:hover {
