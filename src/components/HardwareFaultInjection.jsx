@@ -131,7 +131,7 @@ const HardwareFaultInjection = () => {
     // Ranges
     if (fault.row < 0 || fault.row > 4) return `Fallo en Filtro #${index + 1}: "fila" debe estar entre 0 y 4`;
     if (fault.col < 0 || fault.col > 4) return `Fallo en Filtro #${index + 1}: "columna" debe estar entre 0 y 4`;
-    if (fault.bit_position < 0 || fault.bit_position > 7) return `Fallo en Filtro #${index + 1}: "posición del bit" debe estar entre 0 y 7`;
+    if (fault.bit_position < 0 || fault.bit_position > 7) return `Fallo en Filtro #${index + 1}: "posición del bit" debe estar entre 0 (LSB) y 7 (MSB)`;
     return null;
   };
 
@@ -149,7 +149,7 @@ const HardwareFaultInjection = () => {
         return `Fallo en Sesgo #${index + 1}: el campo "${fieldNames[key]}" está vacío o inválido`;
       }
     }
-    if (fault.bit_position < 0 || fault.bit_position > 15) return `Fallo en Sesgo #${index + 1}: "posición del bit" debe estar entre 0 y 15`;
+    if (fault.bit_position < 0 || fault.bit_position > 15) return `Fallo en Sesgo #${index + 1}: "posición del bit" debe estar entre 0 (LSB) y 15 (MSB)`;
     return null;
   };
 
@@ -166,6 +166,33 @@ const HardwareFaultInjection = () => {
       if (err) return err;
     }
     return null;
+  };
+
+  // Helper functions to convert bit positions from user input (0=LSB) to backend format
+  const convertFilterBitPosition = (userBitPosition) => {
+    // Para filtros de 8 bits: user input 0 (LSB) -> backend 7, user input 7 (MSB) -> backend 0
+    return 7 - userBitPosition;
+  };
+
+  const convertBiasBitPosition = (userBitPosition) => {
+    // Para bias de 16 bits: user input 0 (LSB) -> backend 15, user input 15 (MSB) -> backend 0
+    return 15 - userBitPosition;
+  };
+
+  const convertFaultsForBackend = (filterFaults, biasFaults) => {
+    // Convertir posiciones de bits en filterFaults
+    const convertedFilterFaults = filterFaults.map(fault => ({
+      ...fault,
+      bit_position: convertFilterBitPosition(fault.bit_position)
+    }));
+
+    // Convertir posiciones de bits en biasFaults
+    const convertedBiasFaults = biasFaults.map(fault => ({
+      ...fault,
+      bit_position: convertBiasBitPosition(fault.bit_position)
+    }));
+
+    return { convertedFilterFaults, convertedBiasFaults };
   };
 
   const handleInjectFaults = async () => {
@@ -187,14 +214,20 @@ const HardwareFaultInjection = () => {
     setResults(null);
 
     try {
-      console.log('🔍 DEBUG Frontend - filterFaults:', filterFaults);
-      console.log('🔍 DEBUG Frontend - biasFaults:', biasFaults);
+      console.log('🔍 DEBUG Frontend - Original filterFaults:', filterFaults);
+      console.log('🔍 DEBUG Frontend - Original biasFaults:', biasFaults);
+      
+      // Convertir posiciones de bits antes de enviar al backend
+      const { convertedFilterFaults, convertedBiasFaults } = convertFaultsForBackend(filterFaults, biasFaults);
+      
+      console.log('🔍 DEBUG Frontend - Converted filterFaults:', convertedFilterFaults);
+      console.log('🔍 DEBUG Frontend - Converted biasFaults:', convertedBiasFaults);
       
       const formData = new FormData();
       
-      // Solo enviamos los parámetros necesarios para la lógica simplificada
-      const filterFaultsJson = JSON.stringify(filterFaults);
-      const biasFaultsJson = JSON.stringify(biasFaults);
+      // Enviar los fallos con posiciones de bits convertidas
+      const filterFaultsJson = JSON.stringify(convertedFilterFaults);
+      const biasFaultsJson = JSON.stringify(convertedBiasFaults);
       
       console.log('🔍 DEBUG Frontend - filterFaultsJson:', filterFaultsJson);
       console.log('🔍 DEBUG Frontend - biasFaultsJson:', biasFaultsJson);
@@ -495,13 +528,14 @@ const HardwareFaultInjection = () => {
                   />
                 </div>
                 <div className="field">
-                  <label>Posición del Bit (0-7):</label>
+                  <label>Posición del Bit (0=LSB, 7=MSB):</label>
                   <input
                     type="number"
                     min="0"
                     max="7"
                     value={fault.bit_position}
                     onChange={(e) => updateFilterFault(index, 'bit_position', e.target.value)}
+                    title="0 = Bit menos significativo (LSB), 7 = Bit más significativo (MSB)"
                   />
                 </div>
                 <div className="field">
@@ -555,13 +589,14 @@ const HardwareFaultInjection = () => {
                   </select>
                 </div>
                 <div className="field">
-                  <label>Posición del Bit (0-15):</label>
+                  <label>Posición del Bit (0=LSB, 15=MSB):</label>
                   <input
                     type="number"
                     min="0"
                     max="15"
                     value={fault.bit_position}
                     onChange={(e) => updateBiasFault(index, 'bit_position', e.target.value)}
+                    title="0 = Bit menos significativo (LSB), 15 = Bit más significativo (MSB)"
                   />
                 </div>
                 <div className="field">
