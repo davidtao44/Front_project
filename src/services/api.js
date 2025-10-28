@@ -16,19 +16,35 @@ const authenticatedFetch = async (url, options = {}) => {
     ...options.headers,
   };
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
+  // Configurar timeout (por defecto 30 segundos, configurable)
+  const timeoutMs = options.timeout || 30000;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-  if (response.status === 401) {
-    // Token expirado o inválido - limpiar localStorage
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
-    throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (response.status === 401) {
+      // Token expirado o inválido - limpiar localStorage
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user');
+      throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+    }
+
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('La solicitud ha excedido el tiempo límite');
+    }
+    throw error;
   }
-
-  return response;
 };
 
 export const cnnService = {
@@ -285,6 +301,7 @@ export const faultCampaignService = {
       const response = await authenticatedFetch(`${API_URL}/fault_campaign/run/`, {
         method: 'POST',
         body: JSON.stringify(campaignConfig),
+        timeout: 600000, // 10 minutos para campañas de fallos largas
       });
 
       if (!response.ok) {
@@ -308,6 +325,7 @@ export const faultCampaignService = {
       const response = await authenticatedFetch(`${API_URL}/fault_campaign/weight/run/`, {
         method: 'POST',
         body: JSON.stringify(campaignConfig),
+        timeout: 600000, // 10 minutos para campañas de fallos largas
       });
 
       console.log('📥 Respuesta HTTP recibida:', response.status, response.statusText);
