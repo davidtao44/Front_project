@@ -21,13 +21,31 @@ const VHDLTools = () => {
       
       <div className="vhdl-tools-container">
         <div className="page-header">
-          <h1 className="page-title">
-            <span className="title-icon">🔧</span>
-            VHDL Tools
-          </h1>
-          <p className="page-subtitle">
-            Conjunto de herramientas para la conversión y extracción de datos de redes neuronales a formato VHDL
-          </p>
+          <div className="header-content">
+            <div className="header-text">
+              <h1 className="page-title">
+                <span className="title-icon">🔧</span>
+                VHDL Tools
+              </h1>
+              <p className="page-subtitle">
+                Conjunto de herramientas para la conversión y extracción de datos de redes neuronales a formato VHDL
+              </p>
+              <div className="architecture-info">
+                <span className="architecture-badge">🎯 Optimizado para LeNet-5</span>
+                <p className="architecture-description">
+                  Estas herramientas están específicamente diseñadas para trabajar con la arquitectura LeNet-5
+                </p>
+              </div>
+            </div>
+            <div className="header-image">
+              <img 
+                src="/LeNet-5.png" 
+                alt="Arquitectura LeNet-5" 
+                className="lenet-architecture-image"
+              />
+              <p className="image-caption">Arquitectura LeNet-5</p>
+            </div>
+          </div>
         </div>
         
         <div className="tools-content">
