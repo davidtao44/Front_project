@@ -618,14 +618,14 @@ const FaultInjector = () => {
                                 <span className="label">Modelo usado:</span>
                                 <span className="value">{results.model_used}</span>
                               </div>
-                              <div className="info-item">
+                              {/* <div className="info-item">
                                 <span className="label">Forma de imagen:</span>
                                 <span className="value">{results.image_shape?.join(' × ')}</span>
-                              </div>
+                              </div> */}
                             </div>
                           </div>
                           
-                          {results.all_probabilities && (
+                          {/* {results.all_probabilities && (
                             <div className="result-card">
                               <h5>Todas las Probabilidades</h5>
                               <div className="probabilities-list">
@@ -643,7 +643,7 @@ const FaultInjector = () => {
                                 ))}
                               </div>
                             </div>
-                          )}
+                          )} */}
                           
                           {results.layer_outputs && (
                             <div className="result-card">
@@ -915,7 +915,7 @@ const FaultInjector = () => {
                             </div>
                           )}
                           
-                          {faultResults.all_probabilities && (
+                          {/* {faultResults.all_probabilities && (
                             <div className="result-card">
                               <h5>Probabilidades con Fallos</h5>
                               <div className="probabilities-list">
@@ -933,7 +933,7 @@ const FaultInjector = () => {
                                 ))}
                               </div>
                             </div>
-                          )}
+                          )} */}
                         </div>
                       ) : (
                         <div className="results-placeholder">
