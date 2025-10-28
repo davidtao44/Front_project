@@ -251,37 +251,31 @@ const FaultInjector = () => {
       accuracy: 'Exactitud (Accuracy)',
       precision: 'Precisión (Precision)',
       recall: 'Sensibilidad (Recall)',
-      f1_score: 'F1-Score',
       specificity: 'Especificidad',
       auc: 'AUC',
       loss: 'Pérdida',
       top_1_accuracy: 'Top-1 Accuracy',
       top_5_accuracy: 'Top-5 Accuracy',
       correct_predictions: 'Predicciones Correctas',
-      // macro_avg_precision: 'Precisión Macro Avg',
-      // macro_avg_recall: 'Recall Macro Avg',
-      // macro_avg_f1_score: 'F1-Score Macro Avg'
-      weighted_avg_precision: 'Precisión Weighted Avg',
-      weighted_avg_recall: 'Recall Weighted Avg',
-      weighted_avg_f1_score: 'F1-Score Weighted Avg'
+      macro_avg_precision: 'Precisión Macro Avg',
+      macro_avg_recall: 'Recall Macro Avg'
     };
 
-    // Extraer métricas de weighted average del classification_report si existe
-    let weightedAvgMetrics = {};
+    // Extraer métricas de macro average del classification_report si existe
+    let macroAvgMetrics = {};
     if (actualMetrics.classification_report && typeof actualMetrics.classification_report === 'object') {
       const classReport = actualMetrics.classification_report;
-      if (classReport['weighted avg']) {
-        weightedAvgMetrics = {
-          weighted_avg_precision: classReport['weighted avg']['precision'],
-          weighted_avg_recall: classReport['weighted avg']['recall'],
-          weighted_avg_f1_score: classReport['weighted avg']['f1-score']
+      if (classReport['macro avg']) {
+        macroAvgMetrics = {
+          macro_avg_precision: classReport['macro avg']['precision'],
+          macro_avg_recall: classReport['macro avg']['recall']
         };
       }
     }
 
-    // Definir el orden de prioridad para las métricas principales
-    const priorityMetrics = ['accuracy', 'precision', 'recall', 'f1_score'];
-    const weightedMetrics = ['weighted_avg_precision', 'weighted_avg_recall', 'weighted_avg_f1_score'];
+    // Definir el orden de prioridad para las métricas principales (sin F1-score)
+    const priorityMetrics = ['accuracy', 'precision', 'recall'];
+    const macroMetrics = ['macro_avg_precision', 'macro_avg_recall'];
     const countMetrics = ['correct_predictions'];
     
     // Filtrar y organizar métricas (excluyendo num_samples e incorrect_predictions)
@@ -290,13 +284,13 @@ const FaultInjector = () => {
              typeof value !== 'object';
     });
 
-    // Agregar métricas de weighted average
-    const allMetricsWithWeighted = [...allMetrics, ...Object.entries(weightedAvgMetrics)];
+    // Agregar métricas de macro average
+    const allMetricsWithMacro = [...allMetrics, ...Object.entries(macroAvgMetrics)];
 
-    console.log(`All metrics found for ${title}:`, allMetricsWithWeighted); // Debug log
+    console.log(`All metrics found for ${title}:`, allMetricsWithMacro); // Debug log
 
     // Si no hay métricas válidas, mostrar mensaje de debug
-    if (allMetricsWithWeighted.length === 0) {
+    if (allMetricsWithMacro.length === 0) {
       return (
         <div className="result-card">
           <h5>{title}</h5>
@@ -312,15 +306,15 @@ const FaultInjector = () => {
     }
 
     // Separar métricas por categorías
-    const mainMetrics = allMetricsWithWeighted.filter(([key]) => priorityMetrics.includes(key));
-    const weightedAvgMetrics_filtered = allMetricsWithWeighted.filter(([key]) => weightedMetrics.includes(key));
-    const countingMetrics = allMetricsWithWeighted.filter(([key]) => countMetrics.includes(key));
-    const otherMetrics = allMetricsWithWeighted.filter(([key]) => 
-      !priorityMetrics.includes(key) && !weightedMetrics.includes(key) && !countMetrics.includes(key)
+    const mainMetrics = allMetricsWithMacro.filter(([key]) => priorityMetrics.includes(key));
+    const macroAvgMetrics_filtered = allMetricsWithMacro.filter(([key]) => macroMetrics.includes(key));
+    const countingMetrics = allMetricsWithMacro.filter(([key]) => countMetrics.includes(key));
+    const otherMetrics = allMetricsWithMacro.filter(([key]) => 
+      !priorityMetrics.includes(key) && !macroMetrics.includes(key) && !countMetrics.includes(key)
     );
 
     console.log(`Main metrics for ${title}:`, mainMetrics); // Debug log
-    console.log(`Weighted avg metrics for ${title}:`, weightedAvgMetrics_filtered); // Debug log
+    console.log(`Macro avg metrics for ${title}:`, macroAvgMetrics_filtered); // Debug log
     console.log(`Counting metrics for ${title}:`, countingMetrics); // Debug log
     console.log(`Other metrics for ${title}:`, otherMetrics); // Debug log
 
@@ -328,7 +322,7 @@ const FaultInjector = () => {
       if (typeof value === 'number') {
         if (key === 'loss') {
           return value.toFixed(6);
-        } else if (['accuracy', 'precision', 'recall', 'f1_score', 'specificity', 'auc', 'top_1_accuracy', 'top_5_accuracy', 'weighted_avg_precision', 'weighted_avg_recall', 'weighted_avg_f1_score'].includes(key)) {
+        } else if (['accuracy', 'precision', 'recall', 'specificity', 'auc', 'top_1_accuracy', 'top_5_accuracy', 'macro_avg_precision', 'macro_avg_recall'].includes(key)) {
           return (value * 100).toFixed(2) + '%';
         } else {
           return value.toString();
@@ -366,8 +360,8 @@ const FaultInjector = () => {
         {/* Métricas principales de rendimiento */}
         {renderMetricSection(mainMetrics, "Métricas de Rendimiento")}
         
-        {/* Métricas de Weighted Average */}
-        {renderMetricSection(weightedAvgMetrics_filtered, "Métricas Weighted Average")}
+        {/* Métricas de Macro Average */}
+        {renderMetricSection(macroAvgMetrics_filtered, "Métricas Macro Average")}
         
         {/* Métricas de conteo */}
         {renderMetricSection(countingMetrics, "Estadísticas de Predicción")}
