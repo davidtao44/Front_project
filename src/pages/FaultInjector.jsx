@@ -451,7 +451,7 @@ const FaultInjector = () => {
                 Fault Injector
               </h1>
               <p className="page-subtitle">
-                Herramienta para inyección de fallos en redes neuronales convolucionales
+                Herramienta para inyección de fallos en CNNs: LeNet-5
               </p>
               <div className="architecture-info">
                 <span className="architecture-badge">🎯 Optimizado para LeNet-5</span>

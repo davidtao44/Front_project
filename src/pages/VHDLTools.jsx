@@ -28,7 +28,7 @@ const VHDLTools = () => {
                 VHDL Tools
               </h1>
               <p className="page-subtitle">
-                Conjunto de herramientas para la conversión y extracción de datos de redes neuronales a formato VHDL
+                Conjunto de herramientas para la conversión y extracción de datos de CNNs LeNet-5 a formato VHDL
               </p>
               <div className="architecture-info">
                 <span className="architecture-badge">🎯 Optimizado para LeNet-5</span>
