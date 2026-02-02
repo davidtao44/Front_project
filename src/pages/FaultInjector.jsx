@@ -978,7 +978,7 @@ const FaultInjector = () => {
                       </div>
                       
                       <div className="input-group">
-                        <label>Número de Muestras:</label>
+                        <label>Tamaño del batch:</label>
                         <input
                           type="number"
                           value={numSamples}
