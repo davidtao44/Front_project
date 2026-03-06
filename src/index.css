@@ -1,66 +1,111 @@
+:root {
+  /* ===== PALETA DE COLORES ACADÉMICA/PROFESIONAL ===== */
+  
+  /* Colores Principales */
+  --color-primary: #B4642F;       /* Rust - Acciones principales, botones */
+  --color-secondary: #C7824F;     /* Terra Cotta - Acentos, hover states */
+  --color-accent: #8F9B9B;        /* Sage - Elementos decorativos, bordes sutiles */
+  --color-text-main: #6A605C;     /* Coffee - Texto principal (en lugar de negro puro) */
+  --color-text-dark: #2C2826;     /* Dark Coffee - Títulos, alto contraste */
+  
+  /* Colores Neutros y Fondos */
+  --color-bg-body: #F9FAFB;       /* Off-White - Fondo general para evitar fatiga visual */
+  --color-surface: #FFFFFF;       /* White - Fondo de tarjetas y contenedores */
+  --color-border: #E5E7EB;        /* Gris muy claro para bordes */
+  --color-border-hover: #8F9B9B;  /* Sage para bordes activos/hover */
 
+  /* Estados */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
 
+  /* Sombras Suaves (Estilo Moderno) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Tipografía */
+  --font-family-base: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  
+  /* Espaciado */
+  --radius-sm: 0.375rem; /* 6px */
+  --radius-md: 0.5rem;   /* 8px */
+  --radius-lg: 0.75rem;  /* 12px */
+}
+
+/* ===== RESET & BASE STYLES ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
-  background-color: #FFFFFE; /* Fondo blanco principal */
-  color: #010101; /* Texto negro principal */
-  font-family: Arial, sans-serif;
+  font-family: var(--font-family-base);
+  background-color: var(--color-bg-body);
+  color: var(--color-text-main);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-header {
-  background-color: #010101; /* Fondo negro para el encabezado */
-  color: #FFFFFE; /* Texto blanco para contraste */
-  padding: 20px;
-  text-align: center;
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text-dark);
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
 }
 
-nav {
-  background-color: #767676; /* Fondo gris medio para la barra de navegación */
-  padding: 10px;
-}
-
-nav a {
-  color: #FFFFFE; /* Texto blanco para enlaces */
-  margin: 0 15px;
+a {
+  color: var(--color-primary);
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
-nav a:hover {
-  color: #FFCD26; /* Amarillo en hover */
-}
-
-section {
-  background-color: #FFFFFE; /* Fondo blanco para secciones de contenido */
-  margin: 20px;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #BCBCBC; /* Borde gris claro */
-}
-
-footer {
-  background-color: #010101; /* Fondo negro para el pie de página */
-  color: #FFFFFE; /* Texto blanco */
-  text-align: center;
-  padding: 10px;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
+a:hover {
+  color: var(--color-secondary);
 }
 
 button {
-  margin: 10px;
-  background-color: #FFCD26; /* Amarillo para botones */
-  color: #010101; /* Texto negro */
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
+  font-family: inherit;
   cursor: pointer;
-  transition: all 0.3s ease;
 }
 
-button:hover {
-  background-color: #FE6802; /* Naranja en hover */
-  color: #FFFFFE; /* Texto blanco en hover */
+/* ===== UTILIDADES COMUNES ===== */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: background-color 0.2s, transform 0.1s;
+  box-shadow: var(--shadow-sm);
 }
 
+.btn-primary:hover {
+  background-color: var(--color-secondary);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(180, 100, 47, 0.05); /* Tint sutil */
+}
+
+.card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  padding: 1.5rem;
+}

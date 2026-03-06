@@ -12,7 +12,7 @@ const ProtectedRoute = ({ children }) => {
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        backgroundColor: '#FFFFFE'
+        backgroundColor: 'var(--color-bg-body)'
       }}>
         <div style={{
           display: 'flex',
@@ -23,18 +23,26 @@ const ProtectedRoute = ({ children }) => {
           <div style={{
             width: '40px',
             height: '40px',
-            border: '4px solid #BCBCBC',
-            borderTop: '4px solid #FFCD26',
+            border: '4px solid var(--color-border)',
+            borderTop: '4px solid var(--color-primary)',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite'
           }}></div>
           <p style={{
-            color: '#767676',
+            color: 'var(--color-text-main)',
             fontSize: '16px',
             margin: 0
           }}>
             Cargando...
           </p>
+          <style>
+            {`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}
+          </style>
         </div>
       </div>
     );
