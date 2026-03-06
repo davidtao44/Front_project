@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { buildUrl } from '../config/api';
+import { UploadCloud, File, X, CheckCircle, AlertCircle } from 'lucide-react';
 import './ModelUpload.css';
 
 const ModelUpload = () => {
@@ -101,46 +102,28 @@ const ModelUpload = () => {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
   return (
     <div className="model-upload-container">
-      <h2>📁 Subir Modelos CNN Preentrenados</h2>
-      
       <div 
-        className={`upload-area ${dragActive ? 'drag-active' : ''}`}
+        className={`upload-dropzone ${dragActive ? 'drag-active' : ''}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
       >
-        <input
-          type="file"
-          id="file-upload"
-          multiple
-          accept=".h5,.keras"
+        <input 
+          type="file" 
+          id="file-upload" 
+          multiple 
           onChange={handleChange}
-          style={{ display: 'none' }}
+          accept=".h5,.keras"
+          className="file-input"
         />
-        
-        <div className="upload-content">
-          <div className="upload-icon">🤖</div>
-          <p className="upload-text">
-            Arrastra y suelta tus modelos aquí o{' '}
-            <label htmlFor="file-upload" className="upload-link">
-              selecciona archivos
-            </label>
-          </p>
-          <p className="upload-subtitle">
-            Formatos soportados: .h5, .keras
-          </p>
-        </div>
+        <label htmlFor="file-upload" className="upload-label">
+          <UploadCloud size={48} className="upload-icon" />
+          <p className="upload-text">Arrastra tus modelos aquí o haz clic para seleccionar</p>
+          <span className="upload-hint">Soporta archivos .h5 y .keras</span>
+        </label>
       </div>
 
       {uploading && (
@@ -156,35 +139,23 @@ const ModelUpload = () => {
       )}
 
       {uploadedFiles.length > 0 && (
-        <div className="uploaded-files">
-          <h3>✅ Modelos subidos:</h3>
-          <div className="file-list">
+        <div className="uploaded-files-list">
+          <h4>Modelos Subidos</h4>
+          <ul>
             {uploadedFiles.map((file, index) => (
-              <div key={index} className="file-item">
-                <div className="file-info">
-                  <span className="file-name">{file.name}</span>
-                  <div className="file-details">
-                    <span className="file-size">
-                      {formatFileSize(file.originalFile?.size || 0)}
-                    </span>
-                    <span className="file-layers">
-                      {file.layers} capas
-                    </span>
-                    <span className="file-params">
-                      {file.parameters?.toLocaleString()} parámetros
-                    </span>
-                  </div>
-                </div>
+              <li key={index} className="file-item">
+                <File size={20} className="file-icon" />
+                <span className="file-name">{file.originalFile?.name || file.name}</span>
                 <button 
-                  className="remove-btn"
                   onClick={() => removeFile(index)}
-                  title="Eliminar de la lista"
+                  className="remove-file-btn"
+                  title="Eliminar"
                 >
-                  ✕
+                  <X size={16} />
                 </button>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
     </div>

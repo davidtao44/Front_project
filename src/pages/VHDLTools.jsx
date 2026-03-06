@@ -1,4 +1,12 @@
 import { useState } from 'react';
+import { 
+  Cpu, 
+  LayoutGrid, 
+  Image, 
+  Scale, 
+  Zap, 
+  Flame 
+} from 'lucide-react';
 import Header from '../components/Header';
 import ModelSelector from '../components/cnn/ModelSelector';
 import ImageToVHDL from '../components/cnn/ImageToVHDL';
@@ -24,8 +32,8 @@ const VHDLTools = () => {
           <div className="header-content">
             <div className="header-text">
               <h1 className="page-title">
-                <span className="title-icon">🔧</span>
-                VHDL Tools
+                <span className="title-icon"><Cpu size={32} /></span>
+                Hardware Interoperability Module
               </h1>
               <p className="page-subtitle">
                 Conjunto de herramientas para la conversión y extracción de datos de CNNs LeNet-5 a formato VHDL
@@ -55,35 +63,35 @@ const VHDLTools = () => {
                 className={`tab-button ${activeTab === 'select' ? 'active' : ''}`}
                 onClick={() => setActiveTab('select')}
               >
-                <span className="tab-icon">🎛️</span>
+                <span className="tab-icon"><LayoutGrid size={18} /></span>
                 Seleccionar Arquitectura
               </button>
               <button 
                 className={`tab-button ${activeTab === 'image' ? 'active' : ''}`}
                 onClick={() => setActiveTab('image')}
               >
-                <span className="tab-icon">🖼️</span>
+                <span className="tab-icon"><Image size={18} /></span>
                 Imagen a VHDL
               </button>
               <button 
                 className={`tab-button ${activeTab === 'vhdl' ? 'active' : ''}`}
                 onClick={() => setActiveTab('vhdl')}
               >
-                <span className="tab-icon">⚖️</span>
+                <span className="tab-icon"><Scale size={18} /></span>
                 Modelo a VHDL
               </button>
               <button 
                 className={`tab-button ${activeTab === 'golden-simulation' ? 'active' : ''}`}
                 onClick={() => setActiveTab('golden-simulation')}
               >
-                <span className="tab-icon">🌟</span>
+                <span className="tab-icon"><Zap size={18} /></span>
                 Golden Simulation Hardware
               </button>
               <button 
                 className={`tab-button ${activeTab === 'hardware-fault' ? 'active' : ''}`}
                 onClick={() => setActiveTab('hardware-fault')}
               >
-                <span className="tab-icon">🔥</span>
+                <span className="tab-icon"><Flame size={18} /></span>
                 Hardware Fault Injection
               </button>
             </div>

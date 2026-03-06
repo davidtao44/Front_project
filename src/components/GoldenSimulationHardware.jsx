@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api } from '../config/api';
+import { Zap, Play, CheckCircle, XCircle, AlertTriangle, FileText, Wrench, Target } from 'lucide-react';
 import ChannelMatrixViewer from './ChannelMatrixViewer';
 import './HardwareFaultInjection.css'; // Reutilizamos los estilos existentes
 
@@ -40,14 +41,14 @@ const GoldenSimulationHardware = () => {
 
     return (
       <div className="results-container">
-        <h3>📊 Resultados de Simulación Golden</h3>
+        <h3><Zap size={20} style={{display: 'inline-block', marginRight: '8px'}}/> Resultados de Simulación Golden</h3>
         
         {/* Resultados de modificación */}
         {modification_results && (
           <div className="result-section">
-            <h4>🔧 Inyección de Valores Golden</h4>
+            <h4><Wrench size={18} style={{display: 'inline-block', marginRight: '8px'}}/> Inyección de Valores Golden</h4>
             <div className={`status-badge ${modification_results.status}`}>
-              {modification_results.status === 'success' ? '✅' : '❌'} {modification_results.message}
+              {modification_results.status === 'success' ? <CheckCircle size={16} style={{display: 'inline-block', marginRight: '4px'}}/> : <XCircle size={16} style={{display: 'inline-block', marginRight: '4px'}}/>} {modification_results.message}
             </div>
             
             {modification_results.values_injected && (
@@ -62,9 +63,9 @@ const GoldenSimulationHardware = () => {
         {/* Resultados de simulación */}
         {simulation_results && (
           <div className="result-section">
-            <h4>⚡ Simulación VHDL</h4>
+            <h4><Zap size={18} style={{display: 'inline-block', marginRight: '8px'}}/> Simulación VHDL</h4>
             <div className={`status-badge ${simulation_results.status}`}>
-              {simulation_results.status === 'success' ? '✅' : '❌'} {simulation_results.message}
+              {simulation_results.status === 'success' ? <CheckCircle size={16} style={{display: 'inline-block', marginRight: '4px'}}/> : <XCircle size={16} style={{display: 'inline-block', marginRight: '4px'}}/>} {simulation_results.message}
             </div>
             
             {simulation_results.steps_completed && (
@@ -92,10 +93,10 @@ const GoldenSimulationHardware = () => {
         {/* Resultados de procesamiento CSV */}
         {csv_processing_results && (
           <div className="result-section">
-            <h4>📄 Procesamiento de Archivos CSV</h4>
+            <h4><FileText size={18} style={{display: 'inline-block', marginRight: '8px'}}/> Procesamiento de Archivos CSV</h4>
             <div className={`status-badge ${csv_processing_results.status}`}>
-              {csv_processing_results.status === 'success' ? '✅' : 
-               csv_processing_results.status === 'warning' ? '⚠️' : '❌'} 
+              {csv_processing_results.status === 'success' ? <CheckCircle size={16} style={{display: 'inline-block', marginRight: '4px'}}/> : 
+               csv_processing_results.status === 'warning' ? <AlertTriangle size={16} style={{display: 'inline-block', marginRight: '4px'}}/> : <XCircle size={16} style={{display: 'inline-block', marginRight: '4px'}}/>} 
               {csv_processing_results.message || `${csv_processing_results.processed_files || 0} archivos procesados`}
             </div>
 
@@ -121,51 +122,55 @@ const GoldenSimulationHardware = () => {
 
   return (
     <div className="hardware-fault-injection">
-      <div className="header">
-        <h2>🌟 Golden Simulation Hardware</h2>
-        <p className="description">
-          Ejecuta la simulación con los valores originales (golden) del hardware VHDL para establecer una referencia base.
-          Esta simulación utiliza los valores por defecto de filtros y bias sin ninguna modificación.
-        </p>
+      <div className="section-header">
+        <div className="header-icon"><Zap size={24} color="var(--color-primary)" /></div>
+        <h2>Golden Simulation Hardware</h2>
       </div>
+      
+      <p className="description">
+        Ejecuta la simulación con los valores originales (golden) del hardware VHDL para establecer una referencia base. 
+        Esta simulación utiliza los valores por defecto de filtros y bias sin ninguna modificación.
+      </p>
 
-      <div className="golden-info-panel">
-        <h3>📋 Información de Simulación Golden</h3>
+      <div className="info-box">
+        <h4><FileText size={18} style={{display: 'inline-block', marginRight: '8px'}}/> Información de Simulación Golden</h4>
         <div className="info-grid">
           <div className="info-item">
-            <strong>🎯 Propósito:</strong>
+            <span className="info-icon"><Target size={16} /></span>
+            <strong>Propósito:</strong>
             <p>Establecer valores de referencia base para comparación con simulaciones con fallos</p>
           </div>
           <div className="info-item">
-            <strong>🔧 Valores utilizados:</strong>
+            <span className="info-icon"><Wrench size={16} /></span>
+            <strong>Valores utilizados:</strong>
             <p>Filtros FMAP_1 a FMAP_6 y valores BIAS_VAL_1 a BIAS_VAL_6 originales</p>
           </div>
           <div className="info-item">
-            <strong>⚡ Proceso:</strong>
+            <span className="info-icon"><Zap size={16} /></span>
+            <strong>Proceso:</strong>
             <p>compile.sh → elaborate.sh → simulate.sh → procesamiento CSV</p>
           </div>
         </div>
       </div>
 
-      <div className="controls-section">
-        <div className="run-simulation-container">
-          <button 
-            className="run-simulation-btn golden"
-            onClick={runGoldenSimulation}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <span className="spinner"></span>
-                Ejecutando Simulación Golden...
-              </>
-            ) : (
-              <>
-                🌟 Ejecutar Simulación Golden
-              </>
-            )}
-          </button>
-        </div>
+      <div className="actions-section">
+        <button 
+          className="run-button"
+          onClick={runGoldenSimulation}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <span className="spinner"></span>
+              Ejecutando Simulación...
+            </>
+          ) : (
+            <>
+              <span className="button-icon"><Play size={18} /></span>
+              Ejecutar Simulación Golden
+            </>
+          )}
+        </button>
 
         {error && (
           <div className="error-container">

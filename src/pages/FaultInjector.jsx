@@ -1,4 +1,12 @@
 import { useState } from 'react';
+import { 
+  Zap, 
+  Rocket, 
+  RefreshCw, 
+  Scale, 
+  UploadCloud, 
+  AlertTriangle 
+} from 'lucide-react';
 import Header from '../components/Header';
 import ModelSelector from '../components/cnn/ModelSelector';
 import WeightFaultConfig from '../components/WeightFaultConfig';
@@ -447,8 +455,8 @@ const FaultInjector = () => {
           <div className="header-content">
             <div className="header-text">
               <h1 className="page-title">
-                <span className="title-icon">⚡</span>
-                Fault Injector
+                <span className="title-icon"><Zap size={32} /></span>
+                Reliability Assessment Module
               </h1>
               <p className="page-subtitle">
                 Herramienta para inyección de fallos en CNNs: LeNet-5
@@ -478,28 +486,28 @@ const FaultInjector = () => {
                 className={`tab-button ${activeTab === 'inference' ? 'active' : ''}`}
                 onClick={() => setActiveTab('inference')}
               >
-                <span className="tab-icon">🚀</span>
+                <span className="tab-icon"><Rocket size={18} /></span>
                 Inferencia Golden
               </button>
               <button 
                 className={`tab-button ${activeTab === 'fault-injection' ? 'active' : ''}`}
                 onClick={() => setActiveTab('fault-injection')}
               >
-                <span className="tab-icon">⚡</span>
+                <span className="tab-icon"><Zap size={18} /></span>
                 Inyección de Fallos
               </button>
               <button 
                 className={`tab-button ${activeTab === 'analysis' ? 'active' : ''}`}
                 onClick={() => setActiveTab('analysis')}
               >
-                <span className="tab-icon">♺</span>
+                <span className="tab-icon"><RefreshCw size={18} /></span>
                 Campaña de fallos 
               </button>
               <button 
                 className={`tab-button ${activeTab === 'comparison' ? 'active' : ''}`}
                 onClick={() => setActiveTab('comparison')}
               >
-                <span className="tab-icon">⚖️</span>
+                <span className="tab-icon"><Scale size={18} /></span>
                 Comparación
               </button>
             </div>
@@ -537,7 +545,7 @@ const FaultInjector = () => {
                             className="file-input"
                           />
                           <label htmlFor="image-upload" className="upload-label">
-                            <div className="upload-icon">📁</div>
+                            <div className="upload-icon"><UploadCloud size={24} /></div>
                             <div className="upload-text">
                               {selectedImage ? selectedImage.name : 'Seleccionar imagen'}
                             </div>
@@ -572,7 +580,7 @@ const FaultInjector = () => {
                           </>
                         ) : (
                           <>
-                            <span className="button-icon">🚀</span>
+                            <span className="button-icon"><Rocket size={18} /></span>
                             Ejecutar Inferencia Golden
                           </>
                         )}
@@ -586,7 +594,7 @@ const FaultInjector = () => {
                     <div className="section-content">
                       {error && (
                         <div className="error-message">
-                          <div className="error-icon">⚠️</div>
+                          <div className="error-icon"><AlertTriangle size={24} /></div>
                           <p style={{
                             color: error.includes('🔥 Error Numérico Detectado') ? '#ffffff' : undefined,
                             textShadow: error.includes('🔥 Error Numérico Detectado') ? '1px 1px 2px rgba(0, 0, 0, 0.5)' : undefined,

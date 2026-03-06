@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Cpu, Image, Scale, Hash, LayoutGrid, ArrowRight } from 'lucide-react';
 import './VHDLToolsCard.css';
 
 const VHDLToolsCard = ({ onClick }) => {
@@ -13,9 +14,9 @@ const VHDLToolsCard = ({ onClick }) => {
     >
       <div className="card-header">
         <div className="card-icon vhdl-tools-icon">
-          🔧
+          <Cpu size={28} />
         </div>
-        <h3 className="card-title">VHDL Tools</h3>
+        <h3 className="card-title">Hardware Interoperability Module</h3>
       </div>
       
       <div className="card-content">
@@ -26,19 +27,19 @@ const VHDLToolsCard = ({ onClick }) => {
         
         <div className="card-features">
           <div className="feature-item">
-            <span className="feature-icon">🖼️</span>
+            <span className="feature-icon"><Image size={16} /></span>
             <span>Imagen a VHDL</span>
           </div>
           <div className="feature-item">
-            <span className="feature-icon">⚖️</span>
+            <span className="feature-icon"><Scale size={16} /></span>
             <span>Extracción de Pesos</span>
           </div>
           <div className="feature-item">
-            <span className="feature-icon">📐</span>
+            <span className="feature-icon"><Hash size={16} /></span>
             <span>Extracción de Bias</span>
           </div>
           <div className="feature-item">
-            <span className="feature-icon">🎛️</span>
+            <span className="feature-icon"><LayoutGrid size={16} /></span>
             <span>Selección de Modelos</span>
           </div>
         </div>
@@ -49,7 +50,7 @@ const VHDLToolsCard = ({ onClick }) => {
           <span className="status-badge available">Disponible</span>
         </div>
         <div className="card-arrow">
-          →
+          <ArrowRight size={20} />
         </div>
       </div>
     </div>

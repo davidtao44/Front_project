@@ -1,5 +1,6 @@
 import { useAuth } from '../contexts/AuthContext';
 import styles from './Header.module.css';
+import { LogOut } from 'lucide-react';
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -18,7 +19,7 @@ const Header = () => {
           alt="Logo UPTC" 
           className={styles.logo}
         />
-        <h1 className={styles.title}>Generador de CNN</h1>
+        <h1 className={styles.title}>GIRA crosslayer-FI</h1>
         <img 
           src="/logo_gira.png" 
           alt="Logo GIRA" 
@@ -50,7 +51,7 @@ const Header = () => {
           className={styles.logoutButton}
           title="Cerrar sesión"
         >
-          <span className={styles.logoutIcon}>🚪</span>
+          <LogOut size={18} className={styles.logoutIcon} />
           Salir
         </button>
       </div>

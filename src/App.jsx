@@ -10,6 +10,9 @@ import VHDLToolsCard from "./components/VHDLToolsCard";
 import FaultInjector from './pages/FaultInjector';
 import VHDLTools from './pages/VHDLTools';
 import "./App.css";
+import "./pages/HomePage.css"; // Importar estilos específicos
+
+import { UploadCloud, Cpu } from "lucide-react";
 
 const HomePage = () => {
   const [selectedModel, setSelectedModel] = useState(null);
@@ -29,29 +32,76 @@ const HomePage = () => {
   };
 
   return (
-    <div className="app-container">
+    <div className="home-container">
       <Header />
       
-      {/* Model Upload Section */}
-      <div className="model-upload-section">
-        <div className="container">
-          <h2 className="section-title">Subir Modelos CNN Pre-entrenados</h2>
-          <ModelUpload />
-        </div>
-      </div>
-      
-      {/* Feature Cards Section */}
-      <div className="feature-cards-section">
-        <div className="container">
-          <h2 className="section-title">Herramientas Disponibles</h2>
-          <div className="cards-grid">
-            <FaultInjectorCard onClick={handleFaultInjectorClick} />
-            <VHDLToolsCard onClick={handleVHDLToolsClick} />
+      {/* HERO SECTION */}
+      <section className="hero-section">
+        <div className="hero-content">
+          <h1 className="hero-title">
+            GIRA <br />
+            <span>crosslayer-FI</span>
+          </h1>
+          <p className="hero-subtitle">
+            Plataforma integral para la inyección de fallos, evaluación de confiabilidad 
+            y generación automática de descripciones VHDL para CNN Lenet-5.
+          </p>
+          
+          <div className="hero-stats">
+            <div className="stat-item">
+              <span className="stat-value">CNN</span>
+              <span className="stat-label">Arquitecturas</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-value">FI</span>
+              <span className="stat-label">Fault Injection</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-value">VHDL</span>
+              <span className="stat-label">Generación HW</span>
+            </div>
           </div>
         </div>
-      </div>
-      
+      </section>
 
+      {/* DASHBOARD GRID */}
+      <section className="dashboard-section">
+        <div className="dashboard-grid">
+          
+          {/* Columna Izquierda: Gestión de Modelos */}
+          <div className="models-column">
+            <div className="section-header">
+              <h3>
+                <UploadCloud size={24} />
+                Trained Model Importer Module
+              </h3>
+              <p className="section-desc">Sube tus arquitecturas pre-entrenadas para comenzar el análisis.</p>
+            </div>
+            <ModelUpload />
+          </div>
+
+          {/* Columna Derecha: Herramientas Principales */}
+          <div className="tools-column">
+            <div className="section-header">
+              <h3>
+                <Cpu size={24} />
+                Herramientas de Análisis
+              </h3>
+              <p className="section-desc">Selecciona una herramienta para evaluar la robustez o generar hardware.</p>
+            </div>
+            
+            <div className="tools-grid">
+              <div onClick={handleFaultInjectorClick}>
+                <FaultInjectorCard />
+              </div>
+              <div onClick={handleVHDLToolsClick}>
+                <VHDLToolsCard />
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
