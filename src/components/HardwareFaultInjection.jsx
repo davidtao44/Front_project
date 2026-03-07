@@ -1,6 +1,26 @@
 import { useState, useEffect } from 'react';
 import { api } from '../config/api';
 import ChannelMatrixViewer from './ChannelMatrixViewer';
+import { 
+  AlertTriangle, 
+  CheckCircle, 
+  XCircle, 
+  UploadCloud, 
+  Settings, 
+  Plus, 
+  Trash2, 
+  Play, 
+  Zap, 
+  FileText,
+  Target,
+  Sliders,
+  BarChart2,
+  Search,
+  RefreshCw,
+  MapPin,
+  Info,
+  Wrench
+} from 'lucide-react';
 import './HardwareFaultInjection.css';
 
 const HardwareFaultInjection = () => {
@@ -15,11 +35,26 @@ const HardwareFaultInjection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     loadSupportedFaults();
     checkVivadoStatus();
   }, []);
+
+  // Auto-dismiss notification
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
+  const showNotification = (type, message, details = '') => {
+    setNotification({ type, message, details });
+  };
 
   const loadSupportedFaults = async () => {
     try {
@@ -103,12 +138,6 @@ const HardwareFaultInjection = () => {
 
   const removeBiasFault = (index) => {
     setBiasFaults(biasFaults.filter((_, i) => i !== index));
-  };
-
-  // Simple alert helper
-  const showAlert = (message) => {
-    // Prefer a lightweight inline alert; can be replaced by toast later
-    alert(message);
   };
 
   // Validation helpers
@@ -199,13 +228,11 @@ const HardwareFaultInjection = () => {
     const validationError = validateFaults();
     if (validationError) {
       setError(validationError);
-      showAlert(validationError);
       return;
     }
 
     if (filterFaults.length === 0 && biasFaults.length === 0) {
       setError('Debe agregar al menos un fallo (filtro o sesgo)');
-      showAlert('Debe agregar al menos un fallo (filtro o sesgo)');
       return;
     }
 
@@ -214,14 +241,8 @@ const HardwareFaultInjection = () => {
     setResults(null);
 
     try {
-      console.log('🔍 DEBUG Frontend - Original filterFaults:', filterFaults);
-      console.log('🔍 DEBUG Frontend - Original biasFaults:', biasFaults);
-      
       // Convertir posiciones de bits antes de enviar al backend
       const { convertedFilterFaults, convertedBiasFaults } = convertFaultsForBackend(filterFaults, biasFaults);
-      
-      console.log('🔍 DEBUG Frontend - Converted filterFaults:', convertedFilterFaults);
-      console.log('🔍 DEBUG Frontend - Converted biasFaults:', convertedBiasFaults);
       
       const formData = new FormData();
       
@@ -229,79 +250,21 @@ const HardwareFaultInjection = () => {
       const filterFaultsJson = JSON.stringify(convertedFilterFaults);
       const biasFaultsJson = JSON.stringify(convertedBiasFaults);
       
-      console.log('🔍 DEBUG Frontend - filterFaultsJson:', filterFaultsJson);
-      console.log('🔍 DEBUG Frontend - biasFaultsJson:', biasFaultsJson);
-      
       formData.append('filter_faults', filterFaultsJson);
       formData.append('bias_faults', biasFaultsJson);
-
-      // Verificar que FormData tiene contenido
-      console.log('🔍 DEBUG Frontend - FormData entries:');
-      for (let [key, value] of formData.entries()) {
-        console.log(`  ${key}: ${value}`);
-      }
 
       // No establecer Content-Type manualmente - el navegador lo hará automáticamente con el boundary correcto
       const response = await api.post('/vhdl/inject_faults/', formData);
 
       const data = await response.json();
-      console.log('🔍 DEBUG Frontend - Respuesta completa del backend:', data);
-      console.log('🔍 DEBUG Frontend - csv_processing_results:', data.csv_processing_results);
-      
-      if (data.csv_processing_results && data.csv_processing_results.results) {
-        console.log('🔍 DEBUG Frontend - Número de archivos procesados:', data.csv_processing_results.results.length);
-        data.csv_processing_results.results.forEach((result, index) => {
-          console.log(`🔍 DEBUG Frontend - Archivo ${index + 1}:`, result);
-          if (result.csv_data) {
-            console.log(`🔍 DEBUG Frontend - Estructura csv_data del archivo ${index + 1}:`, Object.keys(result.csv_data));
-            if (result.csv_data.channels) {
-              console.log(`🔍 DEBUG Frontend - Canales disponibles:`, Object.keys(result.csv_data.channels));
-            }
-          }
-        });
-      }
       
       // Si la inyección fue exitosa y el archivo fue modificado, notificar al usuario
       if (data.file_modified && data.file_info) {
-        console.log('✅ Archivo VHDL modificado exitosamente:', data.file_info.path);
-        console.log('📅 Timestamp de modificación:', new Date(data.modification_timestamp));
-        
-        // Mostrar notificación al usuario sobre la modificación del archivo
-        const notification = document.createElement('div');
-        notification.className = 'file-update-notification';
-        notification.innerHTML = `
-          <div class="notification-content">
-            <span class="notification-icon">✅</span>
-            <span class="notification-text">Archivo VHDL actualizado exitosamente</span>
-            <span class="notification-details">Modificado: ${new Date(data.modification_timestamp).toLocaleTimeString()}</span>
-          </div>
-        `;
-        notification.style.cssText = `
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          background: #4CAF50;
-          color: white;
-          padding: 15px 20px;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          z-index: 1000;
-          animation: slideIn 0.3s ease-out;
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Remover la notificación después de 5 segundos
-        setTimeout(() => {
-          if (notification.parentNode) {
-            notification.style.animation = 'slideOut 0.3s ease-in';
-            setTimeout(() => {
-              if (notification.parentNode) {
-                document.body.removeChild(notification);
-              }
-            }, 300);
-          }
-        }, 5000);
+        showNotification(
+          'success', 
+          'Archivo VHDL actualizado exitosamente', 
+          `Modificado: ${new Date(data.modification_timestamp).toLocaleTimeString()}`
+        );
       }
       
       setResults(data);
@@ -327,43 +290,11 @@ const HardwareFaultInjection = () => {
       const data = await response.json();
       
       if (data.status === 'success') {
-        // Mostrar notificación de archivo refrescado
-        const notification = document.createElement('div');
-        notification.className = 'file-update-notification';
-        notification.innerHTML = `
-          <div class="notification-content">
-            <span class="notification-icon">🔄</span>
-            <span class="notification-text">Archivo VHDL refrescado</span>
-            <span class="notification-details">Última modificación: ${new Date(data.file_info.last_modified_ms).toLocaleTimeString()}</span>
-          </div>
-        `;
-        notification.style.cssText = `
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          background: #2196F3;
-          color: white;
-          padding: 15px 20px;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          z-index: 1000;
-          animation: slideIn 0.3s ease-out;
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          if (notification.parentNode) {
-            notification.style.animation = 'slideOut 0.3s ease-in';
-            setTimeout(() => {
-              if (notification.parentNode) {
-                document.body.removeChild(notification);
-              }
-            }, 300);
-          }
-        }, 3000);
-        
-        console.log('✅ Archivo VHDL refrescado:', data.file_info);
+        showNotification(
+          'info', 
+          'Archivo VHDL refrescado', 
+          `Última modificación: ${new Date(data.file_info.last_modified_ms).toLocaleTimeString()}`
+        );
       }
     } catch (error) {
       console.error('❌ ERROR refrescando archivo:', error);
@@ -373,17 +304,36 @@ const HardwareFaultInjection = () => {
     }
   };
 
-
-
   if (!supportedFaults) {
-    return <div className="loading">Cargando información de fallos soportados...</div>;
+    return <div className="loading"><RefreshCw className="spin" size={24} /> Cargando información de fallos soportados...</div>;
   }
 
   return (
     <div className="hardware-fault-injection">
+      {/* Notification Component */}
+      {notification && (
+        <div className={`notification-toast ${notification.type}`}>
+          <div className="notification-icon">
+            {notification.type === 'success' ? <CheckCircle size={20} /> : <Info size={20} />}
+          </div>
+          <div className="notification-content">
+            <div className="notification-message">{notification.message}</div>
+            {notification.details && <div className="notification-details">{notification.details}</div>}
+          </div>
+          <button className="notification-close" onClick={() => setNotification(null)}>
+            <XCircle size={16} />
+          </button>
+        </div>
+      )}
+
+      <div className="section-header">
+        <div className="header-icon"><Zap size={24} color="var(--color-primary)" /></div>
+        <h2>Hardware Fault Injection</h2>
+      </div>
+
       <div className="section">
         <h3 className="section-title">
-          <span className="section-icon">📁</span>
+          <span className="section-icon"><FileText size={20} /></span>
           Archivo VHDL
         </h3>
         
@@ -420,7 +370,7 @@ const HardwareFaultInjection = () => {
                 placeholder="Ingresa la ruta completa del archivo VHDL"
               />
               <div className="path-info">
-                <small>📍 Ruta por defecto: CONV_LAYER_1.vhd (Primera capa convolucional)</small>
+                <small><MapPin size={14} style={{display: 'inline-block', verticalAlign: 'middle'}}/> Ruta por defecto: CONV_LAYER_1.vhd (Primera capa convolucional)</small>
               </div>
               <div className="file-actions">
                 <button 
@@ -428,7 +378,7 @@ const HardwareFaultInjection = () => {
                   className="refresh-file-btn"
                   disabled={isLoading}
                 >
-                  <span className="btn-icon">🔄</span>
+                  <span className="btn-icon"><RefreshCw size={16} /></span>
                   {isLoading ? 'Refrescando...' : 'Refrescar archivo'}
                 </button>
               </div>
@@ -443,6 +393,7 @@ const HardwareFaultInjection = () => {
                 id="vhdl-file"
               />
               <label htmlFor="vhdl-file" className="file-label">
+                <UploadCloud size={18} style={{marginRight: '8px'}}/>
                 {vhdlFile ? vhdlFile.name : 'Seleccionar archivo VHDL'}
               </label>
             </div>
@@ -452,7 +403,7 @@ const HardwareFaultInjection = () => {
 
       <div className="section">
         <h3 className="section-title">
-          <span className="section-icon">🔧</span>
+          <span className="section-icon"><Wrench size={20} /></span>
           Estado de Vivado
         </h3>
         <div className="vivado-status">
@@ -471,7 +422,7 @@ const HardwareFaultInjection = () => {
           {vivadoStatus && (
             <div className={`vivado-status-result ${vivadoStatus.vivado_valid ? 'available' : 'unavailable'}`}>
               <span className="status-icon">
-                {vivadoStatus.vivado_valid ? '✅' : '❌'}
+                {vivadoStatus.vivado_valid ? <CheckCircle size={16} /> : <XCircle size={16} />}
               </span>
               {vivadoStatus.message}
             </div>
@@ -481,7 +432,7 @@ const HardwareFaultInjection = () => {
 
       <div className="section">
         <h3 className="section-title">
-          <span className="section-icon">🎯</span>
+          <span className="section-icon"><Target size={20} /></span>
           Fallos en Filtros (FMAP)
         </h3>
         <div className="faults-container">
@@ -490,7 +441,7 @@ const HardwareFaultInjection = () => {
               <div className="fault-header">
                 <span>Fallo en Filtro #{index + 1}</span>
                 <button onClick={() => removeFilterFault(index)} className="remove-fault-btn">
-                  ❌
+                  <Trash2 size={16} />
                 </button>
               </div>
               <div className="fault-fields">
@@ -555,14 +506,14 @@ const HardwareFaultInjection = () => {
             </div>
           ))}
           <button onClick={addFilterFault} className="add-fault-btn">
-            ➕ Agregar Fallo en Filtro
+            <Plus size={16} style={{marginRight: '8px'}}/> Agregar Fallo en Filtro
           </button>
         </div>
       </div>
 
       <div className="section">
         <h3 className="section-title">
-          <span className="section-icon">⚖️</span>
+          <span className="section-icon"><Sliders size={20} /></span>
           Fallos en Sesgos (BIAS)
         </h3>
         <div className="faults-container">
@@ -571,7 +522,7 @@ const HardwareFaultInjection = () => {
               <div className="fault-header">
                 <span>Fallo en Sesgo #{index + 1}</span>
                 <button onClick={() => removeBiasFault(index)} className="remove-fault-btn">
-                  ❌
+                  <Trash2 size={16} />
                 </button>
               </div>
               <div className="fault-fields">
@@ -616,12 +567,10 @@ const HardwareFaultInjection = () => {
             </div>
           ))}
           <button onClick={addBiasFault} className="add-fault-btn">
-            ➕ Agregar Fallo en Sesgo
+            <Plus size={16} style={{marginRight: '8px'}}/> Agregar Fallo en Sesgo
           </button>
         </div>
       </div>
-
-
 
       <div className="section">
         <div className="action-buttons">
@@ -630,14 +579,22 @@ const HardwareFaultInjection = () => {
             disabled={isLoading || (!vhdlFile && !useDefaultPath) || (filterFaults.length === 0 && biasFaults.length === 0)}
             className="inject-faults-btn"
           >
-            {isLoading ? 'Procesando...' : 'Inyectar Fallos'}
+            {isLoading ? (
+              <>
+                <RefreshCw className="spin" size={18} style={{marginRight: '8px'}}/> Procesando...
+              </>
+            ) : (
+              <>
+                <Zap size={18} style={{marginRight: '8px'}}/> Inyectar Fallos
+              </>
+            )}
           </button>
         </div>
       </div>
 
       {error && (
         <div className="error-message">
-          <span className="error-icon">❌</span>
+          <span className="error-icon"><XCircle size={18} /></span>
           {error}
         </div>
       )}
@@ -645,13 +602,13 @@ const HardwareFaultInjection = () => {
       {results && (
         <div className="section">
           <h3 className="section-title">
-            <span className="section-icon">📊</span>
+            <span className="section-icon"><BarChart2 size={20} /></span>
             Resultados
           </h3>
           <div className="results-container">
             <div className={`result-status ${results.status === 'success' ? 'success' : 'error'}`}>
               <span className="status-icon">
-                {results.status === 'success' ? '✅' : '❌'}
+                {results.status === 'success' ? <CheckCircle size={18} /> : <XCircle size={18} />}
               </span>
               {results.message}
             </div>
@@ -671,7 +628,7 @@ const HardwareFaultInjection = () => {
       {results && results.csv_processing_results && (
         <div className="section">
           <h3 className="section-title">
-            <span className="section-icon">🔍</span>
+            <span className="section-icon"><Search size={20} /></span>
             Visualización de Matrices de Salida
           </h3>
           <ChannelMatrixViewer csvProcessingResults={results.csv_processing_results} />

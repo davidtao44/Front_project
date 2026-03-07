@@ -47,7 +47,7 @@ const Login = () => {
             alt="Logo UPTC" 
             className={styles.logo}
           />
-          <h1 className={styles.title}>CNN-VHDL Studio: Implementación y Validación de Tolerancia a Fallos</h1>
+          <h1 className={styles.title}>GIRA crosslayer-FI</h1>
           <p className={styles.subtitle}>Inicia sesión para continuar</p>
         </div>
 

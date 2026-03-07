@@ -1,187 +1,117 @@
-/* ===== HEADER PRINCIPAL ===== */
 .header {
-  background-color: #FFFFFE;
-  border-bottom: 2px solid #BCBCBC;
-  padding: 15px 30px;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: 0.75rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(1, 1, 1, 0.1);
+  box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
   z-index: 100;
+  height: 70px;
 }
 
 /* ===== SECCIÓN DEL LOGO ===== */
 .logoSection {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 1rem;
 }
 
 .logo {
-  height: 50px;
+  height: 40px;
   width: auto;
   object-fit: contain;
 }
 
 .title {
-  font-size: 24px;
+  font-size: 1.25rem;
   font-weight: 700;
-  color: #010101;
+  color: var(--color-text-dark);
   margin: 0;
-  text-align: center;
+  letter-spacing: -0.025em;
 }
 
 /* ===== SECCIÓN DEL USUARIO ===== */
 .userSection {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 1.5rem;
 }
 
 .userInfo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 .userAvatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #FFCD26 0%, #FE6802 100%);
-  color: #FFFFFE;
+  background-color: var(--color-accent); /* Sage */
+  color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 16px;
-  box-shadow: 0 2px 8px rgba(255, 205, 38, 0.3);
+  font-weight: 600;
+  font-size: 0.875rem;
   overflow: hidden;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 0 0 1px var(--color-border);
 }
 
 .userAvatarImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 50%;
 }
 
 .userDetails {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  line-height: 1.1;
 }
 
 .username {
   font-weight: 600;
-  color: #010101;
-  font-size: 14px;
-  line-height: 1.2;
+  color: var(--color-text-dark);
+  font-size: 0.875rem;
 }
 
 .userRole {
-  font-size: 12px;
-  color: #767676;
+  font-size: 0.75rem;
+  color: var(--color-text-main);
   text-transform: capitalize;
-  line-height: 1.2;
+  margin-top: 2px;
 }
 
 /* ===== BOTÓN DE LOGOUT ===== */
 .logoutButton {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
   background-color: transparent;
-  border: 2px solid #FE6802;
-  border-radius: 8px;
-  color: #FE6802;
-  font-size: 14px;
-  font-weight: 600;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-main);
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .logoutButton:hover {
-  background-color: #FE6802;
-  color: #FFFFFE;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(254, 104, 2, 0.3);
+  background-color: #FEF2F2; /* Rojo muy suave */
+  border-color: #FECACA;
+  color: var(--color-error);
 }
 
-.logoutButton:active {
-  transform: translateY(0);
-}
-
-.logoutIcon {
-  font-size: 16px;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .header {
-    padding: 12px 20px;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .logoSection {
-    gap: 15px;
-  }
-  
-  .logo {
-    height: 40px;
-  }
-  
-  .title {
-    font-size: 20px;
-  }
-  
-  .userSection {
-    gap: 15px;
-  }
-  
-  .userDetails {
-    display: none;
-  }
-  
-  .logoutButton {
-    padding: 8px 12px;
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 480px) {
-  .header {
-    padding: 10px 15px;
-  }
-  
-  .logoSection {
-    gap: 10px;
-  }
-  
-  .logo {
-    height: 35px;
-  }
-  
-  .title {
-    font-size: 18px;
-  }
-  
-  .userAvatar {
-    width: 35px;
-    height: 35px;
-    font-size: 14px;
-  }
-  
-  .logoutButton {
-    padding: 6px 10px;
-    font-size: 12px;
-  }
-  
-  .logoutIcon {
-    font-size: 14px;
-  }
+/* Icono dentro del botón (si existe) */
+.logoutButton svg {
+  width: 16px;
+  height: 16px;
 }

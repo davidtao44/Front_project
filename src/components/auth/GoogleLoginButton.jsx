@@ -34,20 +34,20 @@ const GoogleLoginButton = ({ onSuccess, onError }) => {
         width: '100%',
         padding: '16px',
         margin: '0',
-        background: 'linear-gradient(135deg, #FFCD26 0%, #FE6802 100%)',
-        color: '#FFFFFE',
-        border: 'none',
-        borderRadius: '10px',
+        background: 'var(--color-surface)',
+        color: 'var(--color-text-dark)',
+        border: '1px solid var(--color-border)',
+        borderRadius: '8px',
         fontSize: '16px',
-        fontWeight: '600',
+        fontWeight: '500',
         cursor: 'pointer',
-        transition: 'all 0.3s ease',
+        transition: 'all 0.2s ease',
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '8px',
-        boxShadow: '0 4px 12px rgba(255, 205, 38, 0.3)'
+        gap: '12px',
+        boxShadow: 'var(--shadow-sm)'
       }}
     >
       {isLoading ? 'Iniciando sesión...' : 'Continuar con Google'}

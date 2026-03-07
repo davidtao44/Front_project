@@ -1,6 +1,6 @@
 .vhdl-tools-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%);
+  background-color: var(--color-bg-body);
 }
 
 .vhdl-tools-container {
@@ -13,6 +13,10 @@
   text-align: center;
   margin-bottom: 3rem;
   padding: 2rem 0;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .header-content {
@@ -22,6 +26,7 @@
   gap: 3rem;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 2rem;
 }
 
 .header-text {
@@ -40,46 +45,46 @@
 .lenet-architecture-image {
   max-width: 400px;
   height: auto;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  background: white;
-  padding: 1rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  background: var(--color-surface);
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
 }
 
 .image-caption {
-  font-size: 0.9rem;
-  color: white;
+  font-size: 0.85rem;
+  color: var(--color-text-main);
   font-weight: 500;
-  margin: 0;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  margin-top: 0.5rem;
 }
 
 .architecture-info {
   margin-top: 1.5rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: var(--color-bg-body);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
 }
 
 .architecture-badge {
   display: inline-block;
-  background: linear-gradient(135deg, #48bb78, #38a169);
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
+  background-color: var(--color-accent);
+  color: #FFFFFF;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .architecture-description {
-  font-size: 1rem;
-  color: white;
+  font-size: 0.95rem;
+  color: var(--color-text-main);
   margin: 0.5rem 0 0 0;
   line-height: 1.5;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Responsive design for header */
@@ -104,38 +109,37 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
-  color: white;
+  color: var(--color-text-dark);
   margin: 0 0 1rem 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .title-icon {
-  font-size: 2.5rem;
-  background: linear-gradient(135deg, #bee3f8, #90cdf4);
+  font-size: 2rem;
+  background-color: rgba(143, 155, 155, 0.1);
+  color: var(--color-primary);
   padding: 0.5rem;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #2c5aa0;
 }
 
 .page-subtitle {
-  font-size: 1.2rem;
-  color: white;
+  font-size: 1.1rem;
+  color: var(--color-text-main);
   margin: 0;
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .tools-content {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
   overflow: hidden;
 }
 
@@ -145,19 +149,19 @@
 
 .tab-buttons {
   display: flex;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  background-color: var(--color-bg-body);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .tab-button {
   flex: 1;
-  padding: 1.5rem 2rem;
+  padding: 1.25rem 2rem;
   border: none;
   background: transparent;
-  color: #6c757d;
+  color: var(--color-text-main);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   border-bottom: 3px solid transparent;
   display: flex;
   align-items: center;
@@ -167,18 +171,19 @@
 }
 
 .tab-button:hover {
-  background: #e9ecef;
-  color: #495057;
+  background-color: rgba(0, 0, 0, 0.02);
+  color: var(--color-text-dark);
 }
 
 .tab-button.active {
-  background: white;
-  color: #FFD700;
-  border-bottom-color: #FFD700;
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  font-weight: 600;
 }
 
 .tab-icon {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .tab-content {
@@ -191,14 +196,14 @@
 }
 
 .panel-title {
-  font-size: 1.8rem;
-  color: #2d3748;
+  font-size: 1.5rem;
+  color: var(--color-text-dark);
   margin: 0 0 1rem 0;
   font-weight: 600;
 }
 
 .panel-description {
-  color: #4a5568;
+  color: var(--color-text-main);
   line-height: 1.6;
   margin-bottom: 2rem;
   font-size: 1rem;
@@ -209,24 +214,11 @@
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-.title-icon {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
   }
 }
 
@@ -237,13 +229,13 @@
   }
   
   .page-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
     flex-direction: column;
     gap: 0.5rem;
   }
   
   .title-icon {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
   
   .page-subtitle {
@@ -257,6 +249,13 @@
   .tab-button {
     padding: 1rem;
     font-size: 0.9rem;
+    border-bottom: 1px solid var(--color-border);
+    border-left: 3px solid transparent;
+  }
+  
+  .tab-button.active {
+    border-bottom-color: var(--color-border);
+    border-left-color: var(--color-primary);
   }
   
   .tab-content {
@@ -264,6 +263,6 @@
   }
   
   .panel-title {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 }
