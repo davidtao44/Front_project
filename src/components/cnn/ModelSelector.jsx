@@ -3,15 +3,24 @@ import { useAuth } from "../../contexts/AuthContext";
 import { API_BASE_URL } from "../../config/api";
 import styles from "./ModelSelector.module.css";
 
-const ModelSelector = ({ onSelectModel }) => {
+const ModelSelector = ({ onSelectModel, selectedModel: externalSelectedModel, variant = "full" }) => {
   const { authenticatedFetch } = useAuth();
   const [models, setModels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedModel, setSelectedModel] = useState(null);
+  const [internalSelectedModel, setInternalSelectedModel] = useState(null);
   const [selectedForDeletion, setSelectedForDeletion] = useState([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState(null);
+
+  // Sync internal state with external prop
+  useEffect(() => {
+    if (externalSelectedModel) {
+      setInternalSelectedModel(externalSelectedModel);
+    }
+  }, [externalSelectedModel]);
+
+  const currentSelectedModel = externalSelectedModel || internalSelectedModel;
 
   useEffect(() => {
     fetchModels();
@@ -35,8 +44,8 @@ const ModelSelector = ({ onSelectModel }) => {
         prev.filter(path => data.models.some(model => model.path === path))
       );
       
-      if (selectedModel && !data.models.some(model => model.path === selectedModel.path)) {
-        setSelectedModel(null);
+      if (currentSelectedModel && !data.models.some(model => model.path === currentSelectedModel.path)) {
+        setInternalSelectedModel(null);
       }
     } catch (err) {
       setError("Error al cargar los modelos: " + err.message);
@@ -47,7 +56,7 @@ const ModelSelector = ({ onSelectModel }) => {
   };
 
   const handleSelectModel = (model) => {
-    setSelectedModel(model);
+    setInternalSelectedModel(model);
     if (onSelectModel) {
       onSelectModel(model);
     }
@@ -90,8 +99,8 @@ const ModelSelector = ({ onSelectModel }) => {
         });
         
         // If the currently selected model was deleted, clear it
-        if (selectedModel && selectedForDeletion.includes(selectedModel.path)) {
-          setSelectedModel(null);
+        if (currentSelectedModel && selectedForDeletion.includes(currentSelectedModel.path)) {
+          setInternalSelectedModel(null);
           if (onSelectModel) {
             onSelectModel(null);
           }
@@ -127,6 +136,27 @@ const ModelSelector = ({ onSelectModel }) => {
 
   if (models.length === 0) {
     return <div className={styles.empty}>No hay modelos disponibles. Crea uno primero.</div>;
+  }
+
+  if (variant === "compact") {
+    return (
+      <select
+        className={styles.compactSelect}
+        value={currentSelectedModel?.path || ""}
+        onChange={(e) => {
+          const selected = models.find(m => m.path === e.target.value);
+          handleSelectModel(selected);
+        }}
+        disabled={loading}
+      >
+        <option value="" disabled>Seleccionar un modelo...</option>
+        {models.map((model, index) => (
+          <option key={index} value={model.path}>
+            {model.filename}
+          </option>
+        ))}
+      </select>
+    );
   }
 
   return (
@@ -168,7 +198,7 @@ const ModelSelector = ({ onSelectModel }) => {
         {models.map((model, index) => (
           <div 
             key={index} 
-            className={`${styles.modelCard} ${selectedModel?.filename === model.filename ? styles.selected : ''}`}
+            className={`${styles.modelCard} ${currentSelectedModel?.path === model.path ? styles.selected : ''}`}
             onClick={() => handleSelectModel(model)}
           >
             <div className={styles.cardHeader}>
@@ -211,7 +241,7 @@ const ModelSelector = ({ onSelectModel }) => {
                 handleSelectModel(model);
               }}
             >
-              {selectedModel?.filename === model.filename ? "Seleccionado" : "Seleccionar"}
+              {currentSelectedModel?.path === model.path ? "Seleccionado" : "Seleccionar"}
             </button>
           </div>
         ))}

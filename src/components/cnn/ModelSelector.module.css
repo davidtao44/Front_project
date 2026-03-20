@@ -7,6 +7,94 @@
   box-shadow: var(--shadow-sm);
 }
 
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.title {
+  font-size: 1.5rem;
+  margin: 0;
+  color: var(--color-text-dark);
+}
+
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+}
+
+.refreshButton, .deleteButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.refreshButton {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.refreshButton:hover:not(:disabled) {
+  background-color: var(--color-secondary);
+  transform: translateY(-1px);
+}
+
+.deleteButton {
+  background-color: white;
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.deleteButton:hover:not(:disabled) {
+  background-color: var(--color-error);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.deleteButton.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--color-border);
+  color: var(--color-text-main);
+}
+
+.buttonIcon {
+  font-size: 1.1rem;
+}
+
+/* Feedback messages */
+.message {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.success {
+  background-color: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.error {
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
 .modelGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -21,6 +109,8 @@
   transition: all 0.2s ease;
   cursor: pointer;
   border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
 }
 
 .modelCard:hover {
@@ -35,11 +125,78 @@
   box-shadow: 0 0 0 2px rgba(180, 100, 47, 0.2);
 }
 
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
 .modelName {
   font-size: 1.1rem;
   font-weight: 600;
-  margin-bottom: 0.75rem;
+  margin: 0;
   color: var(--color-text-dark);
+  flex: 1;
+  word-break: break-all;
+}
+
+/* Custom Checkbox */
+.checkboxContainer {
+  display: block;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  margin-left: 0.5rem;
+}
+
+.checkboxContainer input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: #F3F4F6;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+}
+
+.checkboxContainer:hover input ~ .checkmark {
+  border-color: var(--color-primary);
+}
+
+.checkboxContainer input:checked ~ .checkmark {
+  background-color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.checkboxContainer input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.checkboxContainer .checkmark:after {
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 
 .modelInfo {
@@ -53,29 +210,29 @@
 }
 
 .layersInfo {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  flex: 1;
 }
 
 .layersInfo h4 {
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   color: var(--color-text-dark);
 }
 
 .layersList {
   list-style-type: none;
-  padding-left: 0;
+  padding: 0;
   max-height: 150px;
   overflow-y: auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: 0.5rem;
   background-color: var(--color-bg-body);
 }
 
 .layerItem {
-  padding: 0.25rem 0;
+  padding: 0.5rem;
   font-size: 0.8rem;
   border-bottom: 1px solid var(--color-border);
   color: var(--color-text-main);
@@ -91,10 +248,11 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 0.75rem 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   width: 100%;
   transition: all 0.2s ease;
+  margin-top: auto;
 }
 
 .selectButton:hover {
@@ -107,4 +265,33 @@
   background-color: var(--color-primary);
   color: #FFFFFF;
   border-color: var(--color-primary);
+}
+
+.compactSelect {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  color: var(--color-text-dark);
+  background-color: white;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+}
+
+.compactSelect:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(180, 100, 47, 0.1);
+}
+
+.compactSelect:disabled {
+  background-color: var(--color-bg-body);
+  cursor: not-allowed;
+  opacity: 0.7;
 }

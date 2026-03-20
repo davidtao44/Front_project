@@ -1,4 +1,15 @@
 import { useState } from "react";
+import { 
+  UploadCloud, 
+  Image as ImageIcon, 
+  Terminal, 
+  FileCode, 
+  RotateCcw,
+  Cpu,
+  Download,
+  CheckCircle2,
+  AlertCircle
+} from "lucide-react";
 import { cnnService } from "../../services/api";
 import styles from "./ImageToVHDL.module.css";
 
@@ -15,7 +26,6 @@ const ImageToVHDL = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validar que sea una imagen
     if (!file.type.startsWith("image/")) {
       setError("Por favor, selecciona un archivo de imagen válido.");
       return;
@@ -23,8 +33,8 @@ const ImageToVHDL = () => {
 
     setSelectedImage(file);
     setError(null);
+    setResult(null);
 
-    // Crear una vista previa de la imagen
     const reader = new FileReader();
     reader.onload = (e) => {
       setImagePreview(e.target.result);
@@ -32,12 +42,11 @@ const ImageToVHDL = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleDimensionChange = (e) => {
-    const { name, value } = e.target;
-    setDimensions(prev => ({
-      ...prev,
-      [name]: parseInt(value, 10) || 32
-    }));
+  const handleReset = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    setError(null);
+    setResult(null);
   };
 
   const handleSubmit = async (e) => {
@@ -51,20 +60,16 @@ const ImageToVHDL = () => {
       setLoading(true);
       setError(null);
 
-      // Convertir la imagen a base64
       const reader = new FileReader();
       reader.readAsDataURL(selectedImage);
       reader.onload = async () => {
         try {
           const base64Image = reader.result;
-          
-          // Llamar al servicio de API
           const response = await cnnService.convertImageToVHDL(base64Image, {
             outputFormat,
             width: dimensions.width,
             height: dimensions.height
           });
-          
           setResult(response);
         } catch (err) {
           setError(err.message || "Error al procesar la imagen");
@@ -117,11 +122,19 @@ const ImageToVHDL = () => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Convertir Imagen a VHDL</h2>
+      <header className={styles.header}>
+        <div className={styles.headerIcon}>
+          <Cpu size={24} />
+        </div>
+        <h2 className={styles.title}>Convertir Imagen a VHDL</h2>
+      </header>
+
+      <p className={styles.description}>
+        Transforma imágenes en archivos VHDL compatibles con hardware (ROM) o matrices de datos para simulación.
+      </p>
       
       <form onSubmit={handleSubmit} className={styles.form}>
-        <div className={styles.formGroup}>
-          <label htmlFor="image-input" className={styles.label}>Seleccionar Imagen:</label>
+        <div className={styles.uploadSection}>
           <div className={styles.fileInputWrapper}>
             <input
               type="file"
@@ -130,59 +143,107 @@ const ImageToVHDL = () => {
               onChange={handleImageChange}
               className={styles.fileInput}
             />
-            <span className={styles.fileInputLabel}>
-              {selectedImage ? selectedImage.name : "Seleccionar archivo..."}
-            </span>
+            <label htmlFor="image-input" className={styles.dropzone}>
+              <UploadCloud size={48} className={styles.uploadIcon} />
+              <div className={styles.dropzoneText}>
+                {selectedImage ? (
+                  <span className={styles.fileName}>{selectedImage.name}</span>
+                ) : (
+                  <>
+                    <span className={styles.mainText}>Seleccionar Imagen</span>
+                    <span className={styles.subText}>Arrastra o haz clic para subir</span>
+                  </>
+                )}
+              </div>
+            </label>
           </div>
+          
+          {imagePreview && (
+            <div className={styles.previewCard}>
+              <div className={styles.previewHeader}>
+                <ImageIcon size={18} />
+                <span>Vista Previa</span>
+              </div>
+              <div className={styles.imageContainer}>
+                <img src={imagePreview} alt="Vista previa" className={styles.previewImage} />
+              </div>
+              <button type="button" onClick={handleReset} className={styles.resetButton}>
+                <RotateCcw size={14} />
+                Reiniciar
+              </button>
+            </div>
+          )}
         </div>
         
-       
-        
-        {imagePreview && (
-          <div className={styles.imagePreview}>
-            <h3 className={styles.subtitle}>Vista Previa:</h3>
-            <div className={styles.imageContainer}>
-              <img src={imagePreview} alt="Vista previa" />
-            </div>
-          </div>
-        )}
-        
-        <button 
-          type="submit" 
-          className={styles.submitButton} 
-          disabled={loading || !selectedImage}
-        >
-          {loading ? (
-            <>
-              <span className={styles.spinner}></span>
-              <span>Procesando...</span>
-            </>
-          ) : (
-            "Convertir Imagen"
-          )}
-        </button>
+        <div className={styles.actionArea}>
+          <button 
+            type="submit" 
+            className={styles.submitButton} 
+            disabled={loading || !selectedImage}
+          >
+            {loading ? (
+              <>
+                <div className={styles.spinner}></div>
+                <span>Procesando...</span>
+              </>
+            ) : (
+              <>
+                <Terminal size={20} />
+                <span>Generar Código VHDL</span>
+              </>
+            )}
+          </button>
+        </div>
       </form>
       
-      {error && <div className={styles.errorMessage}>{error}</div>}
+      {error && (
+        <div className={styles.errorMessage}>
+          <AlertCircle size={20} />
+          <span>{error}</span>
+        </div>
+      )}
       
       {result && (
         <div className={styles.resultContainer}>
-          <h3 className={styles.subtitle}>Resultado:</h3>
+          <div className={styles.resultHeader}>
+            <CheckCircle2 size={24} className={styles.successIcon} />
+            <h3 className={styles.subtitle}>¡Conversión Exitosa!</h3>
+          </div>
           
-          <div className={styles.downloadButtons}>
+          <p className={styles.resultHint}>Selecciona los formatos que deseas descargar:</p>
+          
+          <div className={styles.downloadGrid}>
             <button onClick={handleDownloadVHDL} className={styles.downloadButton}>
-              <span className={styles.downloadIcon}>⬇️</span>
-              Descargar Código VHDL
+              <div className={styles.downloadIconWrapper}>
+                <FileCode size={24} />
+              </div>
+              <div className={styles.downloadText}>
+                <span className={styles.downloadLabel}>Código VHDL</span>
+                <span className={styles.downloadSublabel}>image_rom.vhd</span>
+              </div>
+              <Download size={20} className={styles.downloadArrow} />
             </button>
             
             <button onClick={() => handleDownloadMatrix("decimal")} className={styles.downloadButton}>
-              <span className={styles.downloadIcon}>⬇️</span>
-              Descargar Matriz Decimal
+              <div className={styles.downloadIconWrapper}>
+                <span className={styles.matrixType}>10</span>
+              </div>
+              <div className={styles.downloadText}>
+                <span className={styles.downloadLabel}>Matriz Decimal</span>
+                <span className={styles.downloadSublabel}>decimal_matrix.csv</span>
+              </div>
+              <Download size={20} className={styles.downloadArrow} />
             </button>
             
             <button onClick={() => handleDownloadMatrix("hex")} className={styles.downloadButton}>
-              <span className={styles.downloadIcon}>⬇️</span>
-              Descargar Matriz Hexadecimal
+              <div className={styles.downloadIconWrapper}>
+                <span className={styles.matrixType}>16</span>
+              </div>
+              <div className={styles.downloadText}>
+                <span className={styles.downloadLabel}>Matriz Hex</span>
+                <span className={styles.downloadSublabel}>hex_matrix.csv</span>
+              </div>
+              <Download size={20} className={styles.downloadArrow} />
             </button>
           </div>
         </div>

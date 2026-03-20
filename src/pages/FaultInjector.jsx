@@ -1,11 +1,15 @@
-import { useState } from 'react';
-import { 
-  Zap, 
-  Rocket, 
-  RefreshCw, 
-  Scale, 
-  UploadCloud, 
-  AlertTriangle 
+import { useState, useEffect } from 'react';
+import {
+  Zap,
+  Rocket,
+  RefreshCw,
+  Scale,
+  UploadCloud,
+  AlertTriangle,
+  Database,
+  Layers,
+  Hash,
+  Play
 } from 'lucide-react';
 import Header from '../components/Header';
 import ModelSelector from '../components/cnn/ModelSelector';
@@ -27,7 +31,7 @@ const FaultInjector = () => {
   const [activeTab, setActiveTab] = useState('inference');
   const [weightFaultConfig, setWeightFaultConfig] = useState({ enabled: false, layers: {} });
   const [faultResults, setFaultResults] = useState(null);
-  
+
   // Estados para campaña de fallos
   const [availableModels, setAvailableModels] = useState([]);
   const [campaignType, setCampaignType] = useState('weight');
@@ -36,6 +40,12 @@ const FaultInjector = () => {
   const [campaignResults, setCampaignResults] = useState(null);
   const [isCampaignLoading, setIsCampaignLoading] = useState(false);
   const [campaignError, setCampaignError] = useState(null);
+
+  // Cargar modelos al montar el componente
+  useEffect(() => {
+    loadAvailableModels();
+  }, []);
+
 
   const handleSelectModel = (model) => {
     setSelectedModel(model);
@@ -58,17 +68,17 @@ const FaultInjector = () => {
       setError('Por favor selecciona un modelo y una imagen');
       return;
     }
-    
+
     setIsLoading(true);
     setError(null);
     setResults(null);
-    
+
     try {
       const response = await faultInjectorService.performInference(
         selectedImage,
         selectedModel.path
       );
-      
+
       setResults(response);
     } catch (error) {
       console.error('Error en la inferencia:', error);
@@ -90,16 +100,16 @@ const FaultInjector = () => {
 
     // Verificar que la configuración de fallos de pesos esté habilitada
     const hasWeightFaults = weightFaultConfig?.enabled && Object.keys(weightFaultConfig.layers).length > 0;
-    
+
     if (!hasWeightFaults) {
       setError('Por favor configura la inyección de fallos de pesos antes de ejecutar');
       return;
     }
-    
+
     setIsLoading(true);
     setError(null);
     setFaultResults(null);
-    
+
     try {
       // Configuración de fallos de pesos
       const combinedConfig = {
@@ -111,7 +121,7 @@ const FaultInjector = () => {
         selectedModel.path,
         combinedConfig
       );
-      
+
       // Verificar si hay errores de overflow/underflow
       if (!response.success && response.error_type === 'numerical_overflow_underflow') {
         // Mostrar información detallada del error
@@ -137,7 +147,7 @@ const FaultInjector = () => {
 💡 Los fallos inyectados han causado valores numéricos fuera del rango IEEE 754, 
    lo que impide la serialización JSON de los resultados.
         `.trim();
-        
+
         setError(errorMessage);
         // Aún así, guardar la respuesta para mostrar información disponible
         setFaultResults(response);
@@ -209,7 +219,7 @@ const FaultInjector = () => {
     console.log(`🔍 DEBUG renderDetailedMetrics: Rendering metrics for ${title}:`, metrics); // Debug log
     console.log(`🔍 DEBUG renderDetailedMetrics: Type of metrics:`, typeof metrics); // Debug log
     console.log(`🔍 DEBUG renderDetailedMetrics: JSON.stringify metrics:`, JSON.stringify(metrics, null, 2)); // Debug log
-    
+
     if (!metrics) {
       return (
         <div className="result-card">
@@ -248,7 +258,7 @@ const FaultInjector = () => {
         <div className="result-card">
           <h5>{title}</h5>
           <p>No hay métricas válidas disponibles (invalid structure)</p>
-          <pre style={{fontSize: '10px', color: '#666'}}>
+          <pre style={{ fontSize: '10px', color: '#666' }}>
             Debug: {JSON.stringify(metrics, null, 2)}
           </pre>
         </div>
@@ -285,11 +295,11 @@ const FaultInjector = () => {
     const priorityMetrics = ['accuracy', 'precision', 'recall'];
     const macroMetrics = ['macro_avg_precision', 'macro_avg_recall'];
     const countMetrics = ['correct_predictions'];
-    
+
     // Filtrar y organizar métricas (excluyendo num_samples e incorrect_predictions)
     const allMetrics = Object.entries(actualMetrics).filter(([key, value]) => {
-      return !['confusion_matrix', 'classification_report', 'num_samples', 'incorrect_predictions'].includes(key) && 
-             typeof value !== 'object';
+      return !['confusion_matrix', 'classification_report', 'num_samples', 'incorrect_predictions'].includes(key) &&
+        typeof value !== 'object';
     });
 
     // Agregar métricas de macro average
@@ -303,10 +313,10 @@ const FaultInjector = () => {
         <div className="result-card">
           <h5>{title}</h5>
           <p>No se encontraron métricas válidas</p>
-          <div style={{fontSize: '12px', color: '#666', marginTop: '10px'}}>
+          <div style={{ fontSize: '12px', color: '#666', marginTop: '10px' }}>
             <strong>Claves disponibles:</strong> {Object.keys(actualMetrics).join(', ')}
           </div>
-          <pre style={{fontSize: '10px', color: '#666', marginTop: '10px'}}>
+          <pre style={{ fontSize: '10px', color: '#666', marginTop: '10px' }}>
             {JSON.stringify(actualMetrics, null, 2)}
           </pre>
         </div>
@@ -317,7 +327,7 @@ const FaultInjector = () => {
     const mainMetrics = allMetricsWithMacro.filter(([key]) => priorityMetrics.includes(key));
     const macroAvgMetrics_filtered = allMetricsWithMacro.filter(([key]) => macroMetrics.includes(key));
     const countingMetrics = allMetricsWithMacro.filter(([key]) => countMetrics.includes(key));
-    const otherMetrics = allMetricsWithMacro.filter(([key]) => 
+    const otherMetrics = allMetricsWithMacro.filter(([key]) =>
       !priorityMetrics.includes(key) && !macroMetrics.includes(key) && !countMetrics.includes(key)
     );
 
@@ -341,7 +351,7 @@ const FaultInjector = () => {
 
     const renderMetricSection = (metricsArray, sectionTitle) => {
       if (metricsArray.length === 0) return null;
-      
+
       return (
         <div className="metric-section">
           {sectionTitle && <h6 className="metric-section-title">{sectionTitle}</h6>}
@@ -364,19 +374,19 @@ const FaultInjector = () => {
     return (
       <div className="result-card">
         <h5>{title}</h5>
-        
+
         {/* Métricas principales de rendimiento */}
         {renderMetricSection(mainMetrics, "Métricas de Rendimiento")}
-        
+
         {/* Métricas de Macro Average */}
         {renderMetricSection(macroAvgMetrics_filtered, "Métricas Macro Average")}
-        
+
         {/* Métricas de conteo */}
         {renderMetricSection(countingMetrics, "Estadísticas de Predicción")}
-        
+
         {/* Otras métricas */}
         {renderMetricSection(otherMetrics, otherMetrics.length > 0 ? "Otras Métricas" : null)}
-        
+
         {/* Mostrar matriz de confusión si existe */}
         {actualMetrics.confusion_matrix && Array.isArray(actualMetrics.confusion_matrix) && (
           <div className="confusion-matrix-section">
@@ -386,11 +396,11 @@ const FaultInjector = () => {
                 {/* Encabezado con etiquetas de columnas */}
                 <div className="confusion-matrix-header">
                   <div className="confusion-corner-cell"></div>
-                  {actualMetrics.confusion_matrix[0] && Array.from({length: actualMetrics.confusion_matrix[0].length}, (_, j) => (
+                  {actualMetrics.confusion_matrix[0] && Array.from({ length: actualMetrics.confusion_matrix[0].length }, (_, j) => (
                     <div key={j} className="confusion-column-label">{j}</div>
                   ))}
                 </div>
-                
+
                 {/* Filas de la matriz con etiquetas de fila */}
                 {actualMetrics.confusion_matrix.map((row, i) => (
                   <div key={i} className="confusion-row-with-label">
@@ -410,7 +420,7 @@ const FaultInjector = () => {
             </div>
           </div>
         )}
-        
+
         {/* Mostrar reporte de clasificación si existe */}
         {actualMetrics.classification_report && typeof actualMetrics.classification_report === 'string' && (
           <div className="classification-report-section">
@@ -430,7 +440,7 @@ const FaultInjector = () => {
     const comparisons = {};
     // Exclude num_samples and incorrect_predictions from comparison
     const excludedKeys = ['num_samples', 'incorrect_predictions'];
-    
+
     Object.keys(goldenMetrics).forEach(key => {
       if (!excludedKeys.includes(key) && typeof goldenMetrics[key] === 'number' && typeof faultMetrics[key] === 'number') {
         const degradation = goldenMetrics[key] - faultMetrics[key];
@@ -449,7 +459,7 @@ const FaultInjector = () => {
   return (
     <div className="fault-injector-page">
       <Header />
-      
+
       <div className="fault-injector-container">
         <div className="page-header">
           <div className="header-content">
@@ -469,41 +479,41 @@ const FaultInjector = () => {
               </div>
             </div>
             <div className="header-image">
-              <img 
-                src="/LeNet-5.png" 
-                alt="Arquitectura LeNet-5" 
+              <img
+                src="/LeNet-5.png"
+                alt="Arquitectura LeNet-5"
                 className="lenet-architecture-image"
               />
               <p className="image-caption">Arquitectura LeNet-5</p>
             </div>
           </div>
         </div>
-        
+
         <div className="fault-injector-content">
           <div className="fault-injector-tabs">
             <div className="tab-buttons">
-              <button 
+              <button
                 className={`tab-button ${activeTab === 'inference' ? 'active' : ''}`}
                 onClick={() => setActiveTab('inference')}
               >
                 <span className="tab-icon"><Rocket size={18} /></span>
                 Inferencia Golden
               </button>
-              <button 
+              <button
                 className={`tab-button ${activeTab === 'fault-injection' ? 'active' : ''}`}
                 onClick={() => setActiveTab('fault-injection')}
               >
                 <span className="tab-icon"><Zap size={18} /></span>
                 Inyección de Fallos
               </button>
-              <button 
+              <button
                 className={`tab-button ${activeTab === 'analysis' ? 'active' : ''}`}
                 onClick={() => setActiveTab('analysis')}
               >
                 <span className="tab-icon"><RefreshCw size={18} /></span>
-                Campaña de fallos 
+                Campaña de fallos
               </button>
-              <button 
+              <button
                 className={`tab-button ${activeTab === 'comparison' ? 'active' : ''}`}
                 onClick={() => setActiveTab('comparison')}
               >
@@ -511,7 +521,7 @@ const FaultInjector = () => {
                 Comparación
               </button>
             </div>
-            
+
             <div className="tab-content">
               {activeTab === 'inference' && (
                 <div className="tab-panel">
@@ -519,14 +529,14 @@ const FaultInjector = () => {
                   <p className="panel-description">
                     Realiza inferencias de referencia sin inyección de fallos para establecer resultados base.
                   </p>
-                  
+
                   {/* Selección de Modelo */}
                   <div className="section">
                     <h4 className="section-title">Seleccionar Arquitectura</h4>
                     <div className="section-content">
-                      <ModelSelector 
-                        selectedModel={selectedModel} 
-                        onSelectModel={handleSelectModel} 
+                      <ModelSelector
+                        selectedModel={selectedModel}
+                        onSelectModel={handleSelectModel}
                       />
                     </div>
                   </div>
@@ -554,7 +564,7 @@ const FaultInjector = () => {
                             </div>
                           </label>
                         </div>
-                        
+
                         {imagePreview && (
                           <div className="image-preview">
                             <h5>Vista previa:</h5>
@@ -568,7 +578,7 @@ const FaultInjector = () => {
                   {/* Botón de Inferencia */}
                   <div className="section">
                     <div className="section-content">
-                      <button 
+                      <button
                         className="inference-button"
                         onClick={handleInference}
                         disabled={!selectedModel || !selectedImage || isLoading}
@@ -602,7 +612,7 @@ const FaultInjector = () => {
                           }}>{error}</p>
                         </div>
                       )}
-                      
+
                       {results ? (
                         <div className="results-container">
                           <div className="result-card">
@@ -618,7 +628,7 @@ const FaultInjector = () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="result-card">
                             <h5>Información del Modelo</h5>
                             <div className="model-info">
@@ -632,7 +642,7 @@ const FaultInjector = () => {
                               </div> */}
                             </div>
                           </div>
-                          
+
                           {/* {results.all_probabilities && (
                             <div className="result-card">
                               <h5>Todas las Probabilidades</h5>
@@ -652,7 +662,7 @@ const FaultInjector = () => {
                               </div>
                             </div>
                           )} */}
-                          
+
                           {results.layer_outputs && (
                             <div className="result-card">
                               <h5>Salidas de Capas</h5>
@@ -668,7 +678,7 @@ const FaultInjector = () => {
                               </div>
                             </div>
                           )}
-                          
+
                           {results.excel_files && results.excel_files.length > 0 && (
                             <div className="result-card">
                               <h5>Archivos Excel de Capas</h5>
@@ -676,7 +686,7 @@ const FaultInjector = () => {
                                 {results.excel_files.map((filePath, index) => (
                                   <div key={index} className="excel-file-item">
                                     <span className="file-name">{filePath.split('/').pop()}</span>
-                                    <button 
+                                    <button
                                       className="download-button"
                                       onClick={() => window.open(`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(filePath)}&t=${results.session_id}`, '_blank')}
                                     >
@@ -687,7 +697,7 @@ const FaultInjector = () => {
                               </div>
                             </div>
                           )}
-                          
+
                           {results.image_files && results.image_files.length > 0 && (
                             <div className="result-card">
                               <h5>Imágenes de Mapas de Características</h5>
@@ -695,7 +705,7 @@ const FaultInjector = () => {
                                 {results.image_files.map((imagePath, index) => (
                                   <div key={index} className="image-file-item">
                                     <div className="image-preview-small">
-                                      <img 
+                                      <img
                                         src={`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(imagePath)}&t=${results.session_id}`}
                                         alt={`Mapa de características ${index + 1}`}
                                         className="feature-map-image"
@@ -703,7 +713,7 @@ const FaultInjector = () => {
                                     </div>
                                     <div className="image-info">
                                       <span className="image-name">{imagePath.split('/').pop()}</span>
-                                      <button 
+                                      <button
                                         className="download-button"
                                         onClick={() => window.open(`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(imagePath)}&t=${results.session_id}`, '_blank')}
                                       >
@@ -726,21 +736,21 @@ const FaultInjector = () => {
                   </div>
                 </div>
               )}
-              
+
               {activeTab === 'fault-injection' && (
                 <div className="tab-panel">
                   <h3 className="panel-title">Inyección de Fallos</h3>
                   <p className="panel-description">
                     Configura y ejecuta inyección de fallos en diferentes capas de la red neuronal.
                   </p>
-                  
+
                   {/* Selección de Modelo */}
                   <div className="section">
                     <h4 className="section-title">Seleccionar Arquitectura</h4>
                     <div className="section-content">
-                      <ModelSelector 
-                        selectedModel={selectedModel} 
-                        onSelectModel={handleSelectModel} 
+                      <ModelSelector
+                        selectedModel={selectedModel}
+                        onSelectModel={handleSelectModel}
                       />
                     </div>
                   </div>
@@ -768,7 +778,7 @@ const FaultInjector = () => {
                             </div>
                           </label>
                         </div>
-                        
+
                         {imagePreview && (
                           <div className="image-preview">
                             <h5>Vista previa:</h5>
@@ -801,7 +811,7 @@ const FaultInjector = () => {
                           const hasImage = !!selectedImage;
                           const hasWeightFaults = !!weightFaultConfig?.enabled;
                           const isDisabled = !hasModel || !hasImage || !hasWeightFaults || isLoading;
-                          
+
                           console.log('Button state:', {
                             hasModel,
                             hasImage,
@@ -809,7 +819,7 @@ const FaultInjector = () => {
                             isLoading,
                             isDisabled
                           });
-                          
+
                           return isDisabled;
                         })()}
                       >
@@ -842,7 +852,7 @@ const FaultInjector = () => {
                           }}>{error}</p>
                         </div>
                       )}
-                      
+
                       {faultResults ? (
                         <div className="results-container">
                           {/* Mostrar información de error si existe */}
@@ -854,26 +864,26 @@ const FaultInjector = () => {
                                   <p><strong>Tipo:</strong> Overflow/Underflow IEEE 754</p>
                                   <p><strong>Causa:</strong> Los fallos inyectados han producido valores numéricos extremos</p>
                                 </div>
-                                
+
                                 <div className="error-metrics">
                                   <div className="metric-item">
                                     <span className="metric-label">Overflow:</span>
                                     <span className="metric-value">
-                                      {faultResults.error_details?.error_details?.overflow_detected ? 
+                                      {faultResults.error_details?.error_details?.overflow_detected ?
                                         `Sí (${faultResults.error_details.error_details.overflow_count} valores)` : 'No'}
                                     </span>
                                   </div>
                                   <div className="metric-item">
                                     <span className="metric-label">Underflow:</span>
                                     <span className="metric-value">
-                                      {faultResults.error_details?.error_details?.underflow_detected ? 
+                                      {faultResults.error_details?.error_details?.underflow_detected ?
                                         `Sí (${faultResults.error_details.error_details.underflow_count} valores)` : 'No'}
                                     </span>
                                   </div>
                                   <div className="metric-item">
                                     <span className="metric-label">NaN:</span>
                                     <span className="metric-value">
-                                      {faultResults.error_details?.error_details?.nan_detected ? 
+                                      {faultResults.error_details?.error_details?.nan_detected ?
                                         `Sí (${faultResults.error_details.error_details.nan_count} valores)` : 'No'}
                                     </span>
                                   </div>
@@ -881,7 +891,7 @@ const FaultInjector = () => {
                               </div>
                             </div>
                           )}
-                          
+
                           <div className="result-card">
                             <h5>{faultResults.success ? 'Predicción con Fallos' : 'Predicción Intentada (con errores)'}</h5>
                             <div className="prediction-result">
@@ -894,7 +904,7 @@ const FaultInjector = () => {
                               <div className="confidence">
                                 <span className="label">Confianza:</span>
                                 <span className="value">
-                                  {faultResults.confidence !== undefined ? 
+                                  {faultResults.confidence !== undefined ?
                                     `${(faultResults.confidence * 100).toFixed(2)}%` : 'Error'}
                                 </span>
                               </div>
@@ -922,7 +932,7 @@ const FaultInjector = () => {
                               </div>
                             </div>
                           )}
-                          
+
                           {/* {faultResults.all_probabilities && (
                             <div className="result-card">
                               <h5>Probabilidades con Fallos</h5>
@@ -953,40 +963,52 @@ const FaultInjector = () => {
                   </div>
                 </div>
               )}
-              
+
               {activeTab === 'analysis' && (
                 <div className="tab-panel">
                   <h3 className="panel-title">Campaña de Inyección de Fallos</h3>
                   <p className="panel-description">
                     Ejecuta campañas de inyección de fallos para analizar el impacto en múltiples muestras.
                   </p>
-                  
+
                   <div className="campaign-config">
                     <div className="config-section">
                       <h4>Configuración de Campaña</h4>
-                      
+
                       {/* Selección de Modelo */}
                       <div className="input-group">
-                        <label>Seleccionar Modelo:</label>
-                        <ModelSelector 
-                          selectedModel={selectedModel} 
-                          onSelectModel={handleSelectModel} 
-                        />
+                        <label>
+                          <Database size={18} />
+                          Seleccionar Modelo:
+                        </label>
+                        <div className="model-selector-wrapper">
+                          <ModelSelector
+                            selectedModel={selectedModel}
+                            onSelectModel={handleSelectModel}
+                            variant="compact"
+                          />
+                        </div>
                       </div>
-                      
+
                       <div className="input-group">
-                        <label>Tipo de Campaña:</label>
-                        <select 
-                          value={campaignType} 
+                        <label>
+                          <Layers size={18} />
+                          Tipo de Campaña:
+                        </label>
+                        <select
+                          value={campaignType}
                           onChange={(e) => setCampaignType(e.target.value)}
                           className="campaign-select"
                         >
                           <option value="weight">Fallos de Pesos</option>
                         </select>
                       </div>
-                      
+
                       <div className="input-group">
-                        <label>Tamaño del batch:</label>
+                        <label>
+                          <Hash size={18} />
+                          Tamaño del batch:
+                        </label>
                         <input
                           type="number"
                           value={numSamples}
@@ -996,46 +1018,49 @@ const FaultInjector = () => {
                           className="campaign-input"
                         />
                       </div>
-                      
+
                       {/* Configuración específica según el tipo de campaña */}
                       {campaignType === 'weight' && (
-                        <div className="fault-config-section">
-                          <h5>Configuración de Fallos de Pesos</h5>
+                        <div className="section">
+                          <h5 className="section-title">Parámetros de Inyección en Pesos</h5>
                           <WeightFaultConfig
                             selectedModel={selectedModel}
-                            onConfigChange={setWeightFaultConfig}
+                            onConfigChange={handleWeightFaultConfigChange}
                             initialConfig={weightFaultConfig}
                           />
                         </div>
                       )}
 
-                      <button 
+                      <button
+                        className="campaign-button"
                         onClick={runFaultCampaign}
                         disabled={!selectedModel || isCampaignLoading}
-                        className="run-campaign-btn"
                       >
                         {isCampaignLoading ? (
                           <>
-                            <div className="loading-spinner"></div>
-                            Ejecutando Campaña...
+                            <span className="loading-spinner"></span>
+                            Procesando Campaña...
                           </>
                         ) : (
-                          'Ejecutar Campaña'
+                          <>
+                            <span className="button-icon"><Play size={18} /></span>
+                            Ejecutar Campaña de Inyección
+                          </>
                         )}
                       </button>
                     </div>
                   </div>
-                  
+
                   {campaignError && (
                     <div className="error-message">
                       <strong>Error:</strong> {campaignError}
                     </div>
                   )}
-                  
+
                   {campaignResults && campaignResults.results && (
                     <div className="campaign-results">
                       <h4>Resultados de la Campaña</h4>
-                      
+
                       {/* Información general de la campaña */}
                       <div className="campaign-info">
                         <div className="result-card">
@@ -1065,7 +1090,7 @@ const FaultInjector = () => {
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Métricas detalladas */}
                       <div className="metrics-comparison">
                         <div className="metrics-row">
@@ -1081,12 +1106,12 @@ const FaultInjector = () => {
                           {renderDetailedMetrics(campaignResults.results.fault_results?.metrics, "Métricas con Fallos")}
                         </div>
                       </div>
-                      
+
                       {/* Análisis de comparación detallado */}
                       {(() => {
                         const comparisons = calculateMetricComparison(campaignResults.results.golden_results?.metrics, campaignResults.results.fault_results?.metrics);
                         if (!comparisons) return null;
-                        
+
                         return (
                           <div className="detailed-comparison">
                             <h5>Análisis Detallado de Degradación</h5>
@@ -1095,20 +1120,20 @@ const FaultInjector = () => {
                                 <div key={metric} className="comparison-item">
                                   <div className="comparison-header">
                                     <span className="metric-name">
-                                      {metric === 'accuracy' ? 'Precisión (Accuracy)' : 
-                                       metric === 'precision' ? 'Precisión (Precision)' :
-                                       metric === 'recall' ? 'Sensibilidad (Recall)' :
-                                       metric === 'f1_score' ? 'F1-Score' :
-                                       metric === 'correct_predictions' ? 'Predicciones Correctas' :
-                                       metric.charAt(0).toUpperCase() + metric.slice(1)}
+                                      {metric === 'accuracy' ? 'Precisión (Accuracy)' :
+                                        metric === 'precision' ? 'Precisión (Precision)' :
+                                          metric === 'recall' ? 'Sensibilidad (Recall)' :
+                                            metric === 'f1_score' ? 'F1-Score' :
+                                              metric === 'correct_predictions' ? 'Predicciones Correctas' :
+                                                metric.charAt(0).toUpperCase() + metric.slice(1)}
                                     </span>
                                   </div>
                                   <div className="comparison-values">
                                     <div className="value-item golden">
                                       <span className="value-label">Golden:</span>
                                       <span className="value-number">
-                                        {metric.includes('predictions') ? 
-                                          data.golden : 
+                                        {metric.includes('predictions') ?
+                                          data.golden :
                                           (metric === 'loss' ? data.golden.toFixed(6) : (data.golden * 100).toFixed(2) + '%')
                                         }
                                       </span>
@@ -1116,8 +1141,8 @@ const FaultInjector = () => {
                                     <div className="value-item fault">
                                       <span className="value-label">Con Fallos:</span>
                                       <span className="value-number">
-                                        {metric.includes('predictions') ? 
-                                          data.fault : 
+                                        {metric.includes('predictions') ?
+                                          data.fault :
                                           (metric === 'loss' ? data.fault.toFixed(6) : (data.fault * 100).toFixed(2) + '%')
                                         }
                                       </span>
@@ -1135,15 +1160,15 @@ const FaultInjector = () => {
                           </div>
                         );
                       })()}
-                      
+
                       {/* Gráficas de métricas */}
-                      <MetricsChart 
+                      <MetricsChart
                         goldenMetrics={campaignResults.results.golden_results?.metrics}
                         faultMetrics={campaignResults.results.fault_results?.metrics}
                         campaignResults={campaignResults.results}
                         numSamples={numSamples}
                       />
-                      
+
                       {/* Información de comparación adicional */}
                       {/* {campaignResults.results.comparison && (
                         <div className="comparison-summary">
@@ -1164,7 +1189,7 @@ const FaultInjector = () => {
                           </div>
                         </div>
                       )} */}
-                      
+
                       {/* Información del fallo inyectado */}
                       {campaignResults.results.campaign_info?.fault && (
                         <div className="fault-info">
@@ -1193,16 +1218,16 @@ const FaultInjector = () => {
                   )}
                 </div>
               )}
-              
+
               {activeTab === 'comparison' && (
                 <div className="tab-panel">
                   <h3 className="panel-title">Comparación de Resultados</h3>
                   <p className="panel-description">
                     Compara los resultados entre inferencias golden y con fallos inyectados.
                   </p>
-                  
+
                   {campaignResults ? (
-                    <FaultMetricsComparison 
+                    <FaultMetricsComparison
                       campaignResults={campaignResults.results}
                       numSamples={10}
                     />

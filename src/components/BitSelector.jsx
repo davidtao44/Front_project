@@ -117,11 +117,18 @@ const BitSelector = ({ selectedBits = [], onBitsChange, disabled = false }) => {
         </div>
       </div>
 
-      <div className="bit-grid">
-        <div className="bit-section sign-section">
-          <div className="section-label">Signo</div>
-          <div className="bit-row">
-            {[31].map(bitPosition => (
+      <div className="bit-strip-container">
+        <div className="bit-tape">
+          {/* Header Row with Labels */}
+          <div className="bit-tape-header">
+            <div className="group-label sign-label" style={{ gridColumn: '1 / 2' }} title="Signo">S</div>
+            <div className="group-label exponent-label" style={{ gridColumn: '2 / 10' }}>EXPONENTE</div>
+            <div className="group-label mantissa-label" style={{ gridColumn: '10 / 33' }}>MANTISA</div>
+          </div>
+
+          {/* Bits Row */}
+          <div className="bit-tape-bits">
+            {Array.from({ length: 32 }, (_, i) => 31 - i).map(bitPosition => (
               <button
                 key={bitPosition}
                 type="button"
@@ -134,74 +141,12 @@ const BitSelector = ({ selectedBits = [], onBitsChange, disabled = false }) => {
               </button>
             ))}
           </div>
-        </div>
 
-        <div className="bit-section exponent-section">
-          <div className="section-label">Exponente</div>
-          <div className="bit-row">
-            {Array.from({ length: 8 }, (_, i) => 30 - i).map(bitPosition => (
-              <button
-                key={bitPosition}
-                type="button"
-                className={`bit-button ${bits.has(bitPosition) ? 'selected' : ''} ${getBitSignificance(bitPosition)}`}
-                onClick={() => handleBitToggle(bitPosition)}
-                disabled={disabled}
-                title={`Bit ${bitPosition} - ${getBitLabel(bitPosition)}`}
-              >
-                {bitPosition}
-              </button>
+          {/* Index Row */}
+          <div className="bit-tape-indices">
+            {Array.from({ length: 32 }, (_, i) => 31 - i).map(bitPosition => (
+              <span key={bitPosition} className="bit-index">{bitPosition}</span>
             ))}
-          </div>
-        </div>
-
-        <div className="bit-section mantissa-section">
-          <div className="section-label">Mantisa</div>
-          <div className="bit-rows">
-            {/* Bits 22-15 */}
-            <div className="bit-row">
-              {Array.from({ length: 8 }, (_, i) => 22 - i).map(bitPosition => (
-                <button
-                  key={bitPosition}
-                  type="button"
-                  className={`bit-button ${bits.has(bitPosition) ? 'selected' : ''} ${getBitSignificance(bitPosition)}`}
-                  onClick={() => handleBitToggle(bitPosition)}
-                  disabled={disabled}
-                  title={`Bit ${bitPosition} - ${getBitLabel(bitPosition)}`}
-                >
-                  {bitPosition}
-                </button>
-              ))}
-            </div>
-            {/* Bits 14-7 */}
-            <div className="bit-row">
-              {Array.from({ length: 8 }, (_, i) => 14 - i).map(bitPosition => (
-                <button
-                  key={bitPosition}
-                  type="button"
-                  className={`bit-button ${bits.has(bitPosition) ? 'selected' : ''} ${getBitSignificance(bitPosition)}`}
-                  onClick={() => handleBitToggle(bitPosition)}
-                  disabled={disabled}
-                  title={`Bit ${bitPosition} - ${getBitLabel(bitPosition)}`}
-                >
-                  {bitPosition}
-                </button>
-              ))}
-            </div>
-            {/* Bits 6-0 */}
-            <div className="bit-row">
-              {Array.from({ length: 7 }, (_, i) => 6 - i).map(bitPosition => (
-                <button
-                  key={bitPosition}
-                  type="button"
-                  className={`bit-button ${bits.has(bitPosition) ? 'selected' : ''} ${getBitSignificance(bitPosition)}`}
-                  onClick={() => handleBitToggle(bitPosition)}
-                  disabled={disabled}
-                  title={`Bit ${bitPosition} - ${getBitLabel(bitPosition)}`}
-                >
-                  {bitPosition}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       </div>

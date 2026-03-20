@@ -88,70 +88,83 @@
   font-family: 'Courier New', monospace;
 }
 
-.bit-grid {
+.bit-strip-container {
+  width: 100%;
+  overflow-x: hidden; /* No scroll as we fit all 32 bits */
+  padding: 10px 0 20px 0;
+  margin-top: 10px;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
+
+.bit-tape {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 20px;
+  padding: 0 10px;
+  width: 100%;
 }
 
-.bit-section {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 16px;
-  border: 1px solid #dee2e6;
+.bit-tape-header {
+  display: grid;
+  grid-template-columns: repeat(32, 1fr);
+  gap: 2px;
+  margin-bottom: 8px;
 }
 
-.section-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 12px;
+.group-label {
+  font-size: 9px;
+  font-weight: 800;
   text-align: center;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.2px;
+  padding: 2px 0;
+  border-radius: 2px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.sign-section .section-label {
-  color: #dc3545;
+.sign-label { background-color: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.2); }
+.exponent-label { background-color: rgba(253, 126, 20, 0.1); color: #fd7e14; border: 1px solid rgba(253, 126, 20, 0.2); }
+.mantissa-label { background-color: rgba(32, 201, 151, 0.1); color: #20c997; border: 1px solid rgba(32, 201, 151, 0.2); }
+
+.bit-tape-bits {
+  display: grid;
+  grid-template-columns: repeat(32, 1fr);
+  gap: 2px;
 }
 
-.exponent-section .section-label {
-  color: #fd7e14;
+.bit-tape-indices {
+  display: grid;
+  grid-template-columns: repeat(32, 1fr);
+  gap: 2px;
+  margin-top: 6px;
 }
 
-.mantissa-section .section-label {
-  color: #20c997;
-}
-
-.bit-row {
-  display: flex;
-  gap: 4px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.bit-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.bit-index {
+  font-size: 8px;
+  color: #adb5bd;
+  text-align: center;
+  font-weight: 500;
 }
 
 .bit-button {
-  width: 40px;
-  height: 40px;
-  border: 2px solid #dee2e6;
+  width: 100%;
+  aspect-ratio: 1 / 1.5; /* Keeping it slightly tall for better click/touch area */
+  max-width: 24px;
+  min-width: 12px;
+  border: 1px solid #dee2e6;
   background: #ffffff;
   color: #495057;
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: 2px;
+  font-size: 10px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  padding: 0;
 }
 
 .bit-button:hover:not(:disabled) {
