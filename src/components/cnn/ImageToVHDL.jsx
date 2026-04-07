@@ -27,7 +27,7 @@ const ImageToVHDL = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setError("Por favor, selecciona un archivo de imagen válido.");
+      setError("Please select a valid image file.");
       return;
     }
 
@@ -52,7 +52,7 @@ const ImageToVHDL = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedImage) {
-      setError("Por favor, selecciona una imagen primero.");
+      setError("Please select an image first.");
       return;
     }
 
@@ -72,18 +72,18 @@ const ImageToVHDL = () => {
           });
           setResult(response);
         } catch (err) {
-          setError(err.message || "Error al procesar la imagen");
+          setError(err.message || "Error processing the image");
         } finally {
           setLoading(false);
         }
       };
       
       reader.onerror = () => {
-        setError("Error al leer el archivo de imagen");
+        setError("Error reading the image file");
         setLoading(false);
       };
     } catch (err) {
-      setError(err.message || "Error al procesar la imagen");
+      setError(err.message || "Error processing the image");
       setLoading(false);
     }
   };
@@ -126,11 +126,11 @@ const ImageToVHDL = () => {
         <div className={styles.headerIcon}>
           <Cpu size={24} />
         </div>
-        <h2 className={styles.title}>Convertir Imagen a VHDL</h2>
+        <h2 className={styles.title}>Convert Image to VHDL</h2>
       </header>
 
       <p className={styles.description}>
-        Transforma imágenes en archivos VHDL compatibles con hardware (ROM) o matrices de datos para simulación.
+        Transform images into VHDL-compatible hardware files (ROM) or data matrices for simulation.
       </p>
       
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -150,8 +150,8 @@ const ImageToVHDL = () => {
                   <span className={styles.fileName}>{selectedImage.name}</span>
                 ) : (
                   <>
-                    <span className={styles.mainText}>Seleccionar Imagen</span>
-                    <span className={styles.subText}>Arrastra o haz clic para subir</span>
+                    <span className={styles.mainText}>Select Image</span>
+                    <span className={styles.subText}>Drag and drop or click to upload</span>
                   </>
                 )}
               </div>
@@ -162,14 +162,14 @@ const ImageToVHDL = () => {
             <div className={styles.previewCard}>
               <div className={styles.previewHeader}>
                 <ImageIcon size={18} />
-                <span>Vista Previa</span>
+                <span>Preview</span>
               </div>
               <div className={styles.imageContainer}>
-                <img src={imagePreview} alt="Vista previa" className={styles.previewImage} />
+                <img src={imagePreview} alt="Preview" className={styles.previewImage} />
               </div>
               <button type="button" onClick={handleReset} className={styles.resetButton}>
                 <RotateCcw size={14} />
-                Reiniciar
+                Reset
               </button>
             </div>
           )}
@@ -184,12 +184,12 @@ const ImageToVHDL = () => {
             {loading ? (
               <>
                 <div className={styles.spinner}></div>
-                <span>Procesando...</span>
+                <span>Processing...</span>
               </>
             ) : (
               <>
                 <Terminal size={20} />
-                <span>Generar Código VHDL</span>
+                <span>Generate VHDL Code</span>
               </>
             )}
           </button>
@@ -207,10 +207,10 @@ const ImageToVHDL = () => {
         <div className={styles.resultContainer}>
           <div className={styles.resultHeader}>
             <CheckCircle2 size={24} className={styles.successIcon} />
-            <h3 className={styles.subtitle}>¡Conversión Exitosa!</h3>
+            <h3 className={styles.subtitle}>Conversion Successful!</h3>
           </div>
           
-          <p className={styles.resultHint}>Selecciona los formatos que deseas descargar:</p>
+          <p className={styles.resultHint}>Select the formats you want to download:</p>
           
           <div className={styles.downloadGrid}>
             <button onClick={handleDownloadVHDL} className={styles.downloadButton}>
@@ -218,7 +218,7 @@ const ImageToVHDL = () => {
                 <FileCode size={24} />
               </div>
               <div className={styles.downloadText}>
-                <span className={styles.downloadLabel}>Código VHDL</span>
+                <span className={styles.downloadLabel}>VHDL Code</span>
                 <span className={styles.downloadSublabel}>image_rom.vhd</span>
               </div>
               <Download size={20} className={styles.downloadArrow} />
@@ -229,7 +229,7 @@ const ImageToVHDL = () => {
                 <span className={styles.matrixType}>10</span>
               </div>
               <div className={styles.downloadText}>
-                <span className={styles.downloadLabel}>Matriz Decimal</span>
+                <span className={styles.downloadLabel}>Decimal Matrix</span>
                 <span className={styles.downloadSublabel}>decimal_matrix.csv</span>
               </div>
               <Download size={20} className={styles.downloadArrow} />
@@ -240,7 +240,7 @@ const ImageToVHDL = () => {
                 <span className={styles.matrixType}>16</span>
               </div>
               <div className={styles.downloadText}>
-                <span className={styles.downloadLabel}>Matriz Hex</span>
+                <span className={styles.downloadLabel}>Hex Matrix</span>
                 <span className={styles.downloadSublabel}>hex_matrix.csv</span>
               </div>
               <Download size={20} className={styles.downloadArrow} />

@@ -63,7 +63,7 @@ const HardwareFaultInjection = () => {
       setSupportedFaults(data);
     } catch (error) {
       console.error('Error loading supported faults:', error);
-      setError('Error cargando información de fallos soportados');
+      setError('Error loading supported faults information');
     }
   };
 
@@ -74,7 +74,7 @@ const HardwareFaultInjection = () => {
       setVivadoStatus(data);
     } catch (error) {
       console.error('Error checking Vivado status:', error);
-      setVivadoStatus({ vivado_valid: false, message: 'Error verificando Vivado' });
+      setVivadoStatus({ vivado_valid: false, message: 'Error verifying Vivado' });
     }
   };
 
@@ -85,7 +85,7 @@ const HardwareFaultInjection = () => {
       setUseDefaultPath(false);
       setError(null);
     } else {
-      setError('Por favor selecciona un archivo VHDL válido (.vhd o .vhdl)');
+      setError('Please select a valid VHDL file (.vhd or .vhdl)');
       setVhdlFile(null);
     }
   };
@@ -144,47 +144,47 @@ const HardwareFaultInjection = () => {
   const validateFilterFault = (fault, index) => {
     const required = ['filter_name', 'row', 'col', 'bit_position', 'fault_type'];
     const fieldNames = {
-      'filter_name': 'filtro',
-      'row': 'fila',
-      'col': 'columna',
-      'bit_position': 'posición del bit',
-      'fault_type': 'tipo de fallo'
+      'filter_name': 'filter',
+      'row': 'row',
+      'col': 'column',
+      'bit_position': 'bit position',
+      'fault_type': 'fault type'
     };
     
     for (const key of required) {
       const val = fault[key];
       if (val === undefined || val === null || val === '' || Number.isNaN(val)) {
-        return `Fallo en Filtro #${index + 1}: el campo "${fieldNames[key]}" está vacío o inválido`;
+        return `Fault in Filter #${index + 1}: field "${fieldNames[key]}" is empty or invalid`;
       }
     }
     // Ranges
-    if (fault.row < 0 || fault.row > 4) return `Fallo en Filtro #${index + 1}: "fila" debe estar entre 0 y 4`;
-    if (fault.col < 0 || fault.col > 4) return `Fallo en Filtro #${index + 1}: "columna" debe estar entre 0 y 4`;
-    if (fault.bit_position < 0 || fault.bit_position > 7) return `Fallo en Filtro #${index + 1}: "posición del bit" debe estar entre 0 (LSB) y 7 (MSB)`;
+    if (fault.row < 0 || fault.row > 4) return `Fault in Filter #${index + 1}: "row" must be between 0 and 4`;
+    if (fault.col < 0 || fault.col > 4) return `Fault in Filter #${index + 1}: "column" must be between 0 and 4`;
+    if (fault.bit_position < 0 || fault.bit_position > 7) return `Fault in Filter #${index + 1}: "bit position" must be between 0 (LSB) and 7 (MSB)`;
     return null;
   };
 
   const validateBiasFault = (fault, index) => {
     const required = ['bias_name', 'bit_position', 'fault_type'];
     const fieldNames = {
-      'bias_name': 'sesgo',
-      'bit_position': 'posición del bit',
-      'fault_type': 'tipo de fallo'
+      'bias_name': 'bias',
+      'bit_position': 'bit position',
+      'fault_type': 'fault type'
     };
     
     for (const key of required) {
       const val = fault[key];
       if (val === undefined || val === null || val === '' || Number.isNaN(val)) {
-        return `Fallo en Sesgo #${index + 1}: el campo "${fieldNames[key]}" está vacío o inválido`;
+        return `Fault in Bias #${index + 1}: field "${fieldNames[key]}" is empty or invalid`;
       }
     }
-    if (fault.bit_position < 0 || fault.bit_position > 15) return `Fallo en Sesgo #${index + 1}: "posición del bit" debe estar entre 0 (LSB) y 15 (MSB)`;
+    if (fault.bit_position < 0 || fault.bit_position > 15) return `Fault in Bias #${index + 1}: "bit position" must be between 0 (LSB) and 15 (MSB)`;
     return null;
   };
 
   const validateFaults = () => {
     if (filterFaults.length === 0 && biasFaults.length === 0) {
-      return 'Debe agregar al menos un fallo (filtro o sesgo)';
+      return 'You must add at least one fault (filter or bias)';
     }
     for (let i = 0; i < filterFaults.length; i++) {
       const err = validateFilterFault(filterFaults[i], i);
@@ -204,7 +204,7 @@ const HardwareFaultInjection = () => {
   };
 
   const convertBiasBitPosition = (userBitPosition) => {
-    // Para bias de 16 bits: user input 0 (LSB) -> backend 15, user input 15 (MSB) -> backend 0
+    // For 16-bit bias: user input 0 (LSB) -> backend 15, user input 15 (MSB) -> backend 0
     return 15 - userBitPosition;
   };
 
@@ -215,7 +215,7 @@ const HardwareFaultInjection = () => {
       bit_position: convertFilterBitPosition(fault.bit_position)
     }));
 
-    // Convertir posiciones de bits en biasFaults
+    // Convert bit positions in biasFaults
     const convertedBiasFaults = biasFaults.map(fault => ({
       ...fault,
       bit_position: convertBiasBitPosition(fault.bit_position)
@@ -232,7 +232,7 @@ const HardwareFaultInjection = () => {
     }
 
     if (filterFaults.length === 0 && biasFaults.length === 0) {
-      setError('Debe agregar al menos un fallo (filtro o sesgo)');
+      setError('You must add at least one fault (filter or bias)');
       return;
     }
 
@@ -246,31 +246,31 @@ const HardwareFaultInjection = () => {
       
       const formData = new FormData();
       
-      // Enviar los fallos con posiciones de bits convertidas
+      // Send faults with converted bit positions
       const filterFaultsJson = JSON.stringify(convertedFilterFaults);
       const biasFaultsJson = JSON.stringify(convertedBiasFaults);
       
       formData.append('filter_faults', filterFaultsJson);
       formData.append('bias_faults', biasFaultsJson);
 
-      // No establecer Content-Type manualmente - el navegador lo hará automáticamente con el boundary correcto
+      // Don't set Content-Type manually - the browser will do it automatically with the correct boundary
       const response = await api.post('/vhdl/inject_faults/', formData);
 
       const data = await response.json();
       
-      // Si la inyección fue exitosa y el archivo fue modificado, notificar al usuario
+      // If injection was successful and the file was modified, notify the user
       if (data.file_modified && data.file_info) {
         showNotification(
           'success', 
-          'Archivo VHDL actualizado exitosamente', 
-          `Modificado: ${new Date(data.modification_timestamp).toLocaleTimeString()}`
+          'VHDL file updated successfully', 
+          `Modified: ${new Date(data.modification_timestamp).toLocaleTimeString()}`
         );
       }
       
       setResults(data);
     } catch (error) {
       console.error('❌ ERROR Frontend:', error);
-      setError(error.message || 'Error en la inyección de fallos');
+      setError(error.message || 'Error in fault injection');
     } finally {
       setIsLoading(false);
     }
@@ -282,7 +282,7 @@ const HardwareFaultInjection = () => {
       const filePath = useDefaultPath ? vhdlFilePath : (vhdlFile ? vhdlFile.name : '');
       
       if (!filePath) {
-        setError('No hay archivo VHDL seleccionado para refrescar');
+        setError('No VHDL file selected to refresh');
         return;
       }
 
@@ -292,20 +292,20 @@ const HardwareFaultInjection = () => {
       if (data.status === 'success') {
         showNotification(
           'info', 
-          'Archivo VHDL refrescado', 
-          `Última modificación: ${new Date(data.file_info.last_modified_ms).toLocaleTimeString()}`
+          'VHDL file refreshed', 
+          `Last modified: ${new Date(data.file_info.last_modified_ms).toLocaleTimeString()}`
         );
       }
     } catch (error) {
-      console.error('❌ ERROR refrescando archivo:', error);
-      setError('Error al refrescar el archivo VHDL');
+      console.error('❌ ERROR refreshing file:', error);
+      setError('Error refreshing the VHDL file');
     } finally {
       setIsLoading(false);
     }
   };
 
   if (!supportedFaults) {
-    return <div className="loading"><RefreshCw className="spin" size={24} /> Cargando información de fallos soportados...</div>;
+    return <div className="loading"><RefreshCw className="spin" size={24} /> Loading supported faults information...</div>;
   }
 
   return (
@@ -334,7 +334,7 @@ const HardwareFaultInjection = () => {
       <div className="section">
         <h3 className="section-title">
           <span className="section-icon"><FileText size={20} /></span>
-          Archivo VHDL
+          VHDL File
         </h3>
         
         <div className="file-selection-options">
@@ -346,7 +346,7 @@ const HardwareFaultInjection = () => {
                 checked={useDefaultPath}
                 onChange={() => handleUseDefaultPath(true)}
               />
-              <span>Usar ruta por defecto</span>
+              <span>Use default path</span>
             </label>
             <label className="toggle-option">
               <input
@@ -355,22 +355,22 @@ const HardwareFaultInjection = () => {
                 checked={!useDefaultPath}
                 onChange={() => handleUseDefaultPath(false)}
               />
-              <span>Subir archivo</span>
+              <span>Upload file</span>
             </label>
           </div>
 
           {useDefaultPath ? (
             <div className="default-path-section">
-              <label>Ruta del archivo VHDL:</label>
+              <label>VHDL file path:</label>
               <input
                 type="text"
                 value={vhdlFilePath}
                 onChange={handlePathChange}
                 className="path-input"
-                placeholder="Ingresa la ruta completa del archivo VHDL"
+                placeholder="Enter the complete VHDL file path"
               />
               <div className="path-info">
-                <small><MapPin size={14} style={{display: 'inline-block', verticalAlign: 'middle'}}/> Ruta por defecto: CONV_LAYER_1.vhd (Primera capa convolucional)</small>
+                <small><MapPin size={14} style={{display: 'inline-block', verticalAlign: 'middle'}}/> Default path: CONV_LAYER_1.vhd (First convolutional layer)</small>
               </div>
               <div className="file-actions">
                 <button 
@@ -379,7 +379,7 @@ const HardwareFaultInjection = () => {
                   disabled={isLoading}
                 >
                   <span className="btn-icon"><RefreshCw size={16} /></span>
-                  {isLoading ? 'Refrescando...' : 'Refrescar archivo'}
+                  {isLoading ? 'Refreshing...' : 'Refresh file'}
                 </button>
               </div>
             </div>
@@ -394,7 +394,7 @@ const HardwareFaultInjection = () => {
               />
               <label htmlFor="vhdl-file" className="file-label">
                 <UploadCloud size={18} style={{marginRight: '8px'}}/>
-                {vhdlFile ? vhdlFile.name : 'Seleccionar archivo VHDL'}
+                {vhdlFile ? vhdlFile.name : 'Select VHDL file'}
               </label>
             </div>
           )}
@@ -404,11 +404,11 @@ const HardwareFaultInjection = () => {
       <div className="section">
         <h3 className="section-title">
           <span className="section-icon"><Wrench size={20} /></span>
-          Estado de Vivado
+          Vivado Status
         </h3>
         <div className="vivado-status">
           <div className="vivado-path">
-            <label>Ruta de Vivado:</label>
+            <label>Vivado path:</label>
             <input
               type="text"
               value={vivadoPath}
@@ -416,7 +416,7 @@ const HardwareFaultInjection = () => {
               className="vivado-path-input"
             />
             <button onClick={checkVivadoStatus} className="check-vivado-btn">
-              Verificar
+              Verify
             </button>
           </div>
           {vivadoStatus && (
@@ -433,20 +433,20 @@ const HardwareFaultInjection = () => {
       <div className="section">
         <h3 className="section-title">
           <span className="section-icon"><Target size={20} /></span>
-          Fallos en Filtros (FMAP)
+          Filter Faults (FMAP)
         </h3>
         <div className="faults-container">
           {filterFaults.map((fault, index) => (
             <div key={index} className="fault-config">
               <div className="fault-header">
-                <span>Fallo en Filtro #{index + 1}</span>
+                <span>Filter Fault #{index + 1}</span>
                 <button onClick={() => removeFilterFault(index)} className="remove-fault-btn">
                   <Trash2 size={16} />
                 </button>
               </div>
               <div className="fault-fields">
                 <div className="field">
-                  <label>Filtro:</label>
+                  <label>Filter:</label>
                   <select
                     value={fault.filter_name}
                     onChange={(e) => updateFilterFault(index, 'filter_name', e.target.value)}
@@ -459,7 +459,7 @@ const HardwareFaultInjection = () => {
                   </select>
                 </div>
                 <div className="field">
-                  <label>Fila (0-4):</label>
+                  <label>Row (0-4):</label>
                   <input
                     type="number"
                     min="0"
@@ -469,7 +469,7 @@ const HardwareFaultInjection = () => {
                   />
                 </div>
                 <div className="field">
-                  <label>Columna (0-4):</label>
+                  <label>Column (0-4):</label>
                   <input
                     type="number"
                     min="0"
@@ -479,18 +479,18 @@ const HardwareFaultInjection = () => {
                   />
                 </div>
                 <div className="field">
-                  <label>Posición del Bit (0=LSB, 7=MSB):</label>
+                  <label>Bit Position (0=LSB, 7=MSB):</label>
                   <input
                     type="number"
                     min="0"
                     max="7"
                     value={fault.bit_position}
                     onChange={(e) => updateFilterFault(index, 'bit_position', e.target.value)}
-                    title="0 = Bit menos significativo (LSB), 7 = Bit más significativo (MSB)"
+                    title="0 = Least significant bit (LSB), 7 = Most significant bit (MSB)"
                   />
                 </div>
                 <div className="field">
-                  <label>Tipo de Fallo:</label>
+                  <label>Fault Type:</label>
                   <select
                     value={fault.fault_type}
                     onChange={(e) => updateFilterFault(index, 'fault_type', e.target.value)}
@@ -506,7 +506,7 @@ const HardwareFaultInjection = () => {
             </div>
           ))}
           <button onClick={addFilterFault} className="add-fault-btn">
-            <Plus size={16} style={{marginRight: '8px'}}/> Agregar Fallo en Filtro
+            <Plus size={16} style={{marginRight: '8px'}}/> Add Filter Fault
           </button>
         </div>
       </div>
@@ -514,20 +514,20 @@ const HardwareFaultInjection = () => {
       <div className="section">
         <h3 className="section-title">
           <span className="section-icon"><Sliders size={20} /></span>
-          Fallos en Sesgos (BIAS)
+          Bias Faults (BIAS)
         </h3>
         <div className="faults-container">
           {biasFaults.map((fault, index) => (
             <div key={index} className="fault-config">
               <div className="fault-header">
-                <span>Fallo en Sesgo #{index + 1}</span>
+                <span>Bias Fault #{index + 1}</span>
                 <button onClick={() => removeBiasFault(index)} className="remove-fault-btn">
                   <Trash2 size={16} />
                 </button>
               </div>
               <div className="fault-fields">
                 <div className="field">
-                  <label>Sesgo:</label>
+                  <label>Bias:</label>
                   <select
                     value={fault.bias_name}
                     onChange={(e) => updateBiasFault(index, 'bias_name', e.target.value)}
@@ -540,18 +540,18 @@ const HardwareFaultInjection = () => {
                   </select>
                 </div>
                 <div className="field">
-                  <label>Posición del Bit (0=LSB, 15=MSB):</label>
+                  <label>Bit Position (0=LSB, 15=MSB):</label>
                   <input
                     type="number"
                     min="0"
                     max="15"
                     value={fault.bit_position}
                     onChange={(e) => updateBiasFault(index, 'bit_position', e.target.value)}
-                    title="0 = Bit menos significativo (LSB), 15 = Bit más significativo (MSB)"
+                    title="0 = Least significant bit (LSB), 15 = Most significant bit (MSB)"
                   />
                 </div>
                 <div className="field">
-                  <label>Tipo de Fallo:</label>
+                  <label>Fault Type:</label>
                   <select
                     value={fault.fault_type}
                     onChange={(e) => updateBiasFault(index, 'fault_type', e.target.value)}
@@ -567,7 +567,7 @@ const HardwareFaultInjection = () => {
             </div>
           ))}
           <button onClick={addBiasFault} className="add-fault-btn">
-            <Plus size={16} style={{marginRight: '8px'}}/> Agregar Fallo en Sesgo
+            <Plus size={16} style={{marginRight: '8px'}}/> Add Bias Fault
           </button>
         </div>
       </div>
@@ -581,11 +581,11 @@ const HardwareFaultInjection = () => {
           >
             {isLoading ? (
               <>
-                <RefreshCw className="spin" size={18} style={{marginRight: '8px'}}/> Procesando...
+                <RefreshCw className="spin" size={18} style={{marginRight: '8px'}}/> Processing...
               </>
             ) : (
               <>
-                <Zap size={18} style={{marginRight: '8px'}}/> Inyectar Fallos
+                <Zap size={18} style={{marginRight: '8px'}}/> Inject Faults
               </>
             )}
           </button>
@@ -603,7 +603,7 @@ const HardwareFaultInjection = () => {
         <div className="section">
           <h3 className="section-title">
             <span className="section-icon"><BarChart2 size={20} /></span>
-            Resultados
+            Results
           </h3>
           <div className="results-container">
             <div className={`result-status ${results.status === 'success' ? 'success' : 'error'}`}>
@@ -615,7 +615,7 @@ const HardwareFaultInjection = () => {
             
             {results.result && (
               <div className="result-details">
-                <h4>Detalles del Resultado:</h4>
+                <h4>Result Details:</h4>
                 <pre className="result-json">
                   {JSON.stringify(results.result, null, 2)}
                 </pre>
@@ -629,7 +629,7 @@ const HardwareFaultInjection = () => {
         <div className="section">
           <h3 className="section-title">
             <span className="section-icon"><Search size={20} /></span>
-            Visualización de Matrices de Salida
+            Output Matrices Visualization
           </h3>
           <ChannelMatrixViewer csvProcessingResults={results.csv_processing_results} />
         </div>

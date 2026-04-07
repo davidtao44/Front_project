@@ -100,15 +100,15 @@ const BitSelector = ({ selectedBits = [], onBitsChange, disabled = false }) => {
             onClick={handleSelectNone}
             disabled={disabled}
           >
-            Ninguno
+            None
           </button>
         </div>
       </div>
 
       <div className="bit-selector-info">
-        <p>Selecciona los bits específicos donde deseas inyectar fallos. Los bits están numerados del 0 al 31 (IEEE 754).</p>
+        <p>Select the specific bits where you want to inject faults. Bits are numbered from 0 to 31 (IEEE 754).</p>
         <div className="selected-count">
-          Bits seleccionados: <span className="count">{bits.size}</span>
+          Selected bits: <span className="count">{bits.size}</span>
           {bits.size > 0 && (
             <span className="selected-list">
               [{Array.from(bits).sort((a, b) => a - b).join(', ')}]
@@ -121,9 +121,9 @@ const BitSelector = ({ selectedBits = [], onBitsChange, disabled = false }) => {
         <div className="bit-tape">
           {/* Header Row with Labels */}
           <div className="bit-tape-header">
-            <div className="group-label sign-label" style={{ gridColumn: '1 / 2' }} title="Signo">S</div>
-            <div className="group-label exponent-label" style={{ gridColumn: '2 / 10' }}>EXPONENTE</div>
-            <div className="group-label mantissa-label" style={{ gridColumn: '10 / 33' }}>MANTISA</div>
+            <div className="group-label sign-label" style={{ gridColumn: '1 / 2' }} title="Sign">S</div>
+            <div className="group-label exponent-label" style={{ gridColumn: '2 / 10' }}>EXPONENT</div>
+            <div className="group-label mantissa-label" style={{ gridColumn: '10 / 33' }}>MANTISSA</div>
           </div>
 
           {/* Bits Row */}

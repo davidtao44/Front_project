@@ -6,7 +6,7 @@ const Header = () => {
   const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    if (window.confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+    if (window.confirm('Are you sure you want to log out?')) {
       logout();
     }
   };
@@ -33,26 +33,26 @@ const Header = () => {
             {user?.picture ? (
               <img 
                 src={user.picture} 
-                alt="Foto de perfil" 
+                alt="Profile picture" 
                 className={styles.userAvatarImage}
               />
             ) : (
-              (user?.name || user?.username || 'Usuario').charAt(0).toUpperCase()
+              (user?.name || user?.username || 'User').charAt(0).toUpperCase()
             )}
           </div>
           <div className={styles.userDetails}>
-            <span className={styles.username}>{user?.name || user?.username || 'Usuario'}</span>
-            <span className={styles.userRole}>{user?.role || 'usuario'}</span>
+            <span className={styles.username}>{user?.name || user?.username || 'User'}</span>
+            <span className={styles.userRole}>{user?.role || 'user'}</span>
           </div>
         </div>
         
         <button 
           onClick={handleLogout}
           className={styles.logoutButton}
-          title="Cerrar sesión"
+          title="Log out"
         >
           <LogOut size={18} className={styles.logoutIcon} />
-          Salir
+          Log out
         </button>
       </div>
     </header>

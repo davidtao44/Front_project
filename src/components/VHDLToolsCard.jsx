@@ -32,22 +32,22 @@ const VHDLToolsCard = ({ onClick }) => {
           </div>
           <div className="feature-item">
             <span className="feature-icon"><Scale size={16} /></span>
-            <span>Extracción de Pesos</span>
+            <span>Weight Extraction</span>
           </div>
           <div className="feature-item">
             <span className="feature-icon"><Hash size={16} /></span>
-            <span>Extracción de Bias</span>
+            <span>Bias Extraction</span>
           </div>
           <div className="feature-item">
             <span className="feature-icon"><LayoutGrid size={16} /></span>
-            <span>Selección de Modelos</span>
+            <span>Model Selection</span>
           </div>
         </div>
       </div>
       
       <div className="card-footer">
         <div className="card-status">
-          <span className="status-badge available">Disponible</span>
+          <span className="status-badge available">Available</span>
         </div>
         <div className="card-arrow">
           <ArrowRight size={20} />

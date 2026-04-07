@@ -3,26 +3,26 @@ import * as XLSX from 'xlsx';
 import './ChannelMatrixViewer.css';
 
 const ChannelMatrixViewer = ({ csvProcessingResults }) => {
-  // Validaciones más robustas para la nueva estructura
+  // More robust validations for the new structure
   if (!csvProcessingResults || typeof csvProcessingResults !== 'object') {
     return (
       <div className="matrix-viewer-empty">
-        <p>No hay datos de matrices disponibles</p>
+        <p>No matrix data available</p>
       </div>
     );
   }
 
-  // Acceder a los resultados procesados
+  // Access processed results
   const results = csvProcessingResults.results;
   if (!results || !Array.isArray(results) || results.length === 0) {
     return (
       <div className="matrix-viewer-empty">
-        <p>No hay archivos CSV procesados disponibles</p>
+        <p>No processed CSV files available</p>
       </div>
     );
   }
 
-  // Función para formatear números con coma decimal
+  // Function to format numbers with decimal comma
   const formatNumberWithComma = (value) => {
     if (typeof value === 'number') {
       return value.toFixed(6).replace('.', ',');
@@ -30,7 +30,7 @@ const ChannelMatrixViewer = ({ csvProcessingResults }) => {
     return value;
   };
 
-  // Función para generar archivo Excel de un canal específico
+  // Function to generate Excel file for a specific channel
   const downloadChannelExcel = (csvResult, channelKey) => {
     const matrices = csvResult.result.matrices;
     const matrix = matrices[channelKey];
@@ -58,7 +58,7 @@ const ChannelMatrixViewer = ({ csvProcessingResults }) => {
     XLSX.writeFile(wb, `${fileName}_${channelKey}.xlsx`);
   };
 
-  // Función para descargar todos los canales en un solo archivo Excel
+  // Function to download all channels in a single Excel file
   const downloadAllChannelsExcel = (csvResult) => {
     const matrices = csvResult.result.matrices;
     const fileName = csvResult.file ? csvResult.file.split('/').pop().replace('.csv', '') : 'simulation_output';
@@ -87,38 +87,38 @@ const ChannelMatrixViewer = ({ csvProcessingResults }) => {
     });
 
     // Descargar archivo
-    XLSX.writeFile(wb, `${fileName}_todos_los_canales.xlsx`);
+    XLSX.writeFile(wb, `${fileName}_all_channels.xlsx`);
   };
 
   return (
     <div className="matrix-viewer">
       <div className="excel-download-section">
-        <h3>📊 Descarga de Datos Excel</h3>
-        <p>Los datos de simulación están listos para descargar en formato Excel con números formateados con coma decimal.</p>
+        <h3>📊 Excel Data Download</h3>
+        <p>Simulation data is ready for download in Excel format with decimal comma numbers.</p>
         
         {results.filter((csvResult) => {
-          // Filtrar archivos que contengan "Conv1_TF" en el nombre
+          // Filter files containing "Conv1_TF" in the name
           const fileName = csvResult.file ? csvResult.file.split('/').pop().replace('.csv', '') : '';
           return !fileName.includes('Conv1_TF');
         }).map((csvResult, fileIndex) => {
-          // Validar que csvResult existe y tiene la estructura esperada
+          // Validate that csvResult exists and has the expected structure
           if (!csvResult || typeof csvResult !== 'object' || !csvResult.result || !csvResult.result.matrices) {
             return (
               <div key={fileIndex} className="file-section error">
-                <p>❌ Error: Datos inválidos para el archivo {fileIndex + 1}</p>
+                <p>❌ Error: Invalid data for file {fileIndex + 1}</p>
               </div>
             );
           }
 
           const matrices = csvResult.result.matrices;
-          const fileName = csvResult.file ? csvResult.file.split('/').pop().replace('.csv', '') : `archivo_${fileIndex + 1}`;
+          const fileName = csvResult.file ? csvResult.file.split('/').pop().replace('.csv', '') : `file_${fileIndex + 1}`;
           const channelCount = Object.keys(matrices).length;
 
           return (
             <div key={fileIndex} className="file-section">
               <div className="file-header">
                 <h4>simulation_output_Conv1_Golden</h4>
-                <p>Canales disponibles: {channelCount}</p>
+                <p>Available channels: {channelCount}</p>
               </div>
               
               <div className="download-options">
@@ -127,15 +127,15 @@ const ChannelMatrixViewer = ({ csvProcessingResults }) => {
                     className="download-btn primary"
                     onClick={() => downloadAllChannelsExcel(csvResult)}
                   >
-                    📥 Descargar Todos los Canales
+                    📥 Download All Channels
                   </button>
                   <span className="download-description">
-                    Descarga un archivo Excel con todos los canales organizados
+                    Download an Excel file with all organized channels
                   </span>
                 </div>
                 
                 <div className="individual-channels">
-                  <h5>Descargar canales individuales:</h5>
+                  <h5>Download individual channels:</h5>
                   <div className="channel-buttons">
                     {Object.keys(matrices).map((channelKey) => (
                       <button
@@ -153,13 +153,13 @@ const ChannelMatrixViewer = ({ csvProcessingResults }) => {
               <div className="file-info">
                 <div className="info-grid">
                   <div className="info-item">
-                    <strong>Archivo original:</strong> simulation_output_Conv1_Golden
+                    <strong>Original file:</strong> simulation_output_Conv1_Golden
                   </div>
                   <div className="info-item">
-                    <strong>Número de canales:</strong> {channelCount}
+                    <strong>Number of channels:</strong> {channelCount}
                   </div>
                   <div className="info-item">
-                    <strong>Canales:</strong> {Object.keys(matrices).join(', ')}
+                    <strong>Channels:</strong> {Object.keys(matrices).join(', ')}
                   </div>
                   {/* {csvResult.result.metadata && (
                     <div className="info-item">

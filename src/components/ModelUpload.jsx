@@ -46,7 +46,7 @@ const ModelUpload = () => {
     if (validFiles.length > 0) {
       uploadFiles(validFiles);
     } else {
-      alert('Por favor, sube solo archivos de modelos (.h5 o .keras)');
+      alert('Please upload only model files (.h5 or .keras)');
     }
   };
 
@@ -57,7 +57,7 @@ const ModelUpload = () => {
     try {
       const token = localStorage.getItem('access_token');
       if (!token) {
-        throw new Error('No hay token de autenticación');
+        throw new Error('No authentication token found');
       }
 
       for (let i = 0; i < files.length; i++) {
@@ -75,7 +75,7 @@ const ModelUpload = () => {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.detail || 'Error al subir el archivo');
+        throw new Error(errorData.detail || 'Error uploading the file');
         }
 
         const result = await response.json();
@@ -88,9 +88,9 @@ const ModelUpload = () => {
         setUploadProgress(((i + 1) / files.length) * 100);
       }
       
-      alert('Modelos subidos exitosamente');
+      alert('Models uploaded successfully');
     } catch (error) {
-      console.error('Error al subir archivos:', error);
+      console.error('Error uploading files:', error);
       alert(`Error: ${error.message}`);
     } finally {
       setUploading(false);
@@ -121,8 +121,8 @@ const ModelUpload = () => {
         />
         <label htmlFor="file-upload" className="upload-label">
           <UploadCloud size={48} className="upload-icon" />
-          <p className="upload-text">Arrastra tus modelos aquí o haz clic para seleccionar</p>
-          <span className="upload-hint">Soporta archivos .h5 y .keras</span>
+          <p className="upload-text">Drag your models here or click to select</p>
+          <span className="upload-hint">Supports .h5 and .keras files</span>
         </label>
       </div>
 
@@ -134,13 +134,13 @@ const ModelUpload = () => {
               style={{ width: `${uploadProgress}%` }}
             ></div>
           </div>
-          <p>Subiendo modelos... {Math.round(uploadProgress)}%</p>
+          <p>Uploading models... {Math.round(uploadProgress)}%</p>
         </div>
       )}
 
       {uploadedFiles.length > 0 && (
         <div className="uploaded-files-list">
-          <h4>Modelos Subidos</h4>
+          <h4>Uploaded Models</h4>
           <ul>
             {uploadedFiles.map((file, index) => (
               <li key={index} className="file-item">
@@ -149,7 +149,7 @@ const ModelUpload = () => {
                 <button 
                   onClick={() => removeFile(index)}
                   className="remove-file-btn"
-                  title="Eliminar"
+                  title="Remove"
                 >
                   <X size={16} />
                 </button>

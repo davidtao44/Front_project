@@ -21,29 +21,29 @@ const FaultInjectorCard = ({ onClick }) => {
       
       <div className="card-content">
         <p className="card-description">
-          Herramienta para inyección de fallos en redes neuronales convolucionales. 
-          Ejecuta inferencias tanto en modelos golden como en modelos con fallos inyectados.
+          Tool for fault injection in convolutional neural networks. 
+          Runs inferences on both golden models and models with injected faults.
         </p>
         
         <div className="card-features">
           <div className="feature-item">
             <span className="feature-icon"><Target size={16} /></span>
-            <span>Inferencias Golden</span>
+            <span>Golden Inferences</span>
           </div>
           <div className="feature-item">
             <span className="feature-icon"><Wrench size={16} /></span>
-            <span>Inyección de Fallos</span>
+            <span>Fault Injection</span>
           </div>
           <div className="feature-item">
             <span className="feature-icon"><BarChart2 size={16} /></span>
-            <span>Análisis Comparativo</span>
+            <span>Comparative Analysis</span>
           </div>
         </div>
       </div>
       
       <div className="card-footer">
         <div className="card-status">
-          <span className="status-badge available">Disponible</span>
+          <span className="status-badge available">Available</span>
         </div>
         <div className="card-arrow">
           <ArrowRight size={20} />

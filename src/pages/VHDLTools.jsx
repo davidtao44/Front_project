@@ -35,23 +35,23 @@ const VHDLTools = () => {
                 <span className="title-icon"><Cpu size={32} /></span>
                 Hardware Interoperability Module
               </h1>
-              <p className="page-subtitle">
-                Conjunto de herramientas para la conversión y extracción de datos de CNNs LeNet-5 a formato VHDL
+                <p className="page-subtitle">
+                Set of tools for the conversion and data extraction of LeNet-5 CNNs to VHDL format
               </p>
               <div className="architecture-info">
-                <span className="architecture-badge">🎯 Optimizado para LeNet-5</span>
-                <p className="architecture-description">
-                  Estas herramientas están específicamente diseñadas para trabajar con la arquitectura LeNet-5
-                </p>
+                  <span className="architecture-badge">🎯 Optimized for LeNet-5</span>
+                  <p className="architecture-description">
+                    These tools are specifically designed to work with the LeNet-5 architecture
+                  </p>
               </div>
             </div>
             <div className="header-image">
-              <img 
-                src="/LeNet-5.png" 
-                alt="Arquitectura LeNet-5" 
-                className="lenet-architecture-image"
-              />
-              <p className="image-caption">Arquitectura LeNet-5</p>
+                <img 
+                  src="/LeNet-5.png" 
+                  alt="LeNet-5 Architecture" 
+                  className="lenet-architecture-image"
+                />
+                <p className="image-caption">LeNet-5 Architecture</p>
             </div>
           </div>
         </div>
@@ -64,21 +64,21 @@ const VHDLTools = () => {
                 onClick={() => setActiveTab('select')}
               >
                 <span className="tab-icon"><LayoutGrid size={18} /></span>
-                Seleccionar Arquitectura
+                Select Architecture
               </button>
               <button 
                 className={`tab-button ${activeTab === 'image' ? 'active' : ''}`}
                 onClick={() => setActiveTab('image')}
               >
                 <span className="tab-icon"><Image size={18} /></span>
-                Imagen a VHDL
+                Image to VHDL
               </button>
               <button 
                 className={`tab-button ${activeTab === 'vhdl' ? 'active' : ''}`}
                 onClick={() => setActiveTab('vhdl')}
               >
                 <span className="tab-icon"><Scale size={18} /></span>
-                Modelo a VHDL
+                Model to VHDL
               </button>
               <button 
                 className={`tab-button ${activeTab === 'golden-simulation' ? 'active' : ''}`}
@@ -99,9 +99,9 @@ const VHDLTools = () => {
             <div className="tab-content">
               {activeTab === 'select' && (
                 <div className="tab-panel">
-                  <h3 className="panel-title">Seleccionar Modelo CNN</h3>
+                  <h3 className="panel-title">Select CNN Model</h3>
                   <p className="panel-description">
-                    Selecciona un modelo de red neuronal convolucional para trabajar con las herramientas VHDL.
+                    Select a convolutional neural network model to work with VHDL tools.
                   </p>
                   <ModelSelector 
                     selectedModel={selectedModel} 
@@ -112,9 +112,9 @@ const VHDLTools = () => {
               
               {activeTab === 'image' && (
                 <div className="tab-panel">
-                  <h3 className="panel-title">Conversión de Imagen a VHDL</h3>
+                  <h3 className="panel-title">Image to VHDL Conversion</h3>
                   <p className="panel-description">
-                    Convierte imágenes de entrada en código VHDL para procesamiento en hardware.
+                    Convert input images into VHDL code for hardware processing.
                   </p>
                   <ImageToVHDL selectedModel={selectedModel} />
                 </div>
@@ -122,9 +122,9 @@ const VHDLTools = () => {
               
               {activeTab === 'vhdl' && (
                 <div className="tab-panel">
-                  <h3 className="panel-title">Extracción de Pesos y Bias</h3>
+                  <h3 className="panel-title">Weights and Bias Extraction</h3>
                   <p className="panel-description">
-                    Extrae los pesos y bias del modelo seleccionado y genera código VHDL correspondiente.
+                    Extract the weights and bias from the selected model and generate corresponding VHDL code.
                   </p>
                   <ModelToVHDL selectedModel={selectedModel} />
                 </div>
@@ -132,9 +132,9 @@ const VHDLTools = () => {
               
               {activeTab === 'golden-simulation' && (
                 <div className="tab-panel">
-                  <h3 className="panel-title">Simulación Golden Hardware</h3>
+                  <h3 className="panel-title">Golden Hardware Simulation</h3>
                   <p className="panel-description">
-                    Ejecuta la simulación con los valores originales (golden) de FMAP y BIAS para establecer una referencia base antes de la inyección de fallos.
+                    Run the simulation with the original (golden) FMAP and BIAS values to establish a baseline before fault injection.
                   </p>
                   <GoldenSimulationHardware />
                 </div>
@@ -142,9 +142,9 @@ const VHDLTools = () => {
               
               {activeTab === 'hardware-fault' && (
                 <div className="tab-panel">
-                  <h3 className="panel-title">Inyección de Fallos en Hardware</h3>
+                  <h3 className="panel-title">Hardware Fault Injection</h3>
                   <p className="panel-description">
-                    Inyecta fallos en archivos VHDL de la primera capa convolucional (FMAP_1 a FMAP_6 y BIAS_VAL_1 a BIAS_VAL_6) y ejecuta simulaciones en Vivado.
+                    Inject faults into VHDL files of the first convolutional layer (FMAP_1 to FMAP_6 and BIAS_VAL_1 to BIAS_VAL_6) and run simulations in Vivado.
                   </p>
                   <HardwareFaultInjection />
                 </div>

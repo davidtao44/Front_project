@@ -16,7 +16,7 @@ export const useCNN = () => {
       setModels(data.models || []);
       return data;
     } catch (err) {
-      setError(err.message || 'Error al cargar los modelos');
+      setError(err.message || 'Error loading models');
       throw err;
     } finally {
       setIsLoading(false);
@@ -34,7 +34,7 @@ export const useCNN = () => {
       });
       return data;
     } catch (err) {
-      setError(err.message || 'Error al entrenar el modelo');
+      setError(err.message || 'Error training model');
       throw err;
     } finally {
       setLoading(false);

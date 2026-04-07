@@ -48,7 +48,7 @@ const ModelSelector = ({ onSelectModel, selectedModel: externalSelectedModel, va
         setInternalSelectedModel(null);
       }
     } catch (err) {
-      setError("Error al cargar los modelos: " + err.message);
+      setError("Error loading models: " + err.message);
       console.error("Error fetching models:", err);
     } finally {
       setLoading(false);
@@ -95,7 +95,7 @@ const ModelSelector = ({ onSelectModel, selectedModel: externalSelectedModel, va
       if (result.success) {
         setDeleteMessage({
           type: "success",
-          text: `${result.deleted_models.length} modelo(s) eliminado(s) exitosamente.`
+          text: `${result.deleted_models.length} model(s) deleted successfully.`
         });
         
         // If the currently selected model was deleted, clear it
@@ -112,13 +112,13 @@ const ModelSelector = ({ onSelectModel, selectedModel: externalSelectedModel, va
       } else {
         setDeleteMessage({
           type: "error",
-          text: "No se pudieron eliminar algunos modelos."
+          text: "Some models could not be deleted."
         });
       }
     } catch (err) {
       setDeleteMessage({
         type: "error",
-        text: "Error al eliminar modelos: " + err.message
+        text: "Error deleting models: " + err.message
       });
       console.error("Error deleting models:", err);
     } finally {
@@ -127,7 +127,7 @@ const ModelSelector = ({ onSelectModel, selectedModel: externalSelectedModel, va
   };
 
   if (loading && models.length === 0) {
-    return <div className={styles.loading}>Cargando modelos...</div>;
+    return <div className={styles.loading}>Loading models...</div>;
   }
 
   if (error && models.length === 0) {
@@ -135,7 +135,7 @@ const ModelSelector = ({ onSelectModel, selectedModel: externalSelectedModel, va
   }
 
   if (models.length === 0) {
-    return <div className={styles.empty}>No hay modelos disponibles. Crea uno primero.</div>;
+    return <div className={styles.empty}>No models available. Create one first.</div>;
   }
 
   if (variant === "compact") {
@@ -149,7 +149,7 @@ const ModelSelector = ({ onSelectModel, selectedModel: externalSelectedModel, va
         }}
         disabled={loading}
       >
-        <option value="" disabled>Seleccionar un modelo...</option>
+        <option value="" disabled>Select a model...</option>
         {models.map((model, index) => (
           <option key={index} value={model.path}>
             {model.filename}
@@ -162,15 +162,15 @@ const ModelSelector = ({ onSelectModel, selectedModel: externalSelectedModel, va
   return (
     <div className={styles.container}>
       <div className={styles.headerRow}>
-        <h2 className={styles.title}>Arquitecturas Disponibles</h2>
+        <h2 className={styles.title}>Available Architectures</h2>
         <div className={styles.actionButtons}>
           <button 
             className={styles.refreshButton}
             onClick={fetchModels}
             disabled={loading}
-            aria-label="Actualizar lista de modelos"
+            aria-label="Refresh models list"
           >
-            <span className={styles.buttonText}>{loading ? "Cargando..." : "Actualizar"}</span>
+            <span className={styles.buttonText}>{loading ? "Loading..." : "Refresh"}</span>
             <span className={styles.buttonIcon}>↻</span>
           </button>
           
@@ -178,10 +178,10 @@ const ModelSelector = ({ onSelectModel, selectedModel: externalSelectedModel, va
             className={`${styles.deleteButton} ${selectedForDeletion.length === 0 ? styles.disabled : ''}`}
             onClick={handleDeleteSelected}
             disabled={selectedForDeletion.length === 0 || isDeleting}
-            aria-label="Eliminar modelos seleccionados"
+            aria-label="Delete selected models"
           >
             <span className={styles.buttonText}>
-              {isDeleting ? "Eliminando..." : `Eliminar${selectedForDeletion.length > 0 ? ` (${selectedForDeletion.length})` : ''}`}
+              {isDeleting ? "Deleting..." : `Delete${selectedForDeletion.length > 0 ? ` (${selectedForDeletion.length})` : ''}`}
             </span>
             <span className={styles.buttonIcon}>🗑️</span>
           </button>
@@ -215,22 +215,22 @@ const ModelSelector = ({ onSelectModel, selectedModel: externalSelectedModel, va
             </div>
             
             <div className={styles.modelInfo}>
-              <p>Creado: {model.created_at}</p>
-              <p>Tamaño: {model.size_kb} KB</p>
+              <p>Created: {model.created_at}</p>
+              <p>Size: {model.size_kb} KB</p>
             </div>
             <div className={styles.layersInfo}>
-              <h4>Capas:</h4>
+              <h4>Layers:</h4>
               <ul className={styles.layersList}>
                 {model.layers ? (
                   model.layers.map((layer, idx) => (
                     <li key={idx} className={styles.layerItem}>
                       {layer.type}: {layer.name}
-                      {layer.units && ` (${layer.units} unidades)`}
-                      {layer.filters && ` (${layer.filters} filtros)`}
+                      {layer.units && ` (${layer.units} units)`}
+                      {layer.filters && ` (${layer.filters} filters)`}
                     </li>
                   ))
                 ) : (
-                  <li>Información de capas no disponible</li>
+                  <li>Layer information not available</li>
                 )}
               </ul>
             </div>
@@ -241,7 +241,7 @@ const ModelSelector = ({ onSelectModel, selectedModel: externalSelectedModel, va
                 handleSelectModel(model);
               }}
             >
-              {currentSelectedModel?.path === model.path ? "Seleccionado" : "Seleccionar"}
+              {currentSelectedModel?.path === model.path ? "Selected" : "Select"}
             </button>
           </div>
         ))}

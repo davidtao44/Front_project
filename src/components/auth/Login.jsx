@@ -18,7 +18,7 @@ const Login = () => {
       ...prev,
       [name]: value
     }));
-    // Limpiar error cuando el usuario empiece a escribir
+    // Clear error when user starts typing
     if (error) setError('');
   };
 
@@ -28,11 +28,11 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Llamar a la función de login del contexto con username y password
+      // Call the login function from the context with username and password
       await login(formData.username, formData.password);
-      // El login exitoso será manejado automáticamente por el AuthContext
+      // Successful login will be handled automatically by the AuthContext
     } catch (error) {
-      setError(error.message || 'Error al iniciar sesión');
+      setError(error.message || 'Error logging in');
     } finally {
       setIsLoading(false);
     }
@@ -48,7 +48,7 @@ const Login = () => {
             className={styles.logo}
           />
           <h1 className={styles.title}>GIRA crosslayer-FI</h1>
-          <p className={styles.subtitle}>Inicia sesión para continuar</p>
+          <p className={styles.subtitle}>Sign in to continue</p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
@@ -61,7 +61,7 @@ const Login = () => {
 
           <div className={styles.formGroup}>
             <label htmlFor="username" className={styles.label}>
-              Usuario
+              Username
             </label>
             <input
               type="text"
@@ -70,7 +70,7 @@ const Login = () => {
               value={formData.username}
               onChange={handleChange}
               className={styles.input}
-              placeholder="Ingresa tu usuario"
+              placeholder="Enter your username"
               required
               disabled={isLoading}
             />
@@ -78,7 +78,7 @@ const Login = () => {
 
           <div className={styles.formGroup}>
             <label htmlFor="password" className={styles.label}>
-              Contraseña
+              Password
             </label>
             <input
               type="password"
@@ -87,7 +87,7 @@ const Login = () => {
               value={formData.password}
               onChange={handleChange}
               className={styles.input}
-              placeholder="Ingresa tu contraseña"
+              placeholder="Enter your password"
               required
               disabled={isLoading}
             />
@@ -101,10 +101,10 @@ const Login = () => {
             {isLoading ? (
               <>
                 <span className={styles.spinner}></span>
-                Iniciando sesión...
+                Signing in...
               </>
             ) : (
-              'Iniciar Sesión'
+              'Sign In'
             )}
           </button>
         </form>
@@ -115,10 +115,10 @@ const Login = () => {
 
         <GoogleLoginButton 
           onSuccess={() => {
-            // El éxito será manejado automáticamente por el AuthContext
+            // Success will be handled automatically by the AuthContext
           }}
           onError={(error) => {
-            setError(error.message || 'Error al iniciar sesión con Google');
+            setError(error.message || 'Error logging in with Google');
           }}
         />
 

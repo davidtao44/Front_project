@@ -26,7 +26,7 @@ const ModelToVHDL = ({ selectedModel }) => {
 
   const handleExportWeights = async () => {
     if (!selectedModel) {
-      setError("Por favor, seleccione un modelo primero");
+      setError("Please select a model first");
       return;
     }
 
@@ -38,7 +38,7 @@ const ModelToVHDL = ({ selectedModel }) => {
       const response = await cnnService.exportModelWeights(selectedModel.path, bitsValue);
       setResult(response);
     } catch (err) {
-      setError(err.message || "Error al exportar los pesos del modelo");
+      setError(err.message || "Error exporting model weights");
     } finally {
       setLoading(false);
     }
@@ -54,7 +54,7 @@ const ModelToVHDL = ({ selectedModel }) => {
       const response = await cnnService.downloadFile(fullPath);
       setFileContent(response.content);
     } catch (err) {
-      setError(err.message || "Error al descargar el archivo");
+      setError(err.message || "Error downloading the file");
     } finally {
       setLoading(false);
     }
@@ -76,7 +76,7 @@ const ModelToVHDL = ({ selectedModel }) => {
       URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err) {
-      setError(err.message || "Error al descargar el archivo");
+      setError(err.message || "Error downloading the file");
     }
   };
 
@@ -86,19 +86,19 @@ const ModelToVHDL = ({ selectedModel }) => {
         <div className={styles.headerIcon}>
           <Layers size={24} />
         </div>
-        <h2 className={styles.title}>Exportar Modelo a VHDL</h2>
+        <h2 className={styles.title}>Export Model to VHDL</h2>
       </header>
 
       <p className={styles.description}>
-        Extrae los parámetros entrenados (pesos y sesgos) de tu modelo y genera los archivos VHDL necesarios para la implementación en hardware.
+        Extract trained parameters (weights and biases) from your model and generate the necessary VHDL files for hardware implementation.
       </p>
       
       {selectedModel ? (
         <div className={styles.configArea}>
-          <div className={styles.modelStatus}>
+            <div className={styles.modelStatus}>
             <div className={styles.statusLabel}>
               <Activity size={16} />
-              <span>Modelo Activo</span>
+              <span>Active Model</span>
             </div>
             <div className={styles.modelDetail}>
               <FileJson size={18} />
@@ -110,7 +110,7 @@ const ModelToVHDL = ({ selectedModel }) => {
             <div className={styles.settingsGroup}>
               <div className={styles.settingsHeader}>
                 <Settings size={18} />
-                <label htmlFor="bits-input" className={styles.label}>Precisión de Bits</label>
+                <label htmlFor="bits-input" className={styles.label}>Bit Precision</label>
               </div>
               <div className={styles.inputWrapper}>
                 <input
@@ -124,7 +124,7 @@ const ModelToVHDL = ({ selectedModel }) => {
                 />
                 <span className={styles.inputBadge}>bits</span>
               </div>
-              <p className={styles.inputHelp}>Define cuántos bits se usarán para representar los valores binarios.</p>
+              <p className={styles.inputHelp}>Define how many bits will be used to represent binary values.</p>
             </div>
           </div>
           
@@ -134,25 +134,25 @@ const ModelToVHDL = ({ selectedModel }) => {
               onClick={handleExportWeights}
               disabled={loading}
             >
-              {loading ? (
-                <>
-                  <div className={styles.spinner}></div>
-                  <span>Generando Archivos...</span>
-                </>
-              ) : (
-                <>
-                  <Terminal size={18} />
-                  <span>Extraer Parámetros VHDL</span>
-                </>
-              )}
+            {loading ? (
+              <>
+                <div className={styles.spinner}></div>
+                <span>Generating Files...</span>
+              </>
+            ) : (
+              <>
+                <Terminal size={18} />
+                <span>Extract VHDL Parameters</span>
+              </>
+            )}
             </button>
           </div>
         </div>
       ) : (
         <div className={styles.noModelCard}>
           <AlertCircle size={40} className={styles.warningIcon} />
-          <h3>No hay modelo seleccionado</h3>
-          <p>Ve a la pestaña <strong>"Seleccionar Arquitectura"</strong> para elegir un modelo antes de exportar.</p>
+          <h3>No model selected</h3>
+          <p>Go to the <strong>"Select Architecture"</strong> tab to choose a model before exporting.</p>
         </div>
       )}
 
@@ -167,7 +167,7 @@ const ModelToVHDL = ({ selectedModel }) => {
         <div className={styles.resultSection}>
           <div className={styles.sectionHeader}>
             <CheckCircle2 size={24} className={styles.successIcon} />
-            <h3 className={styles.subtitle}>Archivos Generados con Éxito</h3>
+            <h3 className={styles.subtitle}>Files Generated Successfully</h3>
           </div>
           
           <div className={styles.filesGrid}>
@@ -183,18 +183,18 @@ const ModelToVHDL = ({ selectedModel }) => {
                   <button 
                     className={styles.inlineButton}
                     onClick={() => handleViewFile(file)}
-                    title="Previsualizar"
+                    title="Preview"
                   >
                     <Eye size={16} />
-                    <span>Ver</span>
+                    <span>View</span>
                   </button>
                   <button 
                     className={styles.inlineButtonPrimary}
                     onClick={() => handleDownloadFile(file)}
-                    title="Descargar"
+                    title="Download"
                   >
                     <Download size={16} />
-                    <span>Descargar</span>
+                    <span>Download</span>
                   </button>
                 </div>
               </div>
@@ -206,7 +206,7 @@ const ModelToVHDL = ({ selectedModel }) => {
               <div className={styles.previewHeader}>
                 <div className={styles.previewTitle}>
                   <Terminal size={16} />
-                  <span>Vista Previa: {selectedFile}</span>
+                  <span>Preview: {selectedFile}</span>
                 </div>
                 <button className={styles.closePreview} onClick={() => setSelectedFile(null)}>Esc</button>
               </div>

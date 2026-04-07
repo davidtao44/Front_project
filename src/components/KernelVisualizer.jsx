@@ -174,12 +174,12 @@ const KernelVisualizer = ({
   return (
     <div className="kernel-visualizer">
       <div className="visualizer-header">
-        <h4>Selector Visual de Posiciones</h4>
+        <h4>Visual Position Selector</h4>
         <div className="shape-info">
-          <span>Dimensiones: [{shape.join(' × ')}]</span>
-          <span>Total elementos: {shape.reduce((a, b) => a * b, 1)}</span>
-          <span>Seleccionadas: {selectedPositions.length}</span>
-          {maxSelections && <span>Máximo: {maxSelections}</span>}
+          <span>Dimensions: [{shape.join(' × ')}]</span>
+          <span>Total elements: {shape.reduce((a, b) => a * b, 1)}</span>
+          <span>Selected: {selectedPositions.length}</span>
+          {maxSelections && <span>Maximum: {maxSelections}</span>}
         </div>
       </div>
       
@@ -189,7 +189,7 @@ const KernelVisualizer = ({
       
       {selectedPositions.length > 0 && (
         <div className="selected-positions">
-          <h5>Posiciones Seleccionadas:</h5>
+          <h5>Selected Positions:</h5>
           <div className="selected-list">
             {selectedPositions.map((position, index) => (
               <span key={index} className="selected-position">

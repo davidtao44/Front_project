@@ -43,14 +43,14 @@ const HomePage = () => {
             <span>crosslayer-FI</span>
           </h1>
           <p className="hero-subtitle">
-            Plataforma integral para la inyección de fallos, evaluación de confiabilidad 
-            y generación automática de descripciones VHDL para CNN Lenet-5.
+            Comprehensive platform for fault injection, reliability assessment 
+            and automatic VHDL code generation for LeNet-5 CNNs.
           </p>
           
           <div className="hero-stats">
             <div className="stat-item">
               <span className="stat-value">CNN</span>
-              <span className="stat-label">Arquitecturas</span>
+              <span className="stat-label">Architectures</span>
             </div>
             <div className="stat-item">
               <span className="stat-value">FI</span>
@@ -58,7 +58,7 @@ const HomePage = () => {
             </div>
             <div className="stat-item">
               <span className="stat-value">VHDL</span>
-              <span className="stat-label">Generación HW</span>
+              <span className="stat-label">HW Generation</span>
             </div>
           </div>
         </div>
@@ -75,7 +75,7 @@ const HomePage = () => {
                 <UploadCloud size={24} />
                 Trained Model Importer Module
               </h3>
-              <p className="section-desc">Sube tus arquitecturas pre-entrenadas para comenzar el análisis.</p>
+              <p className="section-desc">Upload your pre-trained architectures to start the analysis.</p>
             </div>
             <ModelUpload />
           </div>
@@ -85,9 +85,9 @@ const HomePage = () => {
             <div className="section-header">
               <h3>
                 <Cpu size={24} />
-                Herramientas de Análisis
+                Analysis Tools
               </h3>
-              <p className="section-desc">Selecciona una herramienta para evaluar la robustez o generar hardware.</p>
+              <p className="section-desc">Select a tool to evaluate robustness or generate hardware.</p>
             </div>
             
             <div className="tools-grid">

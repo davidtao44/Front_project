@@ -81,12 +81,12 @@ export const AuthProvider = ({ children }) => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Error en el login');
+        throw new Error(errorData.detail || 'Error in login');
       }
 
       const data = await response.json();
       
-      // Guardar token y datos del usuario
+      // Save token and user data
       localStorage.setItem('access_token', data.access_token);
       localStorage.setItem('user', JSON.stringify(data.user));
       
@@ -97,14 +97,14 @@ export const AuthProvider = ({ children }) => {
 
       return data;
     } catch (error) {
-      console.error('Error en login:', error);
+      console.error('Error in login:', error);
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Función de registro
+  // Register function
   const register = async (username, email, password) => {
     try {
       setIsLoading(true);
@@ -122,13 +122,13 @@ export const AuthProvider = ({ children }) => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Error en el registro');
+        throw new Error(errorData.detail || 'Error in registration');
       }
 
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error en registro:', error);
+      console.error('Error in registration:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -149,11 +149,11 @@ export const AuthProvider = ({ children }) => {
     return user !== null && user.token;
   };
 
-  // Función helper para hacer requests autenticados
+  // Helper function to make authenticated requests
   const authenticatedFetch = async (url, options = {}) => {
     const token = localStorage.getItem('access_token');
     if (!token) {
-      throw new Error('No hay token de autenticación');
+      throw new Error('No authentication token');
     }
 
     const headers = {
@@ -168,22 +168,22 @@ export const AuthProvider = ({ children }) => {
     });
 
     if (response.status === 401) {
-      // Token expirado o inválido
+      // Token expired or invalid
       logout();
-      throw new Error('Sesión expirada');
+      throw new Error('Session expired');
     }
 
     return response;
   };
 
-  // Función de login con Google
+  // Google login function
   const loginWithGoogle = async () => {
     try {
       setIsLoading(true);
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       
-      // Enviar el token al backend
+      // Send token to backend
       const response = await fetch(`${API_BASE_URL}/auth/google`, {
         method: 'POST',
         headers: {
@@ -196,7 +196,7 @@ export const AuthProvider = ({ children }) => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Error en autenticación con Google');
+        throw new Error(errorData.detail || 'Error in Google authentication');
       }
 
       const data = await response.json();
@@ -212,20 +212,19 @@ export const AuthProvider = ({ children }) => {
 
       return data;
     } catch (error) {
-      console.error('Error en login con Google:', error);
+      console.error('Error in Google login:', error);
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Función de logout con Google
+  // Google logout function
   const logoutWithGoogle = async () => {
     try {
-      // Cerrar sesión en Firebase
-      await signOut(auth);
+      // Sign out from Firebase
       
-      // Cerrar sesión en el backend si hay un usuario autenticado
+      // Sign out from backend if there's an authenticated user
       if (user && user.token) {
         try {
           await fetch(`${API_BASE_URL}/auth/google/logout`, {

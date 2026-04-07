@@ -15,18 +15,18 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
   const [error, setError] = useState(null);
 
   const weightTypes = [
-    { value: 'kernel', label: 'Kernel/Weights', description: 'Pesos principales de la capa' },
-    { value: 'bias', label: 'Bias', description: 'Términos de sesgo' }
+    { value: 'kernel', label: 'Kernel/Weights', description: 'Main layer weights' },
+    { value: 'bias', label: 'Bias', description: 'Bias terms' }
   ];
 
-  // Tipos de fallo disponibles para pesos
+  // Available fault types for weights
   const faultTypes = [
-    //{ value: 'bitflip', label: 'Bitflip', description: 'Invierte el valor del bit (0→1, 1→0)' },
-    { value: 'stuck_at_0', label: 'Stuck-at-0', description: 'Fuerza el bit a 0' },
-    { value: 'stuck_at_1', label: 'Stuck-at-1', description: 'Fuerza el bit a 1' }
+    //{ value: 'bitflip', label: 'Bitflip', description: 'Inverts the bit value (0→1, 1→0)' },
+    { value: 'stuck_at_0', label: 'Stuck-at-0', description: 'Forces the bit to 0' },
+    { value: 'stuck_at_1', label: 'Stuck-at-1', description: 'Forces the bit to 1' }
   ];
 
-  // Capas típicas de LeNet-5
+  // Typical layers of LeNet-5
   const defaultLayers = [
     { name: 'conv2d_1', type: 'Conv2D', weights: { kernel: [5, 5, 1, 6], bias: [6] } },
     { name: 'conv2d_3', type: 'Conv2D', weights: { kernel: [5, 5, 6, 16], bias: [16] } },
@@ -65,9 +65,9 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
         ...config.layers,
         [selectedLayer]: {
           target_type: 'kernel',
-          fault_type: 'stuck_at_0', // Tipo de fallo por defecto
+          fault_type: 'stuck_at_0', // Default fault type
           positions: [],
-          bit_positions: [15] // Configuración global de bits para todas las posiciones
+          bit_positions: [15] // Global bit configuration for all positions
         }
       }
     };
@@ -105,8 +105,8 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
     onConfigChange(newConfig);
   };
 
-  // Función para manejar cambios de tipo de fallo
-  const updateLayerFaultType = (layerName, faultType) => {
+    // Function to handle fault type changes
+    const updateLayerFaultType = (layerName, faultType) => {
     const newConfig = {
       ...config,
       layers: {
@@ -121,18 +121,18 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
     onConfigChange(newConfig);
   };
 
-  // Función para manejar la selección visual de posiciones
-  const handleVisualPositionToggle = (layerName, position, isSelected) => {
+    // Function to handle visual position selection
+    const handleVisualPositionToggle = (layerName, position, isSelected) => {
     const layerConfig = config.layers[layerName];
     if (!layerConfig) return;
 
     let newPositions;
     
     if (isSelected) {
-      // Agregar nueva posición (sin configuración de bits individual)
+      // Add new position (without individual bit configuration)
       newPositions = [...layerConfig.positions, position];
     } else {
-      // Remover posición
+      // Remove position
       newPositions = layerConfig.positions.filter(pos => 
         JSON.stringify(pos) !== JSON.stringify(position)
       );
@@ -152,16 +152,16 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
     onConfigChange(newConfig);
   };
 
-  // Función para obtener las posiciones seleccionadas para el visualizador
-  const getSelectedPositions = (layerName) => {
+    // Function to get selected positions for the visualizer
+    const getSelectedPositions = (layerName) => {
     const layerConfig = config.layers[layerName];
     if (!layerConfig) return [];
     
     return layerConfig.positions || [];
   };
 
-  // Función para actualizar la configuración global de bits
-  const updateGlobalBitPositions = (layerName, bitPositions) => {
+    // Function to update global bit configuration
+    const updateGlobalBitPositions = (layerName, bitPositions) => {
     const newConfig = {
       ...config,
       layers: {
@@ -189,7 +189,7 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
   return (
     <div className="weight-fault-config">
       <div className="config-header">
-        <h3>Configuración de Inyección de Fallos en Pesos</h3>
+        <h3>Weight Fault Injection Configuration</h3>
         <label className="toggle-switch">
           <input
             type="checkbox"
@@ -202,15 +202,15 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
 
       {config.enabled && (
         <div className="config-content">
-          {/* Selección de capa */}
+          {/* Layer selection */}
           <div className="layer-selection">
-            <h4>Seleccionar Capa</h4>
+            <h4>Select Layer</h4>
             <div className="layer-selector">
               <select
                 value={selectedLayer}
                 onChange={(e) => handleLayerSelect(e.target.value)}
               >
-                <option value="">Selecciona una capa...</option>
+                <option value="">Select a layer...</option>
                 {availableLayers.map(layer => (
                   <option 
                     key={layer.name} 
@@ -226,12 +226,12 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                 disabled={!selectedLayer || config.layers[selectedLayer]}
                 className="add-layer-btn"
               >
-                Añadir Capa
+                Add Layer
               </button>
             </div>
           </div>
 
-          {/* Configuraciones de capas */}
+          {/* Layer configurations */}
           {Object.entries(config.layers).map(([layerName, layerConfig]) => {
             const layer = availableLayers.find(l => l.name === layerName);
             const weightShape = getWeightShape(layerName, layerConfig.target_type);
@@ -248,9 +248,9 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                   </button>
                 </div>
 
-                {/* Tipo de peso */}
+                {/* Weight type */}
                 <div className="option-group">
-                  <label>Tipo de Peso:</label>
+                  <label>Weight Type:</label>
                   <select
                     value={layerConfig.target_type}
                     onChange={(e) => updateLayerTargetType(layerName, e.target.value)}
@@ -263,9 +263,9 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                   </select>
                 </div>
 
-                {/* Tipo de fallo */}
+                {/* Fault type */}
                 <div className="option-group">
-                  <label>Tipo de Fallo:</label>
+                  <label>Fault Type:</label>
                   <select
                     value={layerConfig.fault_type}
                     onChange={(e) => updateLayerFaultType(layerName, e.target.value)}
@@ -281,15 +281,15 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                   </small>
                 </div>
 
-                {/* Información de pesos */}
+                {/* Weight information */}
                 <div className="weight-info">
-                  <p><strong>Dimensiones:</strong> [{weightShape.join(', ')}]</p>
-                  <p><strong>Total elementos:</strong> {weightShape.reduce((a, b) => a * b, 1)}</p>
+                  <p><strong>Dimensions:</strong> [{weightShape.join(', ')}]</p>
+                  <p><strong>Total elements:</strong> {weightShape.reduce((a, b) => a * b, 1)}</p>
                 </div>
 
-                {/* Configuración Global de Bits */}
+                {/* Global Bit Configuration */}
                 <div className="global-bit-config">
-                  <h5>Configuración de Bits (Aplicada a todas las posiciones)</h5>
+                  <h5>Bit Configuration (Applied to all positions)</h5>
                   <div className="bit-selector-container">
                     <BitSelector
                       selectedBits={layerConfig.bit_positions || [15]}
@@ -297,14 +297,14 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                     />
                   </div>
                   <div className="bit-config-info">
-                    <p><strong>Bits seleccionados:</strong> {(layerConfig.bit_positions || [15]).join(', ')}</p>
-                    <p><strong>Se aplicará a:</strong> {layerConfig.positions?.length || 0} posiciones</p>
+                    <p><strong>Selected bits:</strong> {(layerConfig.bit_positions || [15]).join(', ')}</p>
+                    <p><strong>Will apply to:</strong> {layerConfig.positions?.length || 0} positions</p>
                   </div>
                 </div>
 
-                {/* Selector Visual de Posiciones */}
+                {/* Visual Position Selector */}
                 <div className="positions-section">
-                  <h5>Seleccionar Posiciones del {layerConfig.target_type === 'kernel' ? 'Kernel' : 'Bias'}</h5>
+                  <h5>Select {layerConfig.target_type === 'kernel' ? 'Kernel' : 'Bias'} Positions</h5>
                   <KernelVisualizer
                     shape={weightShape}
                     selectedPositions={getSelectedPositions(layerName)}
@@ -315,17 +315,17 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                   />
                 </div>
 
-                {/* Resumen de configuración */}
+                {/* Configuration summary */}
                 {layerConfig.positions && layerConfig.positions.length > 0 && (
                   <div className="config-summary">
-                    <h5>Resumen de Configuración</h5>
+                    <h5>Configuration Summary</h5>
                     <div className="summary-content">
-                      <p><strong>Posiciones seleccionadas:</strong> {layerConfig.positions.length}</p>
-                      <p><strong>Bits afectados por posición:</strong> {(layerConfig.bit_positions || [15]).length}</p>
-                      <p><strong>Total de fallos a inyectar:</strong> {layerConfig.positions.length * (layerConfig.bit_positions || [15]).length}</p>
+                      <p><strong>Selected positions:</strong> {layerConfig.positions.length}</p>
+                      <p><strong>Affected bits per position:</strong> {(layerConfig.bit_positions || [15]).length}</p>
+                      <p><strong>Total faults to inject:</strong> {layerConfig.positions.length * (layerConfig.bit_positions || [15]).length}</p>
                       
                       <div className="positions-list">
-                        <h6>Posiciones:</h6>
+                        <h6>Positions:</h6>
                         <div className="positions-grid">
                           {layerConfig.positions.map((position, index) => (
                             <span key={index} className="position-tag">
@@ -341,10 +341,10 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
             );
           })}
 
-          {/* Estado vacío */}
+          {/* Empty state */}
           {Object.keys(config.layers).length === 0 && (
             <div className="empty-state">
-              <p>No hay capas configuradas. Selecciona una capa para comenzar.</p>
+              <p>No layers configured. Select a layer to start.</p>
             </div>
           )}
         </div>

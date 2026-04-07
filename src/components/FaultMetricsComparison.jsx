@@ -76,7 +76,7 @@ const FaultMetricsComparison = ({ campaignResults, numSamples }) => {
     labels: ['SDC', 'Fault Masked'],
     datasets: [
       {
-        label: 'Número de Fallos',
+        label: 'Number of Faults',
         data: [faultAnalysis.sdc, faultAnalysis.faultMasked],
         backgroundColor: [
           'rgba(231, 76, 60, 0.8)',   // Rojo para SDC
@@ -121,7 +121,7 @@ const FaultMetricsComparison = ({ campaignResults, numSamples }) => {
       x: {
         title: {
           display: true,
-          text: 'Clasificación de resultados',
+          text: 'Results Classification',
           font: {
             size: 14,
             weight: 'bold',
@@ -139,7 +139,7 @@ const FaultMetricsComparison = ({ campaignResults, numSamples }) => {
         beginAtZero: true,
         title: {
           display: true,
-          text: 'Número de Ocurrencias',
+          text: 'Number of Occurrences',
           font: {
             size: 14,
             weight: 'bold',
@@ -161,8 +161,8 @@ const FaultMetricsComparison = ({ campaignResults, numSamples }) => {
     return (
       <div className="fault-metrics-container">
         <div className="no-data-message">
-          <h4>Análisis de Tipos de Fallos</h4>
-          <p>No hay datos de campaña disponibles para analizar.</p>
+          <h4>Fault Types Analysis</h4>
+          <p>No campaign data available to analyze.</p>
         </div>
       </div>
     );
@@ -171,12 +171,12 @@ const FaultMetricsComparison = ({ campaignResults, numSamples }) => {
   return (
     <div className="fault-metrics-container">
       <div className="fault-metrics-header">
-        <h4>Análisis de Tipos de Fallos</h4>
-        <p>Clasificación de fallos según su impacto en el sistema</p>
+        <h4>Fault Types Analysis</h4>
+        <p>Classification of faults according to their impact on the system</p>
       </div>
 
       <div className="fault-metrics-content">
-        {/* Tarjetas de métricas */}
+        {/* Metric cards */}
         <div className="metrics-cards">
           <div className="metric-card sdc">
             <div className="metric-icon">⚠️</div>
@@ -184,7 +184,7 @@ const FaultMetricsComparison = ({ campaignResults, numSamples }) => {
               <h5>SDC (Silent Data Corruption)</h5>
               <div className="metric-value">{faultAnalysis.sdc}</div>
               <div className="metric-percentage">{getPercentage(faultAnalysis.sdc)}%</div>
-              <p>Resultados de la red neuronal que difieren del resultado esperado (golden output), sin que se detecte un error evidente durante la ejecución.</p>
+              <p>Neural network results that differ from the expected result (golden output), without an evident error being detected during execution.</p>
             </div>
           </div>
 
@@ -194,57 +194,38 @@ const FaultMetricsComparison = ({ campaignResults, numSamples }) => {
               <h5>Fault Masked</h5>
               <div className="metric-value">{faultAnalysis.faultMasked}</div>
               <div className="metric-percentage">{getPercentage(faultAnalysis.faultMasked)}%</div>
-              <p>Fallos enmascarados que no afectan el resultado de la red</p>
+              <p>Masked faults that do not affect the network result</p>
             </div>
           </div>
         </div>
 
-        {/* Gráfico de barras */}
+        {/* Bar chart */}
         <div className="chart-section">
           <div className="chart-container">
             <Bar data={chartData} options={chartOptions} />
           </div>
         </div>
 
-        {/* Resumen estadístico */}
+        {/* Statistical summary */}
         <div className="fault-summary">
           <div className="summary-header">
-            <h5>Resumen del Análisis</h5>
+            <h5>Analysis Summary</h5>
           </div>
           <div className="summary-stats">
             <div className="stat-item">
-              <span className="stat-label">Total de Muestras Válidas:</span>
-              <span className="stat-value">{faultAnalysis.total}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Fallos SDC:</span>
+              <span className="stat-label">SDC Faults:</span>
               <span className="stat-value">{faultAnalysis.sdc}</span>
             </div>
             <div className="stat-item">
-              <span className="stat-label">Tasa de SDC:</span>
+              <span className="stat-label">SDC Rate:</span>
               <span className="stat-value">{getPercentage(faultAnalysis.sdc)}%</span>
             </div>
             <div className="stat-item">
-              <span className="stat-label">Tasa de Enmascaramiento:</span>
+              <span className="stat-label">Masking Rate:</span>
               <span className="stat-value">{getPercentage(faultAnalysis.faultMasked)}%</span>
             </div>
           </div>
         </div>
-
-        {/* Explicación de métricas */}
-        {/* <div className="metrics-explanation">
-          <h5>Explicación de Métricas</h5>
-          <div className="explanation-grid">
-            <div className="explanation-item">
-              <strong>SDC (Silent Data Corruption):</strong>
-              <p>Fallos que alteran los datos sin ser detectados por el sistema, produciendo resultados incorrectos de manera silenciosa.</p>
-            </div>
-            <div className="explanation-item">
-              <strong>Fault Masked:</strong>
-              <p>Fallos que son enmascarados por la redundancia natural del sistema y no afectan el resultado final.</p>
-            </div>
-          </div>
-        </div> */}
       </div>
     </div>
   );

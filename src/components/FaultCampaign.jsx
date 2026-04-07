@@ -40,7 +40,7 @@ const FaultCampaign = () => {
       const response = await faultCampaignService.getAvailableModels();
       setAvailableModels(response.models || []);
     } catch (error) {
-      setError('Error al cargar modelos disponibles');
+      setError('Error loading available models');
       console.error('Error loading models:', error);
     } finally {
       setIsLoading(false);
@@ -55,7 +55,7 @@ const FaultCampaign = () => {
     console.log('🎯 Función runCampaign ejecutada');
     
     if (!selectedModel) {
-      setError('Por favor selecciona un modelo');
+      setError('Please select a model');
       return;
     }
 
@@ -121,7 +121,7 @@ const FaultCampaign = () => {
       console.log('Metrics is falsy, returning N/A');
       return <div className="metrics-container">
         <div className="metric-item">
-          <span className="metric-label">Estado:</span>
+          <span className="metric-label">Status:</span>
           <span className="metric-value">N/A</span>
         </div>
       </div>;
@@ -130,19 +130,19 @@ const FaultCampaign = () => {
     return (
       <div className="metrics-container">
         <div className="metric-item">
-          <span className="metric-label">Exactitud:</span>
+          <span className="metric-label">Accuracy:</span>
           <span className="metric-value">
             {metrics.accuracy !== undefined ? (metrics.accuracy * 100).toFixed(2) + '%' : 'N/A'}
           </span>
         </div>
         <div className="metric-item">
-          <span className="metric-label">Precisión:</span>
+          <span className="metric-label">Precision:</span>
           <span className="metric-value">
             {metrics.precision !== undefined ? (metrics.precision * 100).toFixed(2) + '%' : 'N/A'}
           </span>
         </div>
         <div className="metric-item">
-          <span className="metric-label">Predicciones correctas:</span>
+          <span className="metric-label">Correct Predictions:</span>
           <span className="metric-value">{metrics.correct_predictions || 'N/A'}</span>
         </div>
       </div>
@@ -156,19 +156,19 @@ const FaultCampaign = () => {
       <div className="campaign-header">
         <h2 className="campaign-title">
           <span className="title-icon">🎯</span>
-          Campaña de Fallos
+          Fault Injection Campaign
         </h2>
         <p className="campaign-subtitle">
-          Ejecuta campañas automáticas de fallos para comparar métricas entre modelo golden y con fallos
+          Run automated fault campaigns to compare metrics between golden model and model with injected faults
         </p>
       </div>
 
       <div className="campaign-config">
-        {/* Selección de Modelo */}
+        {/* Model Selection */}
         <div className="config-section">
-          <h3 className="section-title">Configuración del Modelo</h3>
+          <h3 className="section-title">Model Configuration</h3>
           <div className="model-selector">
-            <label htmlFor="model-select">Modelo:</label>
+            <label htmlFor="model-select">Model:</label>
             <select
               id="model-select"
               value={selectedModel?.name || ''}
@@ -178,7 +178,7 @@ const FaultCampaign = () => {
               }}
               disabled={isLoading}
             >
-              <option value="">Selecciona un modelo</option>
+              <option value="">Select a model</option>
               {availableModels.map((model) => (
                 <option key={model.name} value={model.name}>
                   {model.name}
@@ -188,12 +188,12 @@ const FaultCampaign = () => {
           </div>
         </div>
 
-        {/* Configuración de Campaña */}
+        {/* Campaign Configuration */}
         <div className="config-section">
-          <h3 className="section-title">Configuración de Campaña</h3>
+          <h3 className="section-title">Campaign Configuration</h3>
           
           <div className="campaign-type-selector">
-            <label>Tipo de Campaña:</label>
+            <label>Campaign Type:</label>
             <div className="radio-group">
               <label className="radio-option">
                 <input
@@ -202,7 +202,7 @@ const FaultCampaign = () => {
                   checked={campaignType === 'activation'}
                   onChange={(e) => setCampaignType(e.target.value)}
                 />
-                <span>Fallos en Activaciones</span>
+                <span>Activation Faults</span>
               </label>
               <label className="radio-option">
                 <input
@@ -211,13 +211,13 @@ const FaultCampaign = () => {
                   checked={campaignType === 'weight'}
                   onChange={(e) => setCampaignType(e.target.value)}
                 />
-                <span>Fallos en Pesos</span>
+                <span>Weight Faults</span>
               </label>
             </div>
           </div>
 
           <div className="input-group">
-            <label htmlFor="num-samples">Número de Muestras:</label>
+            <label htmlFor="num-samples">Number of Samples:</label>
             <input
               id="num-samples"
               type="number"
@@ -231,7 +231,7 @@ const FaultCampaign = () => {
 
         </div>
 
-        {/* Configuración de Fallos en Pesos */}
+        {/* Weight Fault Configuration */}
         {campaignType === 'weight' && (
           <div className="config-section">
             <WeightFaultConfig
@@ -242,7 +242,7 @@ const FaultCampaign = () => {
           </div>
         )}
 
-        {/* Botón de Ejecución */}
+        {/* Run Button */}
         <div className="config-section">
           <button
             className="run-campaign-button"
@@ -252,12 +252,12 @@ const FaultCampaign = () => {
             {isLoading ? (
               <>
                 <span className="loading-spinner"></span>
-                Ejecutando Campaña...
+                Running Campaign...
               </>
             ) : (
               <>
                 <span className="button-icon">🚀</span>
-                Ejecutar Campaña de Fallos
+                Run Fault Campaign
               </>
             )}
           </button>
@@ -274,7 +274,7 @@ const FaultCampaign = () => {
 
 
 
-      {/* Resultados */}
+      {/* Results */}
       {results && (
           <div className="results-container">
             {console.log('🔍 Rendering results with state:', results)}
@@ -291,31 +291,31 @@ const FaultCampaign = () => {
               🚨 SIMPLE TEST: If you can see this orange box, rendering works! 🚨
             </div>
             
-            <h3 className="results-title">Resultados de la Campaña</h3>
+            <h3 className="results-title">Campaign Results</h3>
           
-          {/* Información de la Campaña */}
+          {/* Campaign Information */}
           <div className="result-card">
-            <h4>Información de la Campaña</h4>
+            <h4>Campaign Information</h4>
             <div className="campaign-info">
               <div className="info-item">
-                <span className="label">ID de Sesión:</span>
+                <span className="label">Session ID:</span>
                 <span className="value">{results.campaign_info?.session_id}</span>
               </div>
               <div className="info-item">
-                <span className="label">Modelo:</span>
+                <span className="label">Model:</span>
                 <span className="value">{results.campaign_info?.model_path?.split('/').pop()}</span>
               </div>
 
               <div className="info-item">
-                <span className="label">Tiempo de Ejecución:</span>
+                <span className="label">Execution Time:</span>
                 <span className="value">{results.campaign_info?.execution_time_seconds?.toFixed(2)}s</span>
               </div>
             </div>
           </div>
 
-          {/* Métricas Golden */}
+          {/* Golden Metrics */}
           <div className="result-card">
-              <h4>Métricas Golden (Sin Fallos)</h4>
+              <h4>Golden Metrics (No Faults)</h4>
               
               {/* DEBUG SIMPLE: Solo mostrar una métrica */}
               <div style={{backgroundColor: 'lightblue', padding: '15px', margin: '10px', fontSize: '16px', border: '2px solid blue'}}>
@@ -326,53 +326,53 @@ const FaultCampaign = () => {
                 <div>Accuracy formatted: {results.golden_results?.metrics?.accuracy ? (results.golden_results.metrics.accuracy * 100).toFixed(2) + '%' : 'N/A'}</div>
               </div>
               
-              {/* Intentar mostrar métricas con formatMetrics */}
+              {/* Metrics with formatMetrics */}
               <div style={{backgroundColor: 'lightgreen', padding: '15px', margin: '10px'}}>
-                <strong>📊 Métricas con formatMetrics:</strong>
+                <strong>📊 Metrics with formatMetrics:</strong>
                 {formatMetrics(results.golden_results?.metrics)}
               </div>
           </div>
 
-          {/* Métricas con Fallos */}
+          {/* Metrics with Faults */}
           <div className="result-card">
-            <h4>Métricas con Fallos</h4>
+            <h4>Metrics with Faults</h4>
             {formatMetrics(results.fault_results?.metrics)}
           </div>
 
-          {/* Comparación */}
+          {/* Comparison */}
           {results.comparison && (
             <div className="result-card">
-              <h4>Comparación de Resultados</h4>
+              <h4>Results Comparison</h4>
               <div className="comparison-container">
                 <div className="comparison-item">
-                  <span className="label">Predicciones Iguales:</span>
+                  <span className="label">Same Predictions:</span>
                   <span className="value">{results.comparison.samples_with_same_predictions}</span>
                 </div>
                 <div className="comparison-item">
-                  <span className="label">Predicciones Diferentes:</span>
+                  <span className="label">Different Predictions:</span>
                   <span className="value">{results.comparison.samples_with_different_predictions}</span>
                 </div>
                 <div className="comparison-item">
-                  <span className="label">Porcentaje de Diferencia:</span>
+                  <span className="label">Difference Percentage:</span>
                   <span className="value">{results.comparison.percentage_different?.toFixed(2)}%</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Degradación de Métricas */}
+          {/* Metrics Degradation */}
           {results.golden_results?.metrics && results.fault_results?.metrics && (
             <div className="result-card">
-              <h4>Degradación de Métricas</h4>
+              <h4>Metrics Degradation</h4>
               <div className="degradation-container">
                 <div className="degradation-item">
-                  <span className="label">Pérdida de Exactitud:</span>
+                  <span className="label">Accuracy Loss:</span>
                   <span className="value degradation">
                     {((results.golden_results.metrics.accuracy - results.fault_results.metrics.accuracy) * 100).toFixed(2)}%
                   </span>
                 </div>
                 <div className="degradation-item">
-                  <span className="label">Pérdida de Precisión:</span>
+                  <span className="label">Precision Loss:</span>
                   <span className="value degradation">
                     {((results.golden_results.metrics.precision - results.fault_results.metrics.precision) * 100).toFixed(2)}%
                   </span>

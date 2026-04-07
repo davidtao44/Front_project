@@ -37,7 +37,7 @@ const FaultInjectionConfig = ({ selectedModel, onConfigChange, initialConfig = n
       const response = await faultInjectorService.getAvailableLayers(selectedModel.path);
       setAvailableLayers(response.layers);
     } catch (error) {
-      setError('Error al cargar capas disponibles');
+      setError('Error loading available layers');
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -127,7 +127,7 @@ const FaultInjectionConfig = ({ selectedModel, onConfigChange, initialConfig = n
     return (
       <div className="fault-config-placeholder">
         <div className="placeholder-icon">🎯</div>
-        <p>Selecciona un modelo para configurar la inyección de fallos</p>
+        <p>Select a model to configure fault injection</p>
       </div>
     );
   }
@@ -146,7 +146,7 @@ const FaultInjectionConfig = ({ selectedModel, onConfigChange, initialConfig = n
           </label>
           <div className="toggle-label">
             <h4>Habilitar Inyección de Fallos</h4>
-            <p>Activa la inyección de fallos durante la inferencia</p>
+            <p>Enable fault injection during inference</p>
           </div>
         </div>
       </div>
@@ -154,15 +154,15 @@ const FaultInjectionConfig = ({ selectedModel, onConfigChange, initialConfig = n
       {config.enabled && (
         <div className="config-content">
           <div className="layers-section">
-            <h5>Configuración por Capas</h5>
+            <h5>Layer Configuration</h5>
             <p className="section-description">
-              Selecciona las capas donde deseas inyectar fallos y configura los parámetros.
+              Select the layers where you want to inject faults and configure the parameters.
             </p>
 
             {isLoading ? (
               <div className="loading-container">
                 <div className="loading-spinner"></div>
-                <p>Cargando capas disponibles...</p>
+                <p>Loading available layers...</p>
               </div>
             ) : error ? (
               <div className="error-message">
@@ -219,7 +219,7 @@ const FaultInjectionConfig = ({ selectedModel, onConfigChange, initialConfig = n
                               onChange={(e) => handleLayerConfigChange(layer.name, 'fault_rate', parseFloat(e.target.value))}
                             />
                             <span className="field-description">
-                              Probabilidad de fallo (0.0 - 1.0)
+                              Fault probability (0.0 - 1.0)
                             </span>
                           </div>
                         </div>
@@ -258,16 +258,16 @@ const FaultInjectionConfig = ({ selectedModel, onConfigChange, initialConfig = n
           </div>
 
           <div className="config-summary">
-            <h5>Resumen de Configuración</h5>
+            <h5>Configuration Summary</h5>
             <div className="summary-stats">
               <div className="stat-item">
-                <span className="stat-label">Capas configuradas:</span>
+                <span className="stat-label">Configured layers:</span>
                 <span className="stat-value">{Object.keys(config.layers).length}</span>
               </div>
               <div className="stat-item">
-                <span className="stat-label">Estado:</span>
+                <span className="stat-label">Status:</span>
                 <span className={`stat-value ${config.enabled ? 'enabled' : 'disabled'}`}>
-                  {config.enabled ? 'Habilitado' : 'Deshabilitado'}
+                  {config.enabled ? 'Enabled' : 'Disabled'}
                 </span>
               </div>
             </div>
@@ -277,13 +277,13 @@ const FaultInjectionConfig = ({ selectedModel, onConfigChange, initialConfig = n
                   <div key={layerName} className="layer-summary">
                     <strong>{layerName}</strong>
                     <div className="layer-details">
-                      <span>Tipo: {layerConfig.fault_type}</span>
-                      <span>Probabilidad: {(layerConfig.fault_rate * 100).toFixed(1)}%</span>
+                      <span>Type: {layerConfig.fault_type}</span>
+                      <span>Probability: {(layerConfig.fault_rate * 100).toFixed(1)}%</span>
                       {layerConfig.fault_type === 'random_noise' && layerConfig.parameters?.std_dev && (
-                        <span>Desviación: {layerConfig.parameters.std_dev}</span>
+                        <span>Std Dev: {layerConfig.parameters.std_dev}</span>
                       )}
                       {layerConfig.fault_type === 'bit_flip' && layerConfig.bit_positions && layerConfig.bit_positions.length > 0 && (
-                        <span>Bits específicos: {layerConfig.bit_positions.sort((a, b) => a - b).join(', ')}</span>
+                        <span>Specific bits: {layerConfig.bit_positions.sort((a, b) => a - b).join(', ')}</span>
                       )}
                     </div>
                   </div>

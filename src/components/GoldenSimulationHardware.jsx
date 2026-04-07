@@ -21,14 +21,14 @@ const GoldenSimulationHardware = () => {
       const data = await response.json();
 
       if (response.ok) {
-        //console.log('✅ Simulación golden completada:', data);
+        //console.log('✅ Golden simulation completed:', data);
         setResults(data);
       } else {
-        throw new Error(data.detail || 'Error en la simulación golden');
+        throw new Error(data.detail || 'Error in golden simulation');
       }
     } catch (error) {
-      console.error('❌ Error en simulación golden:', error);
-      setError(error.message || 'Error ejecutando simulación golden');
+      console.error('❌ Error in golden simulation:', error);
+      setError(error.message || 'Error executing golden simulation');
     } finally {
       setIsLoading(false);
     }
@@ -41,63 +41,63 @@ const GoldenSimulationHardware = () => {
 
     return (
       <div className="results-container">
-        <h3><Zap size={20} style={{display: 'inline-block', marginRight: '8px'}}/> Resultados de Simulación Golden</h3>
+        <h3><Zap size={20} style={{display: 'inline-block', marginRight: '8px'}}/> Golden Simulation Results</h3>
         
-        {/* Resultados de modificación */}
+        {/* Modification results */}
         {modification_results && (
           <div className="result-section">
-            <h4><Wrench size={18} style={{display: 'inline-block', marginRight: '8px'}}/> Inyección de Valores Golden</h4>
+            <h4><Wrench size={18} style={{display: 'inline-block', marginRight: '8px'}}/> Golden Values Injection</h4>
             <div className={`status-badge ${modification_results.status}`}>
               {modification_results.status === 'success' ? <CheckCircle size={16} style={{display: 'inline-block', marginRight: '4px'}}/> : <XCircle size={16} style={{display: 'inline-block', marginRight: '4px'}}/>} {modification_results.message}
             </div>
             
             {modification_results.values_injected && (
               <div className="values-injected">
-                <p><strong>Filtros inyectados:</strong> {modification_results.values_injected.filters.join(', ')}</p>
-                <p><strong>Bias inyectados:</strong> {modification_results.values_injected.bias.join(', ')}</p>
+                <p><strong>Injected filters:</strong> {modification_results.values_injected.filters.join(', ')}</p>
+                <p><strong>Injected bias:</strong> {modification_results.values_injected.bias.join(', ')}</p>
               </div>
             )}
           </div>
         )}
 
-        {/* Resultados de simulación */}
+        {/* Simulation results */}
         {simulation_results && (
           <div className="result-section">
-            <h4><Zap size={18} style={{display: 'inline-block', marginRight: '8px'}}/> Simulación VHDL</h4>
+            <h4><Zap size={18} style={{display: 'inline-block', marginRight: '8px'}}/> VHDL Simulation</h4>
             <div className={`status-badge ${simulation_results.status}`}>
               {simulation_results.status === 'success' ? <CheckCircle size={16} style={{display: 'inline-block', marginRight: '4px'}}/> : <XCircle size={16} style={{display: 'inline-block', marginRight: '4px'}}/>} {simulation_results.message}
             </div>
             
             {simulation_results.steps_completed && (
               <div className="steps-completed">
-                <p><strong>Pasos completados:</strong> {simulation_results.steps_completed.join(' → ')}</p>
+                <p><strong>Completed steps:</strong> {simulation_results.steps_completed.join(' → ')}</p>
               </div>
             )}
 
             {simulation_results.output && (
               <div className="simulation-output">
-                <h5>Salida de simulación:</h5>
+                <h5>Simulation output:</h5>
                 <pre className="output-text">{simulation_results.output}</pre>
               </div>
             )}
 
             {simulation_results.errors && (
               <div className="simulation-errors">
-                <h5>Errores:</h5>
+                <h5>Errors:</h5>
                 <pre className="error-text">{simulation_results.errors}</pre>
               </div>
             )}
           </div>
         )}
 
-        {/* Resultados de procesamiento CSV */}
+        {/* CSV processing results */}
         {csv_processing_results && (
           <div className="result-section">
-            <h4><FileText size={18} style={{display: 'inline-block', marginRight: '8px'}}/> Procesamiento de Archivos CSV</h4>
+            <h4><FileText size={18} style={{display: 'inline-block', marginRight: '8px'}}/> CSV Files Processing</h4>
             <div className={`status-badge ${csv_processing_results.status}`}>
               {csv_processing_results.status === 'success' ? <CheckCircle size={16} style={{display: 'inline-block', marginRight: '4px'}}/> : 
                csv_processing_results.status === 'warning' ? <AlertTriangle size={16} style={{display: 'inline-block', marginRight: '4px'}}/> : <XCircle size={16} style={{display: 'inline-block', marginRight: '4px'}}/>} 
-              {csv_processing_results.message || `${csv_processing_results.processed_files || 0} archivos procesados`}
+              {csv_processing_results.message || `${csv_processing_results.processed_files || 0} files processed`}
             </div>
 
             {csv_processing_results.results && csv_processing_results.results.length > 0 && (
@@ -108,12 +108,12 @@ const GoldenSimulationHardware = () => {
           </div>
         )}
 
-        {/* Información adicional */}
+        {/* Additional information */}
         {/* <div className="result-section">
-          <h4>📁 Información de Archivos</h4>
+          <h4>📁 File Information</h4>
           <div className="file-info">
-            <p><strong>Archivo VHDL:</strong> {results.vhdl_file}</p>
-            <p><strong>Archivo de respaldo:</strong> {results.backup_file}</p>
+            <p><strong>VHDL File:</strong> {results.vhdl_file}</p>
+            <p><strong>Backup file:</strong> {results.backup_file}</p>
           </div>
         </div> */}
       </div>
@@ -128,27 +128,27 @@ const GoldenSimulationHardware = () => {
       </div>
       
       <p className="description">
-        Ejecuta la simulación con los valores originales (golden) del hardware VHDL para establecer una referencia base. 
-        Esta simulación utiliza los valores por defecto de filtros y bias sin ninguna modificación.
+        Run the simulation with the original (golden) VHDL hardware values to establish a baseline reference. 
+        This simulation uses the default filter and bias values without any modification.
       </p>
 
       <div className="info-box">
-        <h4><FileText size={18} style={{display: 'inline-block', marginRight: '8px'}}/> Información de Simulación Golden</h4>
+        <h4><FileText size={18} style={{display: 'inline-block', marginRight: '8px'}}/> Golden Simulation Information</h4>
         <div className="info-grid">
           <div className="info-item">
             <span className="info-icon"><Target size={16} /></span>
-            <strong>Propósito:</strong>
-            <p>Establecer valores de referencia base para comparación con simulaciones con fallos</p>
+            <strong>Purpose:</strong>
+            <p>Establish baseline reference values for comparison with fault simulations</p>
           </div>
           <div className="info-item">
             <span className="info-icon"><Wrench size={16} /></span>
-            <strong>Valores utilizados:</strong>
-            <p>Filtros FMAP_1 a FMAP_6 y valores BIAS_VAL_1 a BIAS_VAL_6 originales</p>
+            <strong>Values used:</strong>
+            <p>FMAP_1 to FMAP_6 filters and original BIAS_VAL_1 to BIAS_VAL_6 values</p>
           </div>
           <div className="info-item">
             <span className="info-icon"><Zap size={16} /></span>
-            <strong>Proceso:</strong>
-            <p>compile.sh → elaborate.sh → simulate.sh → procesamiento CSV</p>
+            <strong>Process:</strong>
+            <p>compile.sh → elaborate.sh → simulate.sh → CSV processing</p>
           </div>
         </div>
       </div>
@@ -162,12 +162,12 @@ const GoldenSimulationHardware = () => {
           {isLoading ? (
             <>
               <span className="spinner"></span>
-              Ejecutando Simulación...
+              Running Simulation...
             </>
           ) : (
             <>
               <span className="button-icon"><Play size={18} /></span>
-              Ejecutar Simulación Golden
+              Run Golden Simulation
             </>
           )}
         </button>

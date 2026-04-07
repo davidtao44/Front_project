@@ -7,7 +7,7 @@ const API_URL = API_BASE_URL;
 const authenticatedFetch = async (url, options = {}) => {
   const token = localStorage.getItem('access_token');
   if (!token) {
-    throw new Error('No hay token de autenticación');
+    throw new Error('No authentication token');
   }
 
   const headers = {
@@ -58,7 +58,7 @@ export const cnnService = {
       
       return await response.json();
     } catch (error) {
-      console.error("Error al obtener modelos:", error);
+      console.error("Error fetching models:", error);
       throw error;
     }
   },
@@ -76,7 +76,7 @@ export const cnnService = {
       
       return await response.json();
     } catch (error) {
-      console.error("Error al entrenar modelo:", error);
+      console.error("Error training model:", error);
       throw error;
     }
   },
@@ -102,7 +102,7 @@ export const cnnService = {
       
       return await response.json();
     } catch (error) {
-      console.error("Error al convertir imagen a VHDL:", error);
+      console.error("Error converting image to VHDL:", error);
       throw error;
     }
   },
@@ -125,7 +125,7 @@ export const cnnService = {
       
       return await response.json();
     } catch (error) {
-      console.error("Error al extraer pesos del modelo:", error);
+      console.error("Error extracting model weights:", error);
       throw error;
     }
   },
@@ -143,7 +143,7 @@ export const cnnService = {
       const content = await response.text();
       return { content };
     } catch (error) {
-      console.error("Error al descargar archivo:", error);
+      console.error("Error downloading file:", error);
       throw error;
     }
   }
@@ -155,7 +155,7 @@ export const faultInjectorService = {
     try {
       const token = localStorage.getItem('access_token');
       if (!token) {
-        throw new Error('No hay token de autenticación');
+        throw new Error('No authentication token');
       }
 
       const formData = new FormData();
@@ -177,7 +177,7 @@ export const faultInjectorService = {
       if (response.status === 401) {
         localStorage.removeItem('access_token');
         localStorage.removeItem('user');
-        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      throw new Error('Session expired. Please log in again.');
       }
 
       if (!response.ok) {
@@ -187,7 +187,7 @@ export const faultInjectorService = {
 
       return await response.json();
     } catch (error) {
-      console.error('Error en la inferencia de FaultInjector:', error);
+      console.error('Error in FaultInjector inference:', error);
       throw error;
     }
   },
@@ -206,29 +206,29 @@ export const faultInjectorService = {
 
       return await response.json();
     } catch (error) {
-      console.error('Error al configurar inyección de fallos:', error);
+      console.error('Error configuring fault injection:', error);
       throw error;
     }
   },
 
   getAvailableLayers: async (modelPath) => {
     try {
-      // Esta función podría implementarse en el backend para obtener las capas disponibles
-      // Por ahora, retornamos capas típicas de una CNN
+      // This function could be implemented in the backend to get available layers
+      // For now, return typical CNN layers
       return {
         layers: [
-          { name: 'conv2d_1', type: 'convolutional', description: 'Primera capa convolucional' },
-          { name: 'maxpooling2d_1', type: 'pooling', description: 'Primera capa de maxpooling' },
-          { name: 'conv2d_3', type: 'convolutional', description: 'Segunda capa convolucional' },
-          { name: 'maxpooling2d_2', type: 'pooling', description: 'Segunda capa de maxpooling' },
-          { name: 'flatten', type: 'flatten', description: 'Capa de aplanamiento' },
-          { name: 'dense_6', type: 'dense', description: 'Primera capa densa' },
-          { name: 'dense_7', type: 'dense', description: 'Segunda capa densa' },
-          { name: 'dense_8', type: 'dense', description: 'Capa de salida' }
+          { name: 'conv2d_1', type: 'convolutional', description: 'First convolutional layer' },
+          { name: 'maxpooling2d_1', type: 'pooling', description: 'First maxpooling layer' },
+          { name: 'conv2d_3', type: 'convolutional', description: 'Second convolutional layer' },
+          { name: 'maxpooling2d_2', type: 'pooling', description: 'Second maxpooling layer' },
+          { name: 'flatten', type: 'flatten', description: 'Flatten layer' },
+          { name: 'dense_6', type: 'dense', description: 'First dense layer' },
+          { name: 'dense_7', type: 'dense', description: 'Second dense layer' },
+          { name: 'dense_8', type: 'dense', description: 'Output layer' }
         ]
       };
     } catch (error) {
-      console.error('Error al obtener capas disponibles:', error);
+      console.error('Error fetching available layers:', error);
       throw error;
     }
   }
@@ -248,7 +248,7 @@ export const authService = {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Error en el login');
+        throw new Error(errorData.detail || 'Error in login');
       }
 
       return await response.json();
@@ -269,12 +269,12 @@ export const authService = {
       });
 
       if (!response.ok) {
-        throw new Error('Token inválido');
+        throw new Error('Invalid token');
       }
 
       return await response.json();
     } catch (error) {
-      console.error("Error al verificar token:", error);
+      console.error("Error verifying token:", error);
       throw error;
     }
   },
@@ -291,7 +291,7 @@ export const faultCampaignService = {
       
       return await response.json();
     } catch (error) {
-      console.error("Error al obtener modelos para campaña:", error);
+      console.error("Error fetching models for campaign:", error);
       throw error;
     }
   },
@@ -311,16 +311,16 @@ export const faultCampaignService = {
 
       return await response.json();
     } catch (error) {
-      console.error("Error ejecutando campaña de fallos en activaciones:", error);
+      console.error("Error running activation fault campaign:", error);
       throw error;
     }
   },
 
   runWeightFaultCampaign: async (campaignConfig) => {
     try {
-      console.log('🚀 Iniciando petición HTTP para campaña de fallos en pesos');
+      console.log('🚀 Starting HTTP request for weight fault campaign');
       console.log('📤 URL:', `${API_URL}/fault_campaign/weight/run/`);
-      console.log('📤 Config enviada:', JSON.stringify(campaignConfig, null, 2));
+      console.log('📤 Config sent:', JSON.stringify(campaignConfig, null, 2));
       
       const response = await authenticatedFetch(`${API_URL}/fault_campaign/weight/run/`, {
         method: 'POST',
@@ -332,7 +332,7 @@ export const faultCampaignService = {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('❌ Error en respuesta HTTP:', errorData);
+        console.error('❌ Error in HTTP response:', errorData);
         throw new Error(errorData.detail || `Error: ${response.status}`);
       }
 

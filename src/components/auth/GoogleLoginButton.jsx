@@ -15,7 +15,7 @@ const GoogleLoginButton = ({ onSuccess, onError }) => {
         onSuccess(result);
       }
     } catch (error) {
-      console.error('Error en login con Google:', error);
+      console.error('Error in Google login:', error);
       if (onError) {
         onError(error);
       }
@@ -50,7 +50,7 @@ const GoogleLoginButton = ({ onSuccess, onError }) => {
         boxShadow: 'var(--shadow-sm)'
       }}
     >
-      {isLoading ? 'Iniciando sesión...' : 'Continuar con Google'}
+      {isLoading ? 'Signing in...' : 'Continue with Google'}
       {!isLoading && (
         <svg
           width="18"

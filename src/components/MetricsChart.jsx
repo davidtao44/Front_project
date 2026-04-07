@@ -42,19 +42,19 @@ const MetricsChart = ({ goldenMetrics, faultMetrics, campaignResults, numSamples
 
   const metrics = extractMetrics();
 
-  // Datos para el diagrama de barras
+  // Data for the bar chart
   const barChartData = {
-    labels: ['Red Golden (Sin Fallos)', 'Red con Fallos Inyectados'],
+    labels: ['Golden Network (No Faults)', 'Network with Injected Faults'],
     datasets: [
       {
-        label: 'Exactitud (Accuracy)',
+        label: 'Accuracy',
         data: [metrics.goldenAccuracy, metrics.faultAccuracy],
         backgroundColor: 'rgba(16, 185, 129, 0.8)',
         borderColor: '#10b981',
         borderWidth: 2,
       },
       {
-        label: 'Precisión (Precision)',
+        label: 'Precision',
         data: [metrics.goldenPrecision, metrics.faultPrecision],
         backgroundColor: 'rgba(59, 130, 246, 0.8)',
         borderColor: '#3b82f6',
@@ -63,7 +63,7 @@ const MetricsChart = ({ goldenMetrics, faultMetrics, campaignResults, numSamples
     ],
   };
 
-  // Opciones para el diagrama de barras
+  // Options for the bar chart
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -86,7 +86,7 @@ const MetricsChart = ({ goldenMetrics, faultMetrics, campaignResults, numSamples
       },
       title: {
         display: true,
-        text: 'Comparación de Métricas: Precisión y Exactitud',
+        text: 'Metrics Comparison: Accuracy and Precision',
         font: {
           size: 16,
           weight: 'bold',
@@ -99,7 +99,7 @@ const MetricsChart = ({ goldenMetrics, faultMetrics, campaignResults, numSamples
         display: true,
         title: {
           display: true,
-          text: 'Tipo de Red',
+          text: 'Network Type',
           font: {
             size: 14,
             weight: 'bold',
@@ -113,7 +113,7 @@ const MetricsChart = ({ goldenMetrics, faultMetrics, campaignResults, numSamples
         display: true,
         title: {
           display: true,
-          text: 'Porcentaje (%)',
+          text: 'Percentage (%)',
           font: {
             size: 14,
             weight: 'bold',
@@ -137,25 +137,21 @@ const MetricsChart = ({ goldenMetrics, faultMetrics, campaignResults, numSamples
   return (
     <div className="metrics-charts-container">
       <div className="charts-header">
-        <h4>Comparación de Métricas de Rendimiento</h4>
-        <p>Análisis de precisión y exactitud entre red Golden y red con fallos inyectados</p>
+        <h4>Performance Metrics Comparison</h4>
+        <p>Analysis of accuracy and precision between Golden network and network with injected faults</p>
       </div>
       
       <div className="single-chart-container">
         <div className="chart-section">
           <div className="chart-info">
-            {/* <div className="chart-description">
-              <p>Este diagrama de barras compara las métricas de rendimiento entre ambas redes.</p>
-              <p>Muestra la exactitud (accuracy) y precisión (precision) como porcentajes para facilitar la comparación.</p>
-            </div> */}
             <div className="metric-summary">
               {goldenMetrics && faultMetrics && (
                 <>
                   <span className="golden-accuracy">
-                    Golden - Exactitud: {metrics.goldenAccuracy.toFixed(2)}% | Precisión: {metrics.goldenPrecision.toFixed(2)}%
+                    Golden - Accuracy: {metrics.goldenAccuracy.toFixed(2)}% | Precision: {metrics.goldenPrecision.toFixed(2)}%
                   </span>
                   <span className="fault-accuracy">
-                    Con Fallos - Exactitud: {metrics.faultAccuracy.toFixed(2)}% | Precisión: {metrics.faultPrecision.toFixed(2)}%
+                    With Faults - Accuracy: {metrics.faultAccuracy.toFixed(2)}% | Precision: {metrics.faultPrecision.toFixed(2)}%
                   </span>
                 </>
               )}
@@ -170,19 +166,19 @@ const MetricsChart = ({ goldenMetrics, faultMetrics, campaignResults, numSamples
       {campaignResults && (
         <div className="chart-summary">
           <div className="summary-item">
-            <span className="summary-label">Diferencia en Exactitud:</span>
+            <span className="summary-label">Accuracy Difference:</span>
             <span className="summary-value">
               {(metrics.goldenAccuracy - metrics.faultAccuracy).toFixed(2)}%
             </span>
           </div>
           <div className="summary-item">
-            <span className="summary-label">Diferencia en Precisión:</span>
+            <span className="summary-label">Precision Difference:</span>
             <span className="summary-value">
               {(metrics.goldenPrecision - metrics.faultPrecision).toFixed(2)}%
             </span>
           </div>
           <div className="summary-item">
-            <span className="summary-label">Número de Muestras:</span>
+            <span className="summary-label">Number of Samples:</span>
             <span className="summary-value">{numSamples}</span>
           </div>
         </div>
