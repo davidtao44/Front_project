@@ -112,39 +112,90 @@ const FaultCampaign = () => {
     }
   };
 
+  const formatPercent = (val) =>
+    val !== undefined && val !== null ? (val * 100).toFixed(2) + '%' : 'N/A';
+
+  const renderConfusionMatrix = (matrix) => {
+    if (!matrix || !matrix.length) return null;
+    const size = matrix.length;
+    return (
+      <div className="confusion-matrix-wrapper">
+        <table className="confusion-matrix">
+          <thead>
+            <tr>
+              <th className="cm-corner">A\P</th>
+              {matrix[0].map((_, ci) => <th key={ci} className="cm-header">{ci}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {matrix.map((row, ri) => (
+              <tr key={ri}>
+                <td className="cm-row-header">{ri}</td>
+                {row.map((cell, ci) => (
+                  <td key={ci} className={`cm-cell${ri === ci ? ' cm-diagonal' : cell > 0 ? ' cm-error' : ''}`}>
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="cm-legend">Rows: Actual classes | Columns: Predicted classes</p>
+      </div>
+    );
+  };
+
   const formatMetrics = (metrics) => {
-    console.log('formatMetrics called with:', metrics);
-    console.log('metrics type:', typeof metrics);
-    console.log('metrics is null/undefined:', metrics == null);
-    
-    if (!metrics) {
-      console.log('Metrics is falsy, returning N/A');
-      return <div className="metrics-container">
-        <div className="metric-item">
-          <span className="metric-label">Status:</span>
-          <span className="metric-value">N/A</span>
-        </div>
-      </div>;
-    }
-    
+    if (!metrics) return <p className="no-data">No data available</p>;
     return (
       <div className="metrics-container">
-        <div className="metric-item">
-          <span className="metric-label">Accuracy:</span>
-          <span className="metric-value">
-            {metrics.accuracy !== undefined ? (metrics.accuracy * 100).toFixed(2) + '%' : 'N/A'}
-          </span>
+        <div className="metrics-group">
+          <h5 className="metrics-group-title">Performance Metrics</h5>
+          <div className="metric-row">
+            <span className="metric-label">Accuracy</span>
+            <span className="metric-value metric-good">{formatPercent(metrics.accuracy)}</span>
+          </div>
+          <div className="metric-row">
+            <span className="metric-label">Precision</span>
+            <span className="metric-value metric-good">{formatPercent(metrics.precision)}</span>
+          </div>
         </div>
-        <div className="metric-item">
-          <span className="metric-label">Precision:</span>
-          <span className="metric-value">
-            {metrics.precision !== undefined ? (metrics.precision * 100).toFixed(2) + '%' : 'N/A'}
-          </span>
+        {(metrics.macro_avg_precision !== undefined || metrics.macro_avg_recall !== undefined) && (
+          <div className="metrics-group">
+            <h5 className="metrics-group-title">Macro Average</h5>
+            {metrics.macro_avg_precision !== undefined && (
+              <div className="metric-row">
+                <span className="metric-label">Avg Precision</span>
+                <span className="metric-value">{formatPercent(metrics.macro_avg_precision)}</span>
+              </div>
+            )}
+            {metrics.macro_avg_recall !== undefined && (
+              <div className="metric-row">
+                <span className="metric-label">Avg Recall</span>
+                <span className="metric-value">{formatPercent(metrics.macro_avg_recall)}</span>
+              </div>
+            )}
+          </div>
+        )}
+        <div className="metrics-group">
+          <h5 className="metrics-group-title">Predictions</h5>
+          <div className="metric-row">
+            <span className="metric-label">Correct</span>
+            <span className="metric-value">{metrics.correct_predictions ?? 'N/A'}</span>
+          </div>
+          {metrics.total_predictions !== undefined && (
+            <div className="metric-row">
+              <span className="metric-label">Total</span>
+              <span className="metric-value">{metrics.total_predictions}</span>
+            </div>
+          )}
         </div>
-        <div className="metric-item">
-          <span className="metric-label">Correct Predictions:</span>
-          <span className="metric-value">{metrics.correct_predictions || 'N/A'}</span>
-        </div>
+        {metrics.confusion_matrix && (
+          <div className="metrics-group">
+            <h5 className="metrics-group-title">Confusion Matrix</h5>
+            {renderConfusionMatrix(metrics.confusion_matrix)}
+          </div>
+        )}
       </div>
     );
   };
@@ -276,110 +327,117 @@ const FaultCampaign = () => {
 
       {/* Results */}
       {results && (
-          <div className="results-container">
-            {console.log('🔍 Rendering results with state:', results)}
-            
-            {/* SIMPLE TEST: Basic text rendering */}
-            <div style={{
-              backgroundColor: 'orange', 
-              padding: '15px', 
-              margin: '10px',
-              border: '3px solid black',
-              fontSize: '18px',
-              fontWeight: 'bold'
-            }}>
-              🚨 SIMPLE TEST: If you can see this orange box, rendering works! 🚨
-            </div>
-            
-            <h3 className="results-title">Campaign Results</h3>
-          
+        <div className="results-container">
+          <h3 className="results-title">Campaign Results</h3>
+
           {/* Campaign Information */}
-          <div className="result-card">
-            <h4>Campaign Information</h4>
-            <div className="campaign-info">
+          <div className="result-card result-card--info">
+            <h4 className="result-card-title">
+              <span className="card-icon">ℹ️</span> Campaign Information
+            </h4>
+            <div className="info-grid">
               <div className="info-item">
-                <span className="label">Session ID:</span>
-                <span className="value">{results.campaign_info?.session_id}</span>
+                <span className="info-label">Session ID</span>
+                <span className="info-value info-mono">{results.campaign_info?.session_id ?? '—'}</span>
               </div>
               <div className="info-item">
-                <span className="label">Model:</span>
-                <span className="value">{results.campaign_info?.model_path?.split('/').pop()}</span>
+                <span className="info-label">Model</span>
+                <span className="info-value">{results.campaign_info?.model_path?.split('/').pop() ?? '—'}</span>
               </div>
-
               <div className="info-item">
-                <span className="label">Execution Time:</span>
-                <span className="value">{results.campaign_info?.execution_time_seconds?.toFixed(2)}s</span>
+                <span className="info-label">Execution Time</span>
+                <span className="info-value">{results.campaign_info?.execution_time_seconds?.toFixed(2) ?? '—'} s</span>
               </div>
             </div>
           </div>
 
-          {/* Golden Metrics */}
-          <div className="result-card">
-              <h4>Golden Metrics (No Faults)</h4>
-              
-              {/* DEBUG SIMPLE: Solo mostrar una métrica */}
-              <div style={{backgroundColor: 'lightblue', padding: '15px', margin: '10px', fontSize: '16px', border: '2px solid blue'}}>
-                <strong>🔍 DEBUG SIMPLE:</strong><br/>
-                <div>¿Existe golden_results? {results.golden_results ? 'SÍ' : 'NO'}</div>
-                <div>¿Existe metrics? {results.golden_results?.metrics ? 'SÍ' : 'NO'}</div>
-                <div>Accuracy raw: {String(results.golden_results?.metrics?.accuracy)}</div>
-                <div>Accuracy formatted: {results.golden_results?.metrics?.accuracy ? (results.golden_results.metrics.accuracy * 100).toFixed(2) + '%' : 'N/A'}</div>
-              </div>
-              
-              {/* Metrics with formatMetrics */}
-              <div style={{backgroundColor: 'lightgreen', padding: '15px', margin: '10px'}}>
-                <strong>📊 Metrics with formatMetrics:</strong>
-                {formatMetrics(results.golden_results?.metrics)}
-              </div>
-          </div>
+          {/* Metrics side by side */}
+          <div className="metrics-columns">
+            <div className="result-card result-card--golden">
+              <h4 className="result-card-title">
+                <span className="card-icon">✅</span> Golden Metrics <span className="card-badge">No Faults</span>
+              </h4>
+              {formatMetrics(results.golden_results?.metrics)}
+            </div>
 
-          {/* Metrics with Faults */}
-          <div className="result-card">
-            <h4>Metrics with Faults</h4>
-            {formatMetrics(results.fault_results?.metrics)}
+            <div className="result-card result-card--fault">
+              <h4 className="result-card-title">
+                <span className="card-icon">⚡</span> Metrics with Faults
+              </h4>
+              {formatMetrics(results.fault_results?.metrics)}
+            </div>
           </div>
 
           {/* Comparison */}
           {results.comparison && (
-            <div className="result-card">
-              <h4>Results Comparison</h4>
-              <div className="comparison-container">
-                <div className="comparison-item">
-                  <span className="label">Same Predictions:</span>
-                  <span className="value">{results.comparison.samples_with_same_predictions}</span>
+            <div className="result-card result-card--comparison">
+              <h4 className="result-card-title">
+                <span className="card-icon">🔄</span> Prediction Comparison
+              </h4>
+              <div className="comparison-grid">
+                <div className="comparison-stat comparison-stat--ok">
+                  <span className="stat-number">{results.comparison.samples_with_same_predictions}</span>
+                  <span className="stat-label">Same Predictions</span>
                 </div>
-                <div className="comparison-item">
-                  <span className="label">Different Predictions:</span>
-                  <span className="value">{results.comparison.samples_with_different_predictions}</span>
+                <div className="comparison-stat comparison-stat--diff">
+                  <span className="stat-number">{results.comparison.samples_with_different_predictions}</span>
+                  <span className="stat-label">Different Predictions</span>
                 </div>
-                <div className="comparison-item">
-                  <span className="label">Difference Percentage:</span>
-                  <span className="value">{results.comparison.percentage_different?.toFixed(2)}%</span>
+                <div className="comparison-stat comparison-stat--pct">
+                  <span className="stat-number">{results.comparison.percentage_different?.toFixed(2)}%</span>
+                  <span className="stat-label">Difference Rate</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Metrics Degradation */}
-          {results.golden_results?.metrics && results.fault_results?.metrics && (
-            <div className="result-card">
-              <h4>Metrics Degradation</h4>
-              <div className="degradation-container">
-                <div className="degradation-item">
-                  <span className="label">Accuracy Loss:</span>
-                  <span className="value degradation">
-                    {((results.golden_results.metrics.accuracy - results.fault_results.metrics.accuracy) * 100).toFixed(2)}%
-                  </span>
-                </div>
-                <div className="degradation-item">
-                  <span className="label">Precision Loss:</span>
-                  <span className="value degradation">
-                    {((results.golden_results.metrics.precision - results.fault_results.metrics.precision) * 100).toFixed(2)}%
-                  </span>
+          {/* Degradation Analysis */}
+          {results.golden_results?.metrics && results.fault_results?.metrics && (() => {
+            const g = results.golden_results.metrics;
+            const f = results.fault_results.metrics;
+            const items = [
+              { label: 'Accuracy',  golden: g.accuracy,  fault: f.accuracy,  pct: true },
+              { label: 'Precision', golden: g.precision, fault: f.precision, pct: true },
+              ...(g.macro_avg_precision !== undefined ? [{ label: 'Macro Avg Precision', golden: g.macro_avg_precision, fault: f.macro_avg_precision, pct: true }] : []),
+              ...(g.macro_avg_recall !== undefined ? [{ label: 'Macro Avg Recall', golden: g.macro_avg_recall, fault: f.macro_avg_recall, pct: true }] : []),
+              { label: 'Correct Predictions', golden: g.correct_predictions, fault: f.correct_predictions, pct: false },
+            ];
+            return (
+              <div className="result-card result-card--degradation">
+                <h4 className="result-card-title">
+                  <span className="card-icon">📉</span> Degradation Analysis
+                </h4>
+                <div className="degradation-table-wrapper">
+                  <table className="degradation-table">
+                    <thead>
+                      <tr>
+                        <th>Metric</th>
+                        <th>Golden</th>
+                        <th>With Faults</th>
+                        <th>Degradation</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {items.map(({ label, golden, fault, pct }) => {
+                        const diff = golden !== undefined && fault !== undefined ? golden - fault : null;
+                        const isNeg = diff !== null && diff > 0;
+                        return (
+                          <tr key={label}>
+                            <td className="deg-label">{label}</td>
+                            <td className="deg-golden">{pct ? formatPercent(golden) : (golden ?? 'N/A')}</td>
+                            <td className="deg-fault">{pct ? formatPercent(fault) : (fault ?? 'N/A')}</td>
+                            <td className={`deg-delta ${isNeg ? 'deg-delta--bad' : 'deg-delta--ok'}`}>
+                              {diff !== null ? (pct ? (diff * 100).toFixed(2) + '%' : diff.toFixed(2)) : 'N/A'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       )}
     </div>

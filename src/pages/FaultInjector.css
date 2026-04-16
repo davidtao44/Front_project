@@ -631,3 +631,297 @@
   align-items: center;
   justify-content: center;
 }
+
+/* ── Campaign Progress ─────────────────────────────────── */
+.campaign-progress-wrapper {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.campaign-progress-done {
+  border-color: #b7eb8f;
+  background-color: #f6ffed;
+}
+
+.campaign-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.campaign-progress-phase {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+}
+
+.campaign-progress-timer {
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: monospace;
+  color: var(--color-primary);
+  background-color: var(--color-bg-body);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+
+.campaign-progress-bar-track {
+  width: 100%;
+  height: 8px;
+  background-color: var(--color-bg-body);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.campaign-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.campaign-progress-done .campaign-progress-bar-fill {
+  background: linear-gradient(90deg, #52c41a, #73d13d);
+}
+
+.campaign-progress-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--color-text-main);
+}
+
+.campaign-progress-footer span:last-child {
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+
+/* ── Detailed Degradation Analysis ────────────────────── */
+.detailed-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detailed-comparison h5 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin: 0;
+  padding-bottom: 0.6rem;
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.detailed-comparison .comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.detailed-comparison .comparison-item {
+  background-color: var(--color-bg-body);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.detailed-comparison .comparison-header {
+  background-color: var(--color-surface);
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.detailed-comparison .metric-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-dark);
+}
+
+.detailed-comparison .comparison-values {
+  display: flex;
+  flex-direction: column;
+}
+
+.detailed-comparison .value-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.87rem;
+}
+
+.detailed-comparison .value-item:last-child {
+  border-bottom: none;
+}
+
+.detailed-comparison .value-label {
+  color: var(--color-text-main);
+  font-weight: 500;
+}
+
+.detailed-comparison .value-number {
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+
+.detailed-comparison .value-item.golden .value-number  { color: #389e0d; }
+.detailed-comparison .value-item.fault  .value-number  { color: #fa8c16; }
+
+.detailed-comparison .value-item.degradation.low    .value-number { color: #52c41a; }
+.detailed-comparison .value-item.degradation.medium .value-number { color: #faad14; }
+.detailed-comparison .value-item.degradation.high   .value-number { color: #ff4d4f; }
+
+@media (max-width: 600px) {
+  .detailed-comparison .comparison-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── result-card metric sections (overrides FaultMetricsComparison global leak) ── */
+.result-card .metric-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.result-card .metric-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-main);
+  margin: 0 0 0.35rem 0;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--color-bg-body);
+  border-radius: var(--radius-sm);
+}
+
+.result-card .metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.result-card .metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.45rem 0.75rem;
+  background-color: var(--color-bg-body);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+
+.result-card .metric-label {
+  font-size: 0.85rem;
+  color: var(--color-text-main);
+  font-weight: 500;
+}
+
+/* override the 2.5rem from FaultMetricsComparison.css */
+.result-card .metric-value {
+  font-size: 0.95rem !important;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin: 0;
+}
+
+/* ── Confusion matrix ──────────────────────────────────── */
+.result-card .confusion-matrix-section {
+  margin-top: 0.5rem;
+}
+
+.result-card .confusion-matrix-section h6 {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-main);
+  margin: 0 0 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--color-bg-body);
+  border-radius: var(--radius-sm);
+}
+
+.result-card .confusion-matrix-container {
+  overflow-x: auto;
+}
+
+.result-card .confusion-matrix-with-labels {
+  display: inline-block;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.result-card .confusion-matrix-header,
+.result-card .confusion-row-with-label {
+  display: flex;
+}
+
+.result-card .confusion-corner-cell,
+.result-card .confusion-column-label,
+.result-card .confusion-row-label,
+.result-card .confusion-cell {
+  width: 40px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  border: 1px solid var(--color-border);
+  box-sizing: border-box;
+}
+
+.result-card .confusion-column-label,
+.result-card .confusion-row-label {
+  background-color: var(--color-bg-body);
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+
+.result-card .confusion-row {
+  display: flex;
+}
+
+.result-card .confusion-cell {
+  color: var(--color-text-main);
+  background-color: var(--color-surface);
+}
+
+/* diagonal (correct predictions) */
+.result-card .confusion-row-with-label:nth-child(2) .confusion-cell:nth-child(1),
+.result-card .confusion-row-with-label:nth-child(3) .confusion-cell:nth-child(2),
+.result-card .confusion-row-with-label:nth-child(4) .confusion-cell:nth-child(3),
+.result-card .confusion-row-with-label:nth-child(5) .confusion-cell:nth-child(4),
+.result-card .confusion-row-with-label:nth-child(6) .confusion-cell:nth-child(5),
+.result-card .confusion-row-with-label:nth-child(7) .confusion-cell:nth-child(6),
+.result-card .confusion-row-with-label:nth-child(8) .confusion-cell:nth-child(7),
+.result-card .confusion-row-with-label:nth-child(9) .confusion-cell:nth-child(8),
+.result-card .confusion-row-with-label:nth-child(10) .confusion-cell:nth-child(9),
+.result-card .confusion-row-with-label:nth-child(11) .confusion-cell:nth-child(10) {
+  background-color: #f6ffed;
+  color: #389e0d;
+  font-weight: 700;
+}
+
+.result-card .confusion-matrix-info {
+  margin-top: 0.4rem;
+}
+
+.result-card .confusion-matrix-info p {
+  font-size: 0.75rem;
+  color: var(--color-text-main);
+  font-style: italic;
+  margin: 0;
+}

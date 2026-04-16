@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Zap,
   Rocket,
@@ -40,6 +40,49 @@ const FaultInjector = () => {
   const [campaignResults, setCampaignResults] = useState(null);
   const [isCampaignLoading, setIsCampaignLoading] = useState(false);
   const [campaignError, setCampaignError] = useState(null);
+
+  // Progress tracking
+  const [campaignProgress, setCampaignProgress] = useState(0);
+  const [campaignPhase, setCampaignPhase] = useState('');
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const progressTickRef = useRef(null);
+  const elapsedTickRef = useRef(null);
+  const startTimeRef = useRef(null);
+
+  const PHASES = [
+    { label: 'Cargando imágenes y modelo',               from: 0,  to: 15 },
+    { label: 'Inferencia golden (sin fallos)',            from: 15, to: 40 },
+    { label: 'Inyectando fallos y ejecutando inferencia', from: 40, to: 80 },
+    { label: 'Calculando métricas y resultados',          from: 80, to: 95 },
+  ];
+
+  const stopProgress = useCallback(() => {
+    clearInterval(progressTickRef.current);
+    clearInterval(elapsedTickRef.current);
+  }, []);
+
+  const startProgress = useCallback((samples) => {
+    const totalMs = samples * 150; // ~150ms por muestra estimado
+    startTimeRef.current = Date.now();
+    setCampaignProgress(0);
+    setCampaignPhase(PHASES[0].label);
+    setElapsedTime(0);
+
+    elapsedTickRef.current = setInterval(() => {
+      setElapsedTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
+    }, 1000);
+
+    progressTickRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTimeRef.current;
+      const ratio = Math.min(elapsed / totalMs, 1);
+      // map ratio [0,1] → progress [0,95]
+      const progress = Math.min(ratio * 95, 95);
+      setCampaignProgress(Math.floor(progress));
+
+      const phase = [...PHASES].reverse().find(p => progress >= p.from) || PHASES[0];
+      setCampaignPhase(phase.label);
+    }, 200);
+  }, []);
 
   // Load models when component mounts
   useEffect(() => {
@@ -191,6 +234,7 @@ const FaultInjector = () => {
     setIsCampaignLoading(true);
     setCampaignError(null);
     setCampaignResults(null);
+    startProgress(numSamples);
 
     try {
       const response = await faultCampaignService.runWeightFaultCampaign({
@@ -199,9 +243,15 @@ const FaultInjector = () => {
         weight_fault_config: configToUse,
         image_dir: imageDir
       });
+      stopProgress();
+      setCampaignProgress(100);
+      setCampaignPhase('¡Campaña completada!');
       setCampaignResults(response);
     } catch (error) {
       console.error('Error in fault campaign:', error);
+      stopProgress();
+      setCampaignProgress(0);
+      setCampaignPhase('');
       setCampaignError(error.message || 'Error executing fault campaign');
     } finally {
       setIsCampaignLoading(false);
@@ -1031,6 +1081,45 @@ const FaultInjector = () => {
                         </div>
                       )}
 
+                      {isCampaignLoading && (
+                        <div className="campaign-progress-wrapper">
+                          <div className="campaign-progress-header">
+                            <span className="campaign-progress-phase">{campaignPhase}</span>
+                            <span className="campaign-progress-timer">
+                              {String(Math.floor(elapsedTime / 60)).padStart(2, '0')}:{String(elapsedTime % 60).padStart(2, '0')}
+                            </span>
+                          </div>
+                          <div className="campaign-progress-bar-track">
+                            <div
+                              className="campaign-progress-bar-fill"
+                              style={{ width: `${campaignProgress}%` }}
+                            />
+                          </div>
+                          <div className="campaign-progress-footer">
+                            <span>{numSamples} muestras · {campaignType === 'weight' ? 'Weight Faults' : 'Activation Faults'}</span>
+                            <span>{campaignProgress}%</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {campaignProgress === 100 && !isCampaignLoading && (
+                        <div className="campaign-progress-wrapper campaign-progress-done">
+                          <div className="campaign-progress-header">
+                            <span className="campaign-progress-phase">✅ {campaignPhase}</span>
+                            <span className="campaign-progress-timer">
+                              {String(Math.floor(elapsedTime / 60)).padStart(2, '0')}:{String(elapsedTime % 60).padStart(2, '0')}
+                            </span>
+                          </div>
+                          <div className="campaign-progress-bar-track">
+                            <div className="campaign-progress-bar-fill" style={{ width: '100%' }} />
+                          </div>
+                          <div className="campaign-progress-footer">
+                            <span>{numSamples} muestras · {campaignType === 'weight' ? 'Weight Faults' : 'Activation Faults'}</span>
+                            <span>100%</span>
+                          </div>
+                        </div>
+                      )}
+
                       <button
                         className="campaign-button"
                         onClick={runFaultCampaign}
@@ -1039,7 +1128,7 @@ const FaultInjector = () => {
                         {isCampaignLoading ? (
                           <>
                             <span className="loading-spinner"></span>
-                            Processing Campaign...
+                            Ejecutando campaña...
                           </>
                         ) : (
                           <>
