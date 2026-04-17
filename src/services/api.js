@@ -318,30 +318,50 @@ export const faultCampaignService = {
 
   runWeightFaultCampaign: async (campaignConfig) => {
     try {
-      console.log('🚀 Starting HTTP request for weight fault campaign');
-      console.log('📤 URL:', `${API_URL}/fault_campaign/weight/run/`);
-      console.log('📤 Config sent:', JSON.stringify(campaignConfig, null, 2));
-      
       const response = await authenticatedFetch(`${API_URL}/fault_campaign/weight/run/`, {
         method: 'POST',
         body: JSON.stringify(campaignConfig),
-        timeout: 600000, // 10 minutos para campañas de fallos largas
+        timeout: 600000,
       });
-
-      console.log('📥 Respuesta HTTP recibida:', response.status, response.statusText);
-
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('❌ Error in HTTP response:', errorData);
         throw new Error(errorData.detail || `Error: ${response.status}`);
       }
-
-      const jsonResponse = await response.json();
-      console.log('✅ Respuesta JSON recibida:', JSON.stringify(jsonResponse, null, 2));
-      return jsonResponse;
+      return await response.json();
     } catch (error) {
       console.error("❌ Error ejecutando campaña de fallos en pesos:", error);
       throw error;
     }
+  },
+
+  // ── Async job API ─────────────────────────────────────────────────────────
+  startWeightFaultCampaign: async (campaignConfig) => {
+    const response = await authenticatedFetch(`${API_URL}/fault_campaign/weight/start/`, {
+      method: 'POST',
+      body: JSON.stringify(campaignConfig),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Error: ${response.status}`);
+    }
+    return await response.json(); // { job_id, status }
+  },
+
+  getCampaignJobStatus: async (jobId) => {
+    const response = await authenticatedFetch(`${API_URL}/fault_campaign/status/${jobId}`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Error: ${response.status}`);
+    }
+    return await response.json(); // { job_id, status, progress, phase, error }
+  },
+
+  getCampaignJobResults: async (jobId) => {
+    const response = await authenticatedFetch(`${API_URL}/fault_campaign/results/${jobId}`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Error: ${response.status}`);
+    }
+    return await response.json();
   },
 };

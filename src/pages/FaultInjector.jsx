@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Zap,
   Rocket,
@@ -49,40 +49,6 @@ const FaultInjector = () => {
   const elapsedTickRef = useRef(null);
   const startTimeRef = useRef(null);
 
-  const PHASES = [
-    { label: 'Cargando imágenes y modelo',               from: 0,  to: 15 },
-    { label: 'Inferencia golden (sin fallos)',            from: 15, to: 40 },
-    { label: 'Inyectando fallos y ejecutando inferencia', from: 40, to: 80 },
-    { label: 'Calculando métricas y resultados',          from: 80, to: 95 },
-  ];
-
-  const stopProgress = useCallback(() => {
-    clearInterval(progressTickRef.current);
-    clearInterval(elapsedTickRef.current);
-  }, []);
-
-  const startProgress = useCallback((samples) => {
-    const totalMs = samples * 150; // ~150ms por muestra estimado
-    startTimeRef.current = Date.now();
-    setCampaignProgress(0);
-    setCampaignPhase(PHASES[0].label);
-    setElapsedTime(0);
-
-    elapsedTickRef.current = setInterval(() => {
-      setElapsedTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
-    }, 1000);
-
-    progressTickRef.current = setInterval(() => {
-      const elapsed = Date.now() - startTimeRef.current;
-      const ratio = Math.min(elapsed / totalMs, 1);
-      // map ratio [0,1] → progress [0,95]
-      const progress = Math.min(ratio * 95, 95);
-      setCampaignProgress(Math.floor(progress));
-
-      const phase = [...PHASES].reverse().find(p => progress >= p.from) || PHASES[0];
-      setCampaignPhase(phase.label);
-    }, 200);
-  }, []);
 
   // Load models when component mounts
   useEffect(() => {
@@ -222,7 +188,6 @@ const FaultInjector = () => {
       return;
     }
 
-    // If there's no specific configuration, use default configuration
     const configToUse = weightFaultConfig.enabled ? weightFaultConfig : {
       enabled: true,
       layers: {},
@@ -234,25 +199,59 @@ const FaultInjector = () => {
     setIsCampaignLoading(true);
     setCampaignError(null);
     setCampaignResults(null);
-    startProgress(numSamples);
+    setCampaignProgress(0);
+    setCampaignPhase('Iniciando campaña...');
+    setElapsedTime(0);
+    startTimeRef.current = Date.now();
+
+    // Elapsed timer
+    elapsedTickRef.current = setInterval(() => {
+      setElapsedTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
+    }, 1000);
 
     try {
-      const response = await faultCampaignService.runWeightFaultCampaign({
+      // 1. Lanzar job y obtener job_id de inmediato
+      const { job_id } = await faultCampaignService.startWeightFaultCampaign({
         model_path: selectedModel.path,
         num_samples: numSamples,
         weight_fault_config: configToUse,
-        image_dir: imageDir
+        image_dir: imageDir,
       });
-      stopProgress();
-      setCampaignProgress(100);
-      setCampaignPhase('¡Campaña completada!');
-      setCampaignResults(response);
+
+      // 2. Polling de estado cada 2 segundos
+      await new Promise((resolve, reject) => {
+        progressTickRef.current = setInterval(async () => {
+          try {
+            const status = await faultCampaignService.getCampaignJobStatus(job_id);
+            setCampaignProgress(status.progress);
+            setCampaignPhase(status.phase);
+
+            if (status.status === 'done') {
+              clearInterval(progressTickRef.current);
+              resolve(job_id);
+            } else if (status.status === 'error') {
+              clearInterval(progressTickRef.current);
+              reject(new Error(status.error || 'Error en la campaña'));
+            }
+          } catch (pollError) {
+            clearInterval(progressTickRef.current);
+            reject(pollError);
+          }
+        }, 2000);
+      });
+
+      // 3. Obtener resultados finales
+      const results = await faultCampaignService.getCampaignJobResults(job_id);
+      clearInterval(elapsedTickRef.current);
+      setCampaignResults(results);
+
     } catch (error) {
       console.error('Error in fault campaign:', error);
-      stopProgress();
+      clearInterval(elapsedTickRef.current);
+      clearInterval(progressTickRef.current);
       setCampaignProgress(0);
       setCampaignPhase('');
-      setCampaignError(error.message || 'Error executing fault campaign');
+      setCampaignError(error.message || 'Error ejecutando campaña de fallos');
     } finally {
       setIsCampaignLoading(false);
     }
