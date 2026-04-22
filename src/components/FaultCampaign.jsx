@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { faultCampaignService } from '../services/api';
 import WeightFaultConfig from './WeightFaultConfig';
+import FaultMetricsComparison from './FaultMetricsComparison';
 import './FaultCampaign.css';
 
 const FaultCampaign = () => {
@@ -367,6 +368,9 @@ const FaultCampaign = () => {
               {formatMetrics(results.fault_results?.metrics)}
             </div>
           </div>
+
+          {/* Analytical Metrics — FP, FM */}
+          <FaultMetricsComparison campaignResults={results} numSamples={numSamples} />
 
           {/* Comparison */}
           {results.comparison && (

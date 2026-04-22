@@ -86,6 +86,70 @@
   background: linear-gradient(135deg, #ffffff 0%, #f0f9f4 100%);
 }
 
+.metric-card.fp {
+  border-left-color: #3498db;
+  background: linear-gradient(135deg, #ffffff 0%, #eaf4fd 100%);
+}
+
+.metric-card.fm {
+  border-left-color: #9b59b6;
+  background: linear-gradient(135deg, #ffffff 0%, #f5eefa 100%);
+}
+
+.metric-counts {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0.2rem;
+  flex-wrap: wrap;
+}
+
+.count-label {
+  font-size: 0.82rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.count-label sub {
+  font-size: 0.7rem;
+}
+
+.count-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.count-sep {
+  font-size: 1.1rem;
+  color: #adb5bd;
+  font-weight: 400;
+}
+
+.factor-bar-wrap {
+  width: 100%;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  margin: 0.5rem 0 0.75rem;
+  overflow: hidden;
+}
+
+.factor-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+  min-width: 2px;
+}
+
+.stat-item--fp {
+  border-left-color: #3498db;
+}
+
+.stat-item--fm {
+  border-left-color: #9b59b6;
+}
+
 .metric-card .metric-icon {
   font-size: 2.5rem;
   margin-bottom: 1rem;
