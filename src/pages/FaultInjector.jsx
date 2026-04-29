@@ -982,25 +982,52 @@ const FaultInjector = () => {
                             </div>
                           )}
 
-                          {/* {faultResults.all_probabilities && (
+                          {faultResults.excel_files && faultResults.excel_files.length > 0 && (
                             <div className="result-card">
-                              <h5>Probabilities with Faults</h5>
-                              <div className="probabilities-list">
-                                {faultResults.all_probabilities.map((prob, index) => (
-                                  <div key={index} className="probability-item">
-                                    <span className="class-index">Class {index}:</span>
-                                    <div className="probability-bar">
-                                      <div 
-                                        className="probability-fill" 
-                                        style={{ width: `${prob * 100}%` }}
-                                      ></div>
-                                      <span className="probability-value">{(prob * 100).toFixed(2)}%</span>
+                              <h5>Layer Excel Files</h5>
+                              <div className="excel-files-container">
+                                {faultResults.excel_files.map((filePath, index) => (
+                                  <div key={index} className="excel-file-item">
+                                    <span className="file-name">{filePath.split('/').pop()}</span>
+                                    <button
+                                      className="download-button"
+                                      onClick={() => window.open(`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(filePath)}&t=${faultResults.session_id}`, '_blank')}
+                                    >
+                                      📥 Download
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {faultResults.image_files && faultResults.image_files.length > 0 && (
+                            <div className="result-card">
+                              <h5>Feature Map Images</h5>
+                              <div className="image-files-container">
+                                {faultResults.image_files.map((imagePath, index) => (
+                                  <div key={index} className="image-file-item">
+                                    <div className="image-preview-small">
+                                      <img
+                                        src={`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(imagePath)}&t=${faultResults.session_id}`}
+                                        alt={`Feature map ${index + 1}`}
+                                        className="feature-map-image"
+                                      />
+                                    </div>
+                                    <div className="image-info">
+                                      <span className="image-name">{imagePath.split('/').pop()}</span>
+                                      <button
+                                        className="download-button"
+                                        onClick={() => window.open(`${API_BASE_URL}/download_file/?file_path=${encodeURIComponent(imagePath)}&t=${faultResults.session_id}`, '_blank')}
+                                      >
+                                        📥 Download
+                                      </button>
                                     </div>
                                   </div>
                                 ))}
                               </div>
                             </div>
-                          )} */}
+                          )}
                         </div>
                       ) : (
                         <div className="results-placeholder">

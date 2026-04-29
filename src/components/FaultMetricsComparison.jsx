@@ -244,8 +244,8 @@ const FaultMetricsComparison = ({ campaignResults, numSamples }) => {
                   <span className="count-label">N<sub>misclassified</sub></span>
                   <span className="count-value">{faultInduced ?? '—'}</span>
                   <span className="count-sep">/</span>
-                  <span className="count-label">N<sub>inyecciones</sub></span>
-                  <span className="count-value">{nInjections ?? '—'}</span>
+                  <span className="count-label">N<sub>propagados</sub></span>
+                  <span className="count-value">{nPropagados ?? '—'}</span>
                 </div>
                 <div className="factor-bar-wrap">
                   <div
