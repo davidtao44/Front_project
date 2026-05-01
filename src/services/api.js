@@ -364,4 +364,48 @@ export const faultCampaignService = {
     }
     return await response.json();
   },
+
+  // ── SAI (Stuck-at Asymmetry Index) ────────────────────────────────────────
+  runSAI: async (saiConfig) => {
+    const response = await authenticatedFetch(`${API_URL}/fault_campaign/sai/run/`, {
+      method: 'POST',
+      body: JSON.stringify(saiConfig),
+      timeout: 600000,
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Error: ${response.status}`);
+    }
+    return await response.json();
+  },
+
+  startSAI: async (saiConfig) => {
+    const response = await authenticatedFetch(`${API_URL}/fault_campaign/sai/start/`, {
+      method: 'POST',
+      body: JSON.stringify(saiConfig),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Error: ${response.status}`);
+    }
+    return await response.json();
+  },
+
+  getSAIStatus: async (jobId) => {
+    const response = await authenticatedFetch(`${API_URL}/fault_campaign/status/${jobId}`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Error: ${response.status}`);
+    }
+    return await response.json();
+  },
+
+  getSAIResults: async (jobId) => {
+    const response = await authenticatedFetch(`${API_URL}/fault_campaign/results/${jobId}`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Error: ${response.status}`);
+    }
+    return await response.json();
+  },
 };

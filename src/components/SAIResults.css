@@ -1,0 +1,204 @@
+.sai-results {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.result-card--sai,
+.result-card--sai-layers {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid #2c3e50;
+  border-radius: 10px;
+  padding: 20px;
+  color: #e0e0e0;
+}
+
+/* ── Bipolar gauge ─────────────────────────────────────────────────────────── */
+.sai-gauge {
+  margin: 16px auto 12px;
+  max-width: 480px;
+}
+
+.sai-gauge-track {
+  position: relative;
+  height: 16px;
+  border-radius: 8px;
+  background: linear-gradient(
+    to right,
+    #1565c0 0%,
+    #6cace4 35%,
+    #e0e0e0 50%,
+    #e88a8a 65%,
+    #c62828 100%
+  );
+}
+
+.sai-gauge-tick--zero {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 2px;
+  height: 24px;
+  background: #fff;
+  transform: translateX(-50%);
+}
+
+.sai-gauge-marker {
+  position: absolute;
+  top: -6px;
+  width: 14px;
+  height: 28px;
+  border-radius: 4px;
+  border: 2px solid #fff;
+  transform: translateX(-50%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.sai-gauge-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: #b0b0c0;
+}
+
+.sai-gauge-value {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.sai-interpretation {
+  text-align: center;
+  font-style: italic;
+  color: #b0b0c0;
+  margin: 6px 0 16px;
+}
+
+/* ── Global stats grid ─────────────────────────────────────────────────────── */
+.sai-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.sai-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.sai-cell-label {
+  font-size: 0.85rem;
+  color: #b0b0c0;
+  margin-bottom: 4px;
+}
+
+.sai-cell-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.sai-cell-sub {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 4px;
+}
+
+.sai-misclass {
+  margin-top: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+}
+
+.sai-misclass-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+  color: #c0c0d0;
+}
+
+/* ── Per-layer table ───────────────────────────────────────────────────────── */
+.sai-table-wrapper {
+  overflow-x: auto;
+}
+
+.sai-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+
+.sai-table th,
+.sai-table td {
+  padding: 8px 10px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sai-table th {
+  color: #b0b0c0;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+.sai-layer-name {
+  text-align: left !important;
+  font-family: monospace;
+  color: #d0d0e0;
+}
+
+.sai-row-bar {
+  position: relative;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(
+    to right,
+    #1565c0 0%,
+    #6cace4 40%,
+    #e0e0e0 50%,
+    #e88a8a 60%,
+    #c62828 100%
+  );
+  min-width: 120px;
+}
+
+.sai-row-bar-zero {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  width: 1px;
+  height: 12px;
+  background: #fff;
+  transform: translateX(-50%);
+}
+
+.sai-row-bar-marker {
+  position: absolute;
+  top: -3px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  border: 1.5px solid #fff;
+  transform: translateX(-50%);
+}
+
+.sai-legend {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  color: #888;
+  text-align: center;
+  font-style: italic;
+}

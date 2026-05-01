@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { faultCampaignService } from '../services/api';
 import WeightFaultConfig from './WeightFaultConfig';
 import FaultMetricsComparison from './FaultMetricsComparison';
+import SAIResults from './SAIResults';
 import './FaultCampaign.css';
 
 const FaultCampaign = () => {
   const [availableModels, setAvailableModels] = useState([]);
   const [selectedModel, setSelectedModel] = useState(null);
-  const [campaignType, setCampaignType] = useState('activation'); // 'activation' or 'weight'
+  const [campaignType, setCampaignType] = useState('activation'); // 'activation' | 'weight' | 'sai'
+  const [saiGranularity, setSaiGranularity] = useState('global'); // 'global' | 'per_layer'
   const [numSamples, setNumSamples] = useState(100);
   const [imageDir, setImageDir] = useState('/home/davidgonzalez/Documentos/project/Back_project/images/mnist');
   const [isLoading, setIsLoading] = useState(false);
@@ -74,13 +76,26 @@ const FaultCampaign = () => {
           fault_config: activationFaultConfig,
           image_dir: imageDir
         });
+      } else if (campaignType === 'sai') {
+        // SAI reuses the weight fault configuration shape; service forces stuck_at_0/1
+        const baseConfig = {
+          enabled: weightFaultConfig.enabled,
+          layers: weightFaultConfig.layers
+        };
+        response = await faultCampaignService.runSAI({
+          model_path: selectedModel.path,
+          num_samples: numSamples,
+          base_config: baseConfig,
+          granularity: saiGranularity,
+          image_dir: imageDir
+        });
       } else {
         // Preparar configuración de fallos en pesos para la API
         const weightConfigForAPI = {
           enabled: weightFaultConfig.enabled,
           layers: weightFaultConfig.layers
         };
-        
+
         response = await faultCampaignService.runWeightFaultCampaign({
           model_path: selectedModel.path,
           num_samples: numSamples,
@@ -265,8 +280,31 @@ const FaultCampaign = () => {
                 />
                 <span>Weight Faults</span>
               </label>
+              <label className="radio-option">
+                <input
+                  type="radio"
+                  value="sai"
+                  checked={campaignType === 'sai'}
+                  onChange={(e) => setCampaignType(e.target.value)}
+                />
+                <span>SAI Injection</span>
+              </label>
             </div>
           </div>
+
+          {campaignType === 'sai' && (
+            <div className="input-group">
+              <label htmlFor="sai-granularity">SAI Granularity:</label>
+              <select
+                id="sai-granularity"
+                value={saiGranularity}
+                onChange={(e) => setSaiGranularity(e.target.value)}
+              >
+                <option value="global">Global (single paired sweep)</option>
+                <option value="per_layer">Per-layer (paired sweep per layer)</option>
+              </select>
+            </div>
+          )}
 
           <div className="input-group">
             <label htmlFor="num-samples">Number of Samples:</label>
@@ -283,14 +321,21 @@ const FaultCampaign = () => {
 
         </div>
 
-        {/* Weight Fault Configuration */}
-        {campaignType === 'weight' && (
+        {/* Weight / SAI Fault Configuration (SAI reuses the weight config UI) */}
+        {(campaignType === 'weight' || campaignType === 'sai') && (
           <div className="config-section">
             <WeightFaultConfig
               selectedModel={selectedModel}
               onConfigChange={handleWeightFaultConfigChange}
               initialConfig={weightFaultConfig}
             />
+            {campaignType === 'sai' && (
+              <p className="sai-hint">
+                <strong>Note:</strong> for SAI campaigns the <code>fault_type</code>
+                of each layer is overridden — both <code>stuck_at_0</code> and
+                <code>stuck_at_1</code> are evaluated on the same positions.
+              </p>
+            )}
           </div>
         )}
 
@@ -352,28 +397,35 @@ const FaultCampaign = () => {
             </div>
           </div>
 
-          {/* Metrics side by side */}
-          <div className="metrics-columns">
-            <div className="result-card result-card--golden">
-              <h4 className="result-card-title">
-                <span className="card-icon">✅</span> Golden Metrics <span className="card-badge">No Faults</span>
-              </h4>
-              {formatMetrics(results.golden_results?.metrics)}
-            </div>
+          {/* SAI campaign — render dedicated component instead of golden/fault columns */}
+          {results.sai_global ? (
+            <SAIResults saiResults={results} />
+          ) : (
+            <>
+              {/* Metrics side by side */}
+              <div className="metrics-columns">
+                <div className="result-card result-card--golden">
+                  <h4 className="result-card-title">
+                    <span className="card-icon">✅</span> Golden Metrics <span className="card-badge">No Faults</span>
+                  </h4>
+                  {formatMetrics(results.golden_results?.metrics)}
+                </div>
 
-            <div className="result-card result-card--fault">
-              <h4 className="result-card-title">
-                <span className="card-icon">⚡</span> Metrics with Faults
-              </h4>
-              {formatMetrics(results.fault_results?.metrics)}
-            </div>
-          </div>
+                <div className="result-card result-card--fault">
+                  <h4 className="result-card-title">
+                    <span className="card-icon">⚡</span> Metrics with Faults
+                  </h4>
+                  {formatMetrics(results.fault_results?.metrics)}
+                </div>
+              </div>
 
-          {/* Analytical Metrics — FP, FM */}
-          <FaultMetricsComparison campaignResults={results} numSamples={numSamples} />
+              {/* Analytical Metrics — FP, FM */}
+              <FaultMetricsComparison campaignResults={results} numSamples={numSamples} />
+            </>
+          )}
 
           {/* Comparison */}
-          {results.comparison && (
+          {!results.sai_global && results.comparison && (
             <div className="result-card result-card--comparison">
               <h4 className="result-card-title">
                 <span className="card-icon">🔄</span> Prediction Comparison
@@ -396,7 +448,7 @@ const FaultCampaign = () => {
           )}
 
           {/* Degradation Analysis */}
-          {results.golden_results?.metrics && results.fault_results?.metrics && (() => {
+          {!results.sai_global && results.golden_results?.metrics && results.fault_results?.metrics && (() => {
             const g = results.golden_results.metrics;
             const f = results.fault_results.metrics;
             const items = [

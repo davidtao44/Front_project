@@ -16,6 +16,7 @@ import ModelSelector from '../components/cnn/ModelSelector';
 import WeightFaultConfig from '../components/WeightFaultConfig';
 import MetricsChart from '../components/MetricsChart';
 import FaultMetricsComparison from '../components/FaultMetricsComparison';
+import SAIResults from '../components/SAIResults';
 import { faultInjectorService, faultCampaignService } from '../services/api';
 import { API_BASE_URL } from '../config/api';
 import './FaultInjector.css';
@@ -210,13 +211,23 @@ const FaultInjector = () => {
     }, 1000);
 
     try {
+      const isSAI = campaignType === 'sai';
+
       // 1. Lanzar job y obtener job_id de inmediato
-      const { job_id } = await faultCampaignService.startWeightFaultCampaign({
-        model_path: selectedModel.path,
-        num_samples: numSamples,
-        weight_fault_config: configToUse,
-        image_dir: imageDir,
-      });
+      const { job_id } = isSAI
+        ? await faultCampaignService.startSAI({
+            model_path: selectedModel.path,
+            num_samples: numSamples,
+            base_config: configToUse,
+            granularity: 'global',
+            image_dir: imageDir,
+          })
+        : await faultCampaignService.startWeightFaultCampaign({
+            model_path: selectedModel.path,
+            num_samples: numSamples,
+            weight_fault_config: configToUse,
+            image_dir: imageDir,
+          });
 
       // 2. Polling de estado cada 2 segundos
       await new Promise((resolve, reject) => {
@@ -1077,6 +1088,7 @@ const FaultInjector = () => {
                           className="campaign-select"
                         >
                           <option value="weight">Weight Faults</option>
+                          <option value="sai">SAI Injection</option>
                         </select>
                       </div>
 
@@ -1094,7 +1106,21 @@ const FaultInjector = () => {
                           className="campaign-input"
                         />
                       </div>
-
+                      {campaignType === 'sai' && (
+                        <div className="section">
+                          <h5 className="section-title">SAI Injection Parameters</h5>
+                          <WeightFaultConfig
+                            selectedModel={selectedModel}
+                            onConfigChange={handleWeightFaultConfigChange}
+                            initialConfig={weightFaultConfig}
+                          />
+                          <p className="sai-hint">
+                            <strong>Note:</strong> for SAI campaigns the <code>fault_type</code>
+                            of each layer is overridden — both <code>stuck_at_0</code> and
+                            <code>stuck_at_1</code> are evaluated on the same positions.
+                          </p>
+                        </div>
+                      )}
                       {/* Specific configuration based on campaign type */}
                       {campaignType === 'weight' && (
                         <div className="section">
@@ -1106,7 +1132,6 @@ const FaultInjector = () => {
                           />
                         </div>
                       )}
-
                       {isCampaignLoading && (
                         <div className="campaign-progress-wrapper">
                           <div className="campaign-progress-header">
@@ -1122,12 +1147,11 @@ const FaultInjector = () => {
                             />
                           </div>
                           <div className="campaign-progress-footer">
-                            <span>{numSamples} muestras · {campaignType === 'weight' ? 'Weight Faults' : 'Activation Faults'}</span>
+                            <span>{numSamples} muestras · {campaignType === 'sai' ? 'SAI Injection' : campaignType === 'weight' ? 'Weight Faults' : 'Activation Faults'}</span>
                             <span>{campaignProgress}%</span>
                           </div>
                         </div>
                       )}
-
                       {campaignProgress === 100 && !isCampaignLoading && (
                         <div className="campaign-progress-wrapper campaign-progress-done">
                           <div className="campaign-progress-header">
@@ -1140,7 +1164,7 @@ const FaultInjector = () => {
                             <div className="campaign-progress-bar-fill" style={{ width: '100%' }} />
                           </div>
                           <div className="campaign-progress-footer">
-                            <span>{numSamples} muestras · {campaignType === 'weight' ? 'Weight Faults' : 'Activation Faults'}</span>
+                            <span>{numSamples} muestras · {campaignType === 'sai' ? 'SAI Injection' : campaignType === 'weight' ? 'Weight Faults' : 'Activation Faults'}</span>
                             <span>100%</span>
                           </div>
                         </div>
@@ -1172,7 +1196,47 @@ const FaultInjector = () => {
                     </div>
                   )}
 
-                  {campaignResults && campaignResults.results && (
+                  {campaignResults && campaignResults.results && campaignType === 'sai' && (
+                    <div className="campaign-results">
+                      <h4>Campaign Results</h4>
+                      <div className="campaign-info">
+                        <div className="result-card">
+                          <h5>Campaign Information</h5>
+                          <div className="info-grid">
+                            <div className="info-item">
+                              <span className="info-label">Model:</span>
+                              <span className="info-value">{campaignResults.results.campaign_info?.model_path || 'N/A'}</span>
+                            </div>
+                            <div className="info-item">
+                              <span className="info-label">Campaign type:</span>
+                              <span className="info-value">SAI Injection</span>
+                            </div>
+                            {campaignResults.results.campaign_info?.granularity && (
+                              <div className="info-item">
+                                <span className="info-label">Granularity:</span>
+                                <span className="info-value">{campaignResults.results.campaign_info.granularity}</span>
+                              </div>
+                            )}
+                            {campaignResults.results.campaign_info?.execution_time_seconds && (
+                              <div className="info-item">
+                                <span className="info-label">Duration:</span>
+                                <span className="info-value">{campaignResults.results.campaign_info.execution_time_seconds.toFixed(2)}s</span>
+                              </div>
+                            )}
+                            {campaignResults.results.campaign_info?.session_id && (
+                              <div className="info-item">
+                                <span className="info-label">Session ID:</span>
+                                <span className="info-value">{campaignResults.results.campaign_info.session_id}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <SAIResults saiResults={campaignResults.results} />
+                    </div>
+                  )}
+
+                  {campaignResults && campaignResults.results && campaignType !== 'sai' && (
                     <div className="campaign-results">
                       <h4>Campaign Results</h4>
 
