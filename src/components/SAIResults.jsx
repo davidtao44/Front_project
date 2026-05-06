@@ -1,6 +1,16 @@
 import './SAIResults.css';
 
-const fmt = (v, digits = 4) => (v === null || v === undefined ? '—' : Number(v).toFixed(digits));
+const fmt = (v, digits = 4) => {
+  if (v === null || v === undefined || Number.isNaN(v) || !Number.isFinite(v)) return '—';
+  return Number(v).toFixed(digits);
+};
+
+const fmtCount = (n, d) => {
+  const nVal = n ?? 0;
+  const dVal = d ?? 0;
+  if (nVal === 0 && dVal === 0) return '—';
+  return `${nVal} / ${dVal}`;
+};
 
 const saiColor = (sai) => {
   if (sai === null || sai === undefined) return '#888';
@@ -43,7 +53,7 @@ const SAIResults = ({ saiResults }) => {
     <div className="sai-results">
       <div className="result-card result-card--sai">
         <h4 className="result-card-title">
-          <span className="card-icon">⚖️</span> SAI<sub>prop</sub> — Propagation asymmetry (Global)
+          SAI<sub>prop</sub> — Propagation asymmetry (Global)
         </h4>
 
         <SAIBipolarGauge sai={sai_global.sai} label="SAI_prop" />
@@ -54,22 +64,22 @@ const SAIResults = ({ saiResults }) => {
           <div className="sai-cell">
             <span className="sai-cell-label">F<sub>prop</sub> s@0</span>
             <span className="sai-cell-value" style={{ color: '#1565c0' }}>{fmt(sai_global.f_prop_s0)}</span>
-            <span className="sai-cell-sub">{sai_global.n_prop_s0} / {sai_global.n_inj_s0}</span>
+            <span className="sai-cell-sub">{fmtCount(sai_global.n_prop_s0, sai_global.n_inj_s0)}</span>
           </div>
           <div className="sai-cell">
             <span className="sai-cell-label">F<sub>prop</sub> s@1</span>
             <span className="sai-cell-value" style={{ color: '#c62828' }}>{fmt(sai_global.f_prop_s1)}</span>
-            <span className="sai-cell-sub">{sai_global.n_prop_s1} / {sai_global.n_inj_s1}</span>
+            <span className="sai-cell-sub">{fmtCount(sai_global.n_prop_s1, sai_global.n_inj_s1)}</span>
           </div>
         </div>
       </div>
 
       <div className="result-card result-card--sai">
         <h4 className="result-card-title">
-          <span className="card-icon">🎯</span> SAI<sub>misc</sub> — Misclassification asymmetry (Global)
+          MAI<sub>misc</sub> — Misclassification asymmetry (Global)
         </h4>
 
-        <SAIBipolarGauge sai={sai_global.sai_misc} label="SAI_misc" />
+        <SAIBipolarGauge sai={sai_global.mai_misc} label="MAI_misc" />
 
         <p className="sai-interpretation">
           {sai_global.interpretation_misc || 'misclassification rate, conditional on propagation'}
@@ -79,12 +89,12 @@ const SAIResults = ({ saiResults }) => {
           <div className="sai-cell">
             <span className="sai-cell-label">F<sub>misc</sub> s@0</span>
             <span className="sai-cell-value" style={{ color: '#1565c0' }}>{fmt(sai_global.f_misc_s0)}</span>
-            <span className="sai-cell-sub">{sai_global.n_misc_s0} / {sai_global.n_prop_s0}</span>
+            <span className="sai-cell-sub">{fmtCount(sai_global.n_misc_s0, sai_global.n_prop_s0)}</span>
           </div>
           <div className="sai-cell">
             <span className="sai-cell-label">F<sub>misc</sub> s@1</span>
             <span className="sai-cell-value" style={{ color: '#c62828' }}>{fmt(sai_global.f_misc_s1)}</span>
-            <span className="sai-cell-sub">{sai_global.n_misc_s1} / {sai_global.n_prop_s1}</span>
+            <span className="sai-cell-sub">{fmtCount(sai_global.n_misc_s1, sai_global.n_prop_s1)}</span>
           </div>
         </div>
 
@@ -128,9 +138,9 @@ const SAIResults = ({ saiResults }) => {
               <tbody>
                 {per_layer_sai.map(({ layer, summary }) => {
                   const sai = summary.sai;
-                  const saiMisc = summary.sai_misc;
+                  const MaiMisc = summary.mai_misc;
                   const color = saiColor(sai);
-                  const colorMisc = saiColor(saiMisc);
+                  const colorMisc = saiColor(MaiMisc);
                   const pct = sai === null || sai === undefined ? 50 : ((Math.max(-1, Math.min(1, sai)) + 1) / 2) * 100;
                   return (
                     <tr key={layer}>
@@ -143,7 +153,7 @@ const SAIResults = ({ saiResults }) => {
                       <td>{fmt(summary.f_misc_s0)}</td>
                       <td>{fmt(summary.f_misc_s1)}</td>
                       <td style={{ color: colorMisc, fontWeight: 600 }}>
-                        {saiMisc === null || saiMisc === undefined ? 'N/A' : saiMisc.toFixed(4)}
+                        {MaiMisc === null || MaiMisc === undefined ? 'N/A' : MaiMisc.toFixed(4)}
                       </td>
                       <td>
                         <div className="sai-row-bar">
