@@ -33,6 +33,10 @@ const FaultCampaign = () => {
   // Configuración de fallos en pesos
   const [weightFaultConfig, setWeightFaultConfig] = useState({ enabled: false, layers: {} });
 
+  const openSAIHistoryWindow = () => {
+    window.open('/sai-history', '_blank', 'noopener,noreferrer');
+  };
+
   useEffect(() => {
     loadAvailableModels();
   }, []);
@@ -127,6 +131,21 @@ const FaultCampaign = () => {
       setIsLoading(false);
     }
   };
+
+  // Detección: una campaña SAI solo se guarda en histórico si la config tiene
+  // exactamente 1 capa × 1 posición × 1 bit_position. Si no, se ejecuta pero
+  // no se almacena.
+  const saiHistoryEligibility = (() => {
+    const layerEntries = Object.entries(weightFaultConfig.layers || {});
+    if (campaignType !== 'sai' || layerEntries.length === 0) {
+      return { applies: false };
+    }
+    const isSingleFault =
+      layerEntries.length === 1 &&
+      layerEntries.every(([, l]) => (l.positions?.length ?? 0) === 1) &&
+      layerEntries.every(([, l]) => (l.bit_positions?.length ?? 0) === 1);
+    return { applies: true, willBeSaved: isSingleFault };
+  })();
 
   const formatPercent = (val) =>
     val !== undefined && val !== null ? (val * 100).toFixed(2) + '%' : 'N/A';
@@ -231,6 +250,19 @@ const FaultCampaign = () => {
       </div>
 
       <div className="campaign-config">
+        {/* Open historic SAI heatmaps in a new window */}
+        <div className="config-section">
+          <button
+            className="heatmap-open-button"
+            onClick={openSAIHistoryWindow}
+            type="button"
+            title="Open the historic SAI heatmaps in a new browser tab"
+          >
+            <span>📊 Open Historic SAI Heatmaps</span>
+            <span className="heatmap-open-hint">↗ new tab</span>
+          </button>
+        </div>
+
         {/* Model Selection */}
         <div className="config-section">
           <h3 className="section-title">Model Configuration</h3>
@@ -336,6 +368,18 @@ const FaultCampaign = () => {
                 <code>stuck_at_1</code> are evaluated on the same positions.
               </p>
             )}
+          </div>
+        )}
+
+        {/* SAI history eligibility warning (non-blocking) */}
+        {saiHistoryEligibility.applies && !saiHistoryEligibility.willBeSaved && (
+          <div className="sai-history-warning">
+            <span className="warn-icon">⚠️</span>
+            <span>
+              <strong>Esta campaña SAI no quedará registrada en el histórico.</strong>{' '}
+              El histórico solo almacena campañas con <strong>1 capa, 1 posición y 1 bit</strong>.
+              La campaña se ejecutará normalmente pero los resultados no serán persistidos.
+            </span>
           </div>
         )}
 

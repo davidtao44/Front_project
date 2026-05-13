@@ -9,6 +9,7 @@ import FaultInjectorCard from "./components/FaultInjectorCard";
 import VHDLToolsCard from "./components/VHDLToolsCard";
 import FaultInjector from './pages/FaultInjector';
 import VHDLTools from './pages/VHDLTools';
+import SAIHistory from './pages/SAIHistory';
 import "./App.css";
 import "./pages/HomePage.css"; // Importar estilos específicos
 
@@ -115,6 +116,7 @@ const App = () => {
              <Route path="/" element={<HomePage />} />
              <Route path="/fault-injector" element={<FaultInjector />} />
              <Route path="/vhdl-tools" element={<VHDLTools />} />
+             <Route path="/sai-history" element={<SAIHistory />} />
            </Routes>
         </Router>
       </ProtectedRoute>

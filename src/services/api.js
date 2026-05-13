@@ -408,4 +408,13 @@ export const faultCampaignService = {
     }
     return await response.json();
   },
+
+  getSAIHeatmap: async () => {
+    const response = await authenticatedFetch(`${API_URL}/fault_campaign/sai/heatmap/`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Error: ${response.status}`);
+    }
+    return await response.json();
+  },
 };

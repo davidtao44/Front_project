@@ -461,3 +461,53 @@
   border-radius: 3px;
   font-size: 0.85em;
 }
+
+/* Button: open historic SAI heatmaps in new browser tab */
+.heatmap-open-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(33, 150, 243, 0.08);
+  border: 1px solid rgba(33, 150, 243, 0.25);
+  border-radius: 6px;
+  padding: 12px 16px;
+  cursor: pointer;
+  color: #e0e0e0;
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+.heatmap-open-button:hover {
+  background: rgba(33, 150, 243, 0.14);
+  border-color: #2196f3;
+}
+.heatmap-open-hint {
+  margin-left: auto;
+  color: #82b8e8;
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+/* Non-blocking warning when SAI campaign won't be saved to history */
+.sai-history-warning {
+  margin: 12px 0;
+  padding: 12px 16px;
+  background: rgba(255, 193, 7, 0.10);
+  border-left: 4px solid #ffc107;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #e0c66a;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.sai-history-warning .warn-icon {
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
+.sai-history-warning strong {
+  color: #ffc107;
+}

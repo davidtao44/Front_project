@@ -1,0 +1,32 @@
+.sai-history-page {
+  min-height: 100vh;
+  background: #0d1117;
+  color: #e0e0e0;
+}
+
+.sai-history-main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 28px 60px;
+}
+
+.sai-history-intro {
+  margin-bottom: 24px;
+}
+
+.sai-history-page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.6rem;
+  margin: 0 0 8px 0;
+  color: #fff;
+}
+
+.sai-history-page-subtitle {
+  margin: 0;
+  color: #a0a0a0;
+  font-size: 0.95rem;
+  max-width: 800px;
+  line-height: 1.5;
+}
