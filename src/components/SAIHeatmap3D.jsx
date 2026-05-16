@@ -23,7 +23,15 @@ const baseAxes = (zLabel, zMin, zMax, positionLabels) => ({
     data: positionLabels,
     nameTextStyle: { color: '#ddd' },
     axisLine: { lineStyle: { color: '#666' } },
-    axisLabel: { color: '#bbb' },
+    // interval: 0 fuerza a ECharts a mostrar TODAS las posiciones de kernel,
+    // no solo algunas. Con muchas posiciones la fuente se reduce para que
+    // quepan todas las etiquetas.
+    axisLabel: {
+      color: '#bbb',
+      interval: 0,
+      fontSize: positionLabels.length > 60 ? 8 : 10,
+      margin: 12,
+    },
   },
   zAxis3D: {
     type: 'value',
@@ -36,8 +44,17 @@ const baseAxes = (zLabel, zMin, zMax, positionLabels) => ({
   },
   grid3D: {
     boxWidth: 110,
-    boxDepth: 80,
-    viewControl: { autoRotate: false, distance: 200 },
+    // La profundidad escala con el número de posiciones para que las 150+
+    // posiciones de kernel tengan espacio físico y no se amontonen.
+    boxDepth: Math.max(80, Math.min(positionLabels.length * 5, 700)),
+    // maxDistance se eleva (por defecto ECharts GL la limita a 400) para
+    // poder alejarse y ver el cubo completo cuando hay muchas posiciones.
+    viewControl: {
+      autoRotate: false,
+      distance: 200,
+      minDistance: 40,
+      maxDistance: 1500,
+    },
     light: {
       main: { intensity: 1.2, shadow: false },
       ambient: { intensity: 0.4 },
@@ -200,9 +217,12 @@ const buildSignedScatter3DOption = ({
   };
 };
 
+const ALL_MODELS = '__all__';
+
 const SAIHeatmap3D = ({ refreshKey }) => {
   const [groups, setGroups] = useState([]);
   const [selectedKey, setSelectedKey] = useState(null);
+  const [selectedModel, setSelectedModel] = useState(ALL_MODELS);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -248,9 +268,40 @@ const SAIHeatmap3D = ({ refreshKey }) => {
     };
   }, [fetchData]);
 
+  const availableModels = useMemo(() => {
+    const counts = new Map();
+    for (const g of groups) {
+      for (const c of g.campaigns) {
+        const name = c.model_name || '—';
+        counts.set(name, (counts.get(name) || 0) + 1);
+      }
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([name, count]) => ({ name, count }));
+  }, [groups]);
+
+  // Si el modelo seleccionado desaparece tras un refresh, vuelve a "Todos".
+  useEffect(() => {
+    if (
+      selectedModel !== ALL_MODELS &&
+      !availableModels.some((m) => m.name === selectedModel)
+    ) {
+      setSelectedModel(ALL_MODELS);
+    }
+  }, [availableModels, selectedModel]);
+
+  const filteredGroups = useMemo(() => {
+    if (selectedModel === ALL_MODELS) return groups;
+    return groups.map((g) => ({
+      ...g,
+      campaigns: g.campaigns.filter((c) => c.model_name === selectedModel),
+    }));
+  }, [groups, selectedModel]);
+
   const selectedGroup = useMemo(
-    () => groups.find((g) => groupKey(g) === selectedKey) || null,
-    [groups, selectedKey]
+    () => filteredGroups.find((g) => groupKey(g) === selectedKey) || null,
+    [filteredGroups, selectedKey]
   );
 
   const charts = useMemo(() => {
@@ -288,14 +339,37 @@ const SAIHeatmap3D = ({ refreshKey }) => {
         <h4 className="sai-heatmap-title">
           <span>📊</span> Historic SAI Heatmaps
         </h4>
-        <button
-          className="sai-heatmap-refresh"
-          onClick={fetchData}
-          disabled={isLoading}
-          title="Reload from database"
-        >
-          {isLoading ? '⏳ Loading...' : '🔄 Refresh'}
-        </button>
+        <div className="sai-heatmap-controls">
+          {availableModels.length > 0 && (
+            <label className="sai-heatmap-model">
+              <span className="sai-heatmap-model-label">Modelo:</span>
+              <select
+                className="sai-heatmap-model-select"
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                disabled={isLoading}
+              >
+                <option value={ALL_MODELS}>
+                  Todos los modelos (
+                  {availableModels.reduce((acc, m) => acc + m.count, 0)})
+                </option>
+                {availableModels.map((m) => (
+                  <option key={m.name} value={m.name}>
+                    {m.name} ({m.count})
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <button
+            className="sai-heatmap-refresh"
+            onClick={fetchData}
+            disabled={isLoading}
+            title="Reload from database"
+          >
+            {isLoading ? '⏳ Loading...' : '🔄 Refresh'}
+          </button>
+        </div>
       </div>
 
       {error && <div className="sai-heatmap-error">⚠️ {error}</div>}
@@ -310,23 +384,23 @@ const SAIHeatmap3D = ({ refreshKey }) => {
       {groups.length > 0 && (
         <>
           <div className="sai-heatmap-combos">
-            {groups.map((g) => {
+            {filteredGroups.map((g) => {
               const key = groupKey(g);
               const isActive = key === selectedKey;
+              const count = g.campaigns.length;
               return (
                 <button
                   key={key}
                   className={`sai-combo-card ${
                     isActive ? 'sai-combo-card--active' : ''
-                  }`}
+                  } ${count === 0 ? 'sai-combo-card--empty' : ''}`}
                   onClick={() => setSelectedKey(key)}
                 >
                   <span className="sai-combo-name">
                     {g.layer} / {g.target_type}
                   </span>
                   <span className="sai-combo-count">
-                    {g.campaigns.length}{' '}
-                    {g.campaigns.length === 1 ? 'campaign' : 'campaigns'}
+                    {count} {count === 1 ? 'campaign' : 'campaigns'}
                   </span>
                 </button>
               );

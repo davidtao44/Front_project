@@ -22,6 +22,43 @@
   color: #e0e0e0;
 }
 
+.sai-heatmap-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sai-heatmap-model {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ccc;
+  font-size: 0.85rem;
+}
+
+.sai-heatmap-model-label {
+  color: #999;
+}
+
+.sai-heatmap-model-select {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e0e0e0;
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 220px;
+}
+.sai-heatmap-model-select:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.sai-heatmap-model-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .sai-heatmap-refresh {
   background: rgba(33, 150, 243, 0.15);
   border: 1px solid rgba(33, 150, 243, 0.4);
@@ -89,6 +126,9 @@
   background: rgba(33, 150, 243, 0.15);
   border-color: #2196f3;
   color: #fff;
+}
+.sai-combo-card--empty {
+  opacity: 0.45;
 }
 
 .sai-combo-name {
