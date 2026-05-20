@@ -40,8 +40,8 @@ const HomePage = () => {
       <section className="hero-section">
         <div className="hero-content">
           <h1 className="hero-title">
-            GIRA <br />
-            <span>crosslayer-FI</span>
+            HURA <br />
+            <span>framework</span>
           </h1>
           <p className="hero-subtitle">
             Comprehensive platform for fault injection, reliability assessment 

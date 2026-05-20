@@ -19,7 +19,7 @@ const Header = () => {
           alt="Logo UPTC" 
           className={styles.logo}
         />
-        <h1 className={styles.title}>GIRA crosslayer-FI</h1>
+        <h1 className={styles.title}>GIRA - HURA</h1>
         <img 
           src="/logo_gira.png" 
           alt="Logo GIRA" 
