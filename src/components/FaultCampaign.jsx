@@ -360,6 +360,7 @@ const FaultCampaign = () => {
               selectedModel={selectedModel}
               onConfigChange={handleWeightFaultConfigChange}
               initialConfig={weightFaultConfig}
+              isSAI={campaignType === 'sai'}
             />
             {campaignType === 'sai' && (
               <p className="sai-hint">

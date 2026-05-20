@@ -1113,6 +1113,7 @@ const FaultInjector = () => {
                             selectedModel={selectedModel}
                             onConfigChange={handleWeightFaultConfigChange}
                             initialConfig={weightFaultConfig}
+                            isSAI={true}
                           />
                           <p className="sai-hint">
                             <strong>Note:</strong> for SAI campaigns the <code>fault_type</code>

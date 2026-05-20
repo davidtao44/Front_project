@@ -3,7 +3,7 @@ import BitSelector from './BitSelector';
 import KernelVisualizer from './KernelVisualizer';
 import './WeightFaultConfig.css';
 
-const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null }) => {
+const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null, isSAI = false }) => {
   const [config, setConfig] = useState(initialConfig || {
     enabled: false,
     layers: {}
@@ -263,23 +263,27 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
                   </select>
                 </div>
 
-                {/* Fault type */}
-                <div className="option-group">
-                  <label>Fault Type:</label>
-                  <select
-                    value={layerConfig.fault_type}
-                    onChange={(e) => updateLayerFaultType(layerName, e.target.value)}
-                  >
-                    {faultTypes.map(type => (
-                      <option key={type.value} value={type.value} title={type.description}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
-                  <small className="fault-type-description">
-                    {faultTypes.find(t => t.value === (layerConfig.fault_type ))?.description}
-                  </small>
-                </div>
+                {/* Fault type — oculto en campañas SAI: el servicio fuerza
+                    stuck_at_0 y stuck_at_1 sobre las mismas posiciones, así
+                    que elegirlo aquí no tiene efecto. */}
+                {!isSAI && (
+                  <div className="option-group">
+                    <label>Fault Type:</label>
+                    <select
+                      value={layerConfig.fault_type}
+                      onChange={(e) => updateLayerFaultType(layerName, e.target.value)}
+                    >
+                      {faultTypes.map(type => (
+                        <option key={type.value} value={type.value} title={type.description}>
+                          {type.label}
+                        </option>
+                      ))}
+                    </select>
+                    <small className="fault-type-description">
+                      {faultTypes.find(t => t.value === (layerConfig.fault_type ))?.description}
+                    </small>
+                  </div>
+                )}
 
                 {/* Weight information */}
                 <div className="weight-info">
