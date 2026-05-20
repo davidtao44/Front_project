@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import ReactECharts from 'echarts-for-react';
 import * as echarts from 'echarts';
 import 'echarts-gl';
 import { faultCampaignService } from '../services/api';
+import { exportSAIReportPdf, buildSAISummary } from '../utils/saiReportPdf';
 import './SAIHeatmap3D.css';
 
 const groupKey = (g) => `${g.layer}::${g.target_type}`;
@@ -224,7 +225,14 @@ const SAIHeatmap3D = ({ refreshKey }) => {
   const [selectedKey, setSelectedKey] = useState(null);
   const [selectedModel, setSelectedModel] = useState(ALL_MODELS);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState(null);
+
+  // Refs a cada instancia de ECharts para capturarlas como PNG en el PDF.
+  const saiRef = useRef(null);
+  const maiRef = useRef(null);
+  const fPropRef = useRef(null);
+  const fMiscRef = useRef(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -333,6 +341,47 @@ const SAIHeatmap3D = ({ refreshKey }) => {
     };
   }, [selectedGroup]);
 
+  // Exporta las 4 gráficas del grupo visible a un PDF A4 horizontal.
+  const handleExportPdf = useCallback(() => {
+    if (!selectedGroup) return;
+    setIsExporting(true);
+    setError(null);
+    try {
+      const grab = (ref) => {
+        const inst = ref.current?.getEchartsInstance?.();
+        return inst
+          ? inst.getDataURL({
+              type: 'png',
+              pixelRatio: 2,
+              backgroundColor: '#0b0d12',
+            })
+          : null;
+      };
+      const campaigns = selectedGroup.campaigns;
+      exportSAIReportPdf({
+        images: {
+          sai: grab(saiRef),
+          mai: grab(maiRef),
+          fProp: grab(fPropRef),
+          fMisc: grab(fMiscRef),
+        },
+        summary: buildSAISummary(campaigns),
+        meta: {
+          layer: selectedGroup.layer,
+          targetType: selectedGroup.target_type,
+          model: selectedModel === ALL_MODELS ? 'Todos los modelos' : selectedModel,
+          campaignCount: campaigns.length,
+          positionCount: new Set(campaigns.map((c) => c.position_label)).size,
+          generatedAt: new Date(),
+        },
+      });
+    } catch (e) {
+      setError('No se pudo exportar el PDF: ' + (e.message || e));
+    } finally {
+      setIsExporting(false);
+    }
+  }, [selectedGroup, selectedModel]);
+
   return (
     <div className="sai-heatmap-container">
       <div className="sai-heatmap-header">
@@ -368,6 +417,14 @@ const SAIHeatmap3D = ({ refreshKey }) => {
             title="Reload from database"
           >
             {isLoading ? '⏳ Loading...' : '🔄 Refresh'}
+          </button>
+          <button
+            className="sai-heatmap-export"
+            onClick={handleExportPdf}
+            disabled={isLoading || isExporting || !selectedGroup}
+            title="Exportar reporte PDF de las 4 gráficas"
+          >
+            {isExporting ? '⏳ Exportando...' : '📄 Exportar PDF'}
           </button>
         </div>
       </div>
@@ -414,6 +471,7 @@ const SAIHeatmap3D = ({ refreshKey }) => {
                   SAI — Stuck-at Asymmetry Index
                 </h5>
                 <ReactECharts
+                  ref={saiRef}
                   echarts={echarts}
                   option={charts.sai}
                   style={{ height: 460 }}
@@ -425,6 +483,7 @@ const SAIHeatmap3D = ({ refreshKey }) => {
                   MAI — Misclassification Asymmetry Index
                 </h5>
                 <ReactECharts
+                  ref={maiRef}
                   echarts={echarts}
                   option={charts.mai}
                   style={{ height: 460 }}
@@ -436,6 +495,7 @@ const SAIHeatmap3D = ({ refreshKey }) => {
                   F_prop — Propagation factor (s@1 ↑ / s@0 ↓)
                 </h5>
                 <ReactECharts
+                  ref={fPropRef}
                   echarts={echarts}
                   option={charts.fProp}
                   style={{ height: 460 }}
@@ -447,6 +507,7 @@ const SAIHeatmap3D = ({ refreshKey }) => {
                   F_misc — Misclassification factor (s@1 ↑ / s@0 ↓)
                 </h5>
                 <ReactECharts
+                  ref={fMiscRef}
                   echarts={echarts}
                   option={charts.fMisc}
                   style={{ height: 460 }}
