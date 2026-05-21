@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Zap,
   Rocket,
@@ -49,6 +49,34 @@ const FaultInjector = () => {
   const progressTickRef = useRef(null);
   const elapsedTickRef = useRef(null);
   const startTimeRef = useRef(null);
+
+  // Pop-up: avisa cuando una campaña SAI no es single-fault y por tanto
+  // no se persistirá en el histórico.
+  const [showSaiHistoryWarning, setShowSaiHistoryWarning] = useState(false);
+
+  // Elegibilidad para histórico SAI: solo se guardan campañas con
+  // exactamente 1 capa × 1 posición × 1 bit (single-fault).
+  const saiEligibility = useMemo(() => {
+    const layerEntries = Object.entries(weightFaultConfig.layers || {});
+    if (layerEntries.length === 0) {
+      return { hasConfig: false, isSingleFault: false, layerCount: 0, totalFaults: 0 };
+    }
+    const isSingleFault =
+      layerEntries.length === 1 &&
+      layerEntries.every(([, l]) => (l.positions?.length ?? 0) === 1) &&
+      layerEntries.every(([, l]) => (l.bit_positions?.length ?? 0) === 1);
+    const totalFaults = layerEntries.reduce(
+      (acc, [, l]) =>
+        acc + (l.positions?.length ?? 0) * (l.bit_positions?.length ?? 0),
+      0
+    );
+    return {
+      hasConfig: true,
+      isSingleFault,
+      layerCount: layerEntries.length,
+      totalFaults,
+    };
+  }, [weightFaultConfig]);
 
 
   // Load models when component mounts
@@ -266,6 +294,21 @@ const FaultInjector = () => {
     } finally {
       setIsCampaignLoading(false);
     }
+  };
+
+  // Intercepta el click en "Run Injection Campaign": si es una campaña SAI
+  // con más de 1 fallo, muestra el modal de aviso. Si el usuario confirma,
+  // el modal llama directamente a runFaultCampaign.
+  const handleRunCampaignClick = () => {
+    if (
+      campaignType === 'sai' &&
+      saiEligibility.hasConfig &&
+      !saiEligibility.isSingleFault
+    ) {
+      setShowSaiHistoryWarning(true);
+      return;
+    }
+    runFaultCampaign();
   };
 
   const formatMetrics = (metrics) => {
@@ -1173,7 +1216,7 @@ const FaultInjector = () => {
 
                       <button
                         className="campaign-button"
-                        onClick={runFaultCampaign}
+                        onClick={handleRunCampaignClick}
                         disabled={!selectedModel || isCampaignLoading}
                       >
                         {isCampaignLoading ? (
@@ -1424,6 +1467,69 @@ const FaultInjector = () => {
           </div>
         </div>
       </div>
+
+      {/* Confirmation modal: SAI campaigns that aren't single-fault won't be
+          persisted in the history. The user has to confirm before running. */}
+      {showSaiHistoryWarning && (
+        <div
+          className="sai-modal-backdrop"
+          onClick={() => setShowSaiHistoryWarning(false)}
+          role="presentation"
+        >
+          <div
+            className="sai-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sai-modal-title"
+          >
+            <div className="sai-modal-header">
+              <span className="sai-modal-icon">⚠️</span>
+              <h3 id="sai-modal-title" className="sai-modal-title">
+                Campaign won&apos;t be saved to history
+              </h3>
+            </div>
+            <div className="sai-modal-body">
+              <p>
+                You configured <strong>{saiEligibility.layerCount}</strong>{' '}
+                layer(s) and <strong>{saiEligibility.totalFaults}</strong>{' '}
+                fault(s).
+              </p>
+              <p>
+                The SAI history only persists campaigns with{' '}
+                <strong>exactly 1 layer, 1 position and 1 bit</strong>{' '}
+                (single-fault). Multi-fault campaigns will run normally but
+                their results <strong>will not be stored</strong> in the
+                historic database, so they won&apos;t appear in the SAI
+                heatmaps.
+              </p>
+              <p className="sai-modal-tip">
+                Tip: reduce the configuration to a single position and a single
+                bit on one layer if you want this campaign to be archived.
+              </p>
+            </div>
+            <div className="sai-modal-actions">
+              <button
+                type="button"
+                className="sai-modal-button sai-modal-cancel"
+                onClick={() => setShowSaiHistoryWarning(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="sai-modal-button sai-modal-confirm"
+                onClick={() => {
+                  setShowSaiHistoryWarning(false);
+                  runFaultCampaign();
+                }}
+              >
+                Run anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

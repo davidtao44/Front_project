@@ -925,3 +925,150 @@
   font-style: italic;
   margin: 0;
 }
+
+/* SAI campaign hint */
+.sai-hint {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: rgba(33, 150, 243, 0.08);
+  border-left: 3px solid #2196f3;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #b0c0d0;
+}
+.sai-hint code {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
+
+/* Non-blocking warning when SAI campaign won't be saved to history */
+.sai-history-warning {
+  margin: 12px 0 0 0;
+  padding: 12px 16px;
+  background: rgba(255, 193, 7, 0.10);
+  border-left: 4px solid #ffc107;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #e0c66a;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.sai-history-warning .warn-icon {
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
+.sai-history-warning strong {
+  color: #ffc107;
+}
+
+/* === SAI history confirmation pop-up === */
+.sai-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: sai-modal-fade-in 0.15s ease-out;
+}
+
+@keyframes sai-modal-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.sai-modal {
+  background: #1c2128;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid #ffc107;
+  border-radius: 8px;
+  width: min(520px, 92vw);
+  padding: 22px 26px;
+  color: #e0e0e0;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: sai-modal-pop-in 0.18s ease-out;
+}
+
+@keyframes sai-modal-pop-in {
+  from { transform: translateY(8px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0)   scale(1);    opacity: 1; }
+}
+
+.sai-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.sai-modal-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.sai-modal-title {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #ffc107;
+  font-weight: 600;
+}
+
+.sai-modal-body p {
+  margin: 0 0 10px 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #c8cdd4;
+}
+
+.sai-modal-body strong {
+  color: #ffd54f;
+}
+
+.sai-modal-tip {
+  font-style: italic;
+  color: #9aa3ad !important;
+  font-size: 0.85rem !important;
+  margin-top: 12px !important;
+}
+
+.sai-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.sai-modal-button {
+  padding: 8px 18px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.sai-modal-cancel {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #c8cdd4;
+}
+.sai-modal-cancel:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.sai-modal-confirm {
+  background: rgba(255, 193, 7, 0.18);
+  border-color: rgba(255, 193, 7, 0.55);
+  color: #ffd54f;
+  font-weight: 600;
+}
+.sai-modal-confirm:hover {
+  background: rgba(255, 193, 7, 0.28);
+  border-color: #ffc107;
+}
