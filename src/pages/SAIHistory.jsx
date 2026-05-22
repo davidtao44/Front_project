@@ -1,5 +1,5 @@
 import Header from '../components/Header';
-import SAIHeatmap3D from '../components/SAIHeatmap3D';
+import SAIHeatmap from '../components/SAIHeatmap';
 import './SAIHistory.css';
 
 const SAIHistory = () => {
@@ -12,12 +12,13 @@ const SAIHistory = () => {
             <span>📊</span> SAI / MAI Historic Heatmaps
           </h2>
           <p className="sai-history-page-subtitle">
-            Visualización 3D del histórico de campañas SAI guardadas. Cada barra es
-            una campaña individual (1 capa × 1 posición × 1 bit). Las campañas con
-            más de un fallo no se almacenan y no aparecen aquí.
+            Mapa de calor del histórico de campañas SAI guardadas. Cada celda es
+            una campaña individual (1 capa × 1 posición × 1 bit) y el color marca
+            la criticidad del fallo. Las campañas con más de un fallo no se
+            almacenan y no aparecen aquí.
           </p>
         </div>
-        <SAIHeatmap3D refreshKey={0} />
+        <SAIHeatmap refreshKey={0} />
       </main>
     </div>
   );

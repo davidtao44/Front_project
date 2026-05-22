@@ -203,3 +203,81 @@ export const exportSAIReportPdf = ({ images, summary, meta }) => {
   const stamp = meta.generatedAt.toISOString().slice(0, 10).replace(/-/g, '');
   doc.save(`SAI_report_${safe(meta.layer)}_${safe(meta.targetType)}_${stamp}.pdf`);
 };
+
+/**
+ * Genera y descarga un PDF de una sola gráfica a página completa.
+ * @param {Object} p
+ * @param {string} p.image   - data-URL PNG de la gráfica (o null)
+ * @param {string} p.caption - leyenda/título de la gráfica (solo ASCII)
+ * @param {Object} p.meta    - { layer, targetType, model, campaignCount,
+ *                               positionCount, generatedAt: Date }
+ */
+export const exportSingleChartPdf = ({ image, caption, meta }) => {
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const pageW = doc.internal.pageSize.getWidth(); // 297
+  const pageH = doc.internal.pageSize.getHeight(); // 210
+  const margin = 12;
+  const contentW = pageW - margin * 2;
+
+  // --- Banda de título ---
+  doc.setFillColor(14, 18, 24);
+  doc.rect(0, 0, pageW, 22, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(15);
+  doc.text(`SAI / MAI  -  ${caption}`, margin, 11);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(170, 180, 195);
+  doc.text(
+    `Generado: ${meta.generatedAt.toLocaleString()}     HURA Fault Injection Platform`,
+    margin,
+    17.5
+  );
+
+  // --- Línea de metadatos ---
+  const y = 30;
+  doc.setTextColor(40, 40, 40);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text(
+    `Capa: ${meta.layer}      Target: ${meta.targetType}      ` +
+      `Modelo: ${meta.model}      Campanas: ${meta.campaignCount}      ` +
+      `Posiciones de kernel: ${meta.positionCount}`,
+    margin,
+    y
+  );
+
+  // --- Gráfica a página completa ---
+  const imgTop = y + 6;
+  const imgBoxH = pageH - imgTop - 12;
+
+  if (!image) {
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(150, 150, 150);
+    doc.text('(grafica no disponible)', margin + 2, imgTop + 7);
+  } else {
+    const props = doc.getImageProperties(image);
+    const ratio = props.width / props.height;
+    let drawW = contentW;
+    let drawH = drawW / ratio;
+    if (drawH > imgBoxH) {
+      drawH = imgBoxH;
+      drawW = drawH * ratio;
+    }
+    const drawX = margin + (contentW - drawW) / 2;
+    const drawY = imgTop + (imgBoxH - drawH) / 2;
+    doc.addImage(image, 'PNG', drawX, drawY, drawW, drawH);
+  }
+
+  // --- Pie de página ---
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(150, 150, 150);
+  doc.text('HURA - SAI/MAI Historic Report', margin, pageH - 5);
+  doc.text('Pagina 1 de 1', pageW - margin, pageH - 5, { align: 'right' });
+
+  // --- Descargar ---
+  const stamp = meta.generatedAt.toISOString().slice(0, 10).replace(/-/g, '');
+  doc.save(`SAI_chart_${safe(caption)}_${stamp}.pdf`);
+};

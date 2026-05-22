@@ -1,0 +1,438 @@
+.sai-heatmap-container {
+  background: #ffffff;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 0;
+}
+
+.sai-heatmap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.sai-heatmap-title {
+  font-size: 1.05rem;
+  margin: 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #1f2328;
+}
+
+.sai-heatmap-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sai-heatmap-model {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #1f2328;
+  font-size: 0.85rem;
+}
+
+.sai-heatmap-model-label {
+  color: #57606a;
+}
+
+.sai-heatmap-model-select {
+  background: #ffffff;
+  border: 1px solid #d0d7de;
+  color: #1f2328;
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 220px;
+}
+.sai-heatmap-model-select:hover:not(:disabled) {
+  border-color: #8c959f;
+}
+.sai-heatmap-model-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sai-heatmap-refresh {
+  background: rgba(33, 150, 243, 0.1);
+  border: 1px solid rgba(33, 150, 243, 0.5);
+  color: #1565c0;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
+}
+.sai-heatmap-refresh:hover:not(:disabled) {
+  background: rgba(33, 150, 243, 0.2);
+  border-color: #2196f3;
+}
+.sai-heatmap-refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sai-heatmap-export {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.5);
+  color: #2e7d32;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
+}
+.sai-heatmap-export:hover:not(:disabled) {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: #4caf50;
+}
+.sai-heatmap-export:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sai-heatmap-error {
+  background: rgba(255, 87, 87, 0.1);
+  border-left: 3px solid #ff5757;
+  border-radius: 4px;
+  padding: 10px 14px;
+  color: #c62828;
+  font-size: 0.9rem;
+}
+
+.sai-heatmap-empty {
+  background: #f6f8fa;
+  border: 1px dashed #d0d7de;
+  border-radius: 6px;
+  padding: 28px;
+  text-align: center;
+  color: #57606a;
+  font-size: 0.9rem;
+}
+
+.sai-heatmap-combos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.sai-combo-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  background: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 5px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: #1f2328;
+  font-family: inherit;
+}
+.sai-combo-card:hover {
+  background: #eaeef2;
+  border-color: #8c959f;
+}
+.sai-combo-card--active {
+  background: rgba(33, 150, 243, 0.12);
+  border-color: #2196f3;
+  color: #0d47a1;
+}
+.sai-combo-card--empty {
+  opacity: 0.45;
+}
+
+.sai-combo-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.sai-combo-count {
+  font-size: 0.75rem;
+  color: #57606a;
+}
+.sai-combo-card--active .sai-combo-count {
+  color: #1565c0;
+}
+
+/* --- Barra de herramientas (valores / umbral) --- */
+.sai-heatmap-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  background: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+
+.sai-toolbar-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #1f2328;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.sai-toolbar-item input[type='checkbox'] {
+  cursor: pointer;
+  accent-color: #2196f3;
+}
+
+.sai-toolbar-item--slider input[type='range'] {
+  width: 150px;
+  cursor: pointer;
+  accent-color: #2196f3;
+}
+
+.sai-toolbar-item strong {
+  color: #1565c0;
+  font-family: monospace;
+}
+
+.sai-toolbar-hint {
+  color: #6e7781;
+  font-size: 0.78rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+/* --- Tabla Top-N --- */
+.sai-topn {
+  background: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+
+.sai-topn-title {
+  margin: 0 0 10px 0;
+  font-size: 0.92rem;
+  color: #9a6700;
+}
+
+.sai-topn-wrapper {
+  overflow-x: auto;
+}
+
+.sai-topn-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  font-family: monospace;
+}
+
+.sai-topn-table th,
+.sai-topn-table td {
+  padding: 6px 10px;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid #d8dee4;
+}
+
+.sai-topn-table th {
+  color: #57606a;
+  font-weight: 600;
+  text-align: right;
+}
+
+.sai-topn-table td {
+  color: #1f2328;
+}
+
+.sai-topn-table tbody tr:hover {
+  background: #eaeef2;
+}
+
+.sai-topn-pos {
+  text-align: left !important;
+  color: #1565c0 !important;
+}
+
+.sai-topn-score {
+  color: #b45309 !important;
+  font-weight: 600;
+}
+
+/* --- Cuadrícula de heatmaps --- */
+.sai-heatmap-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: auto;
+  gap: 14px;
+}
+
+@media (max-width: 1100px) {
+  .sai-heatmap-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sai-heatmap-card {
+  position: relative;
+  background: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+/* --- Botón de maximizar (esquina de cada tarjeta) --- */
+.sai-heatmap-maximize {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  color: #57606a;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.sai-heatmap-maximize:hover {
+  background: rgba(33, 150, 243, 0.12);
+  border-color: #2196f3;
+  color: #1565c0;
+}
+
+.sai-heatmap-card-title {
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+  color: #1f2328;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* --- Toggle s@0 / s@1 dentro de la tarjeta --- */
+.sai-fault-toggle {
+  display: inline-flex;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.sai-fault-toggle-btn {
+  background: #ffffff;
+  border: none;
+  color: #57606a;
+  padding: 3px 9px;
+  font-size: 0.75rem;
+  font-family: monospace;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.sai-fault-toggle-btn:hover {
+  background: #eaeef2;
+  color: #1f2328;
+}
+.sai-fault-toggle-btn--active {
+  background: rgba(33, 150, 243, 0.85);
+  color: #fff;
+}
+
+.sai-heatmap-legend {
+  margin: 14px 2px 0;
+  font-size: 0.78rem;
+  color: #6e7781;
+  line-height: 1.55;
+}
+
+/* --- Vista maximizada (pantalla completa) --- */
+.sai-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(15, 20, 28, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.sai-modal {
+  background: #ffffff;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  height: 100%;
+  max-width: 1500px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sai-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #d8dee4;
+  flex-wrap: wrap;
+}
+
+.sai-modal-title {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #1f2328;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sai-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sai-modal-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  color: #57606a;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.sai-modal-close:hover {
+  background: rgba(255, 87, 87, 0.12);
+  border-color: #ff5757;
+  color: #c62828;
+}
+
+.sai-modal-body {
+  flex: 1;
+  min-height: 0;
+  padding: 14px 18px 18px;
+}

@@ -1,3 +1,5 @@
+import ReactECharts from 'echarts-for-react';
+import * as echarts from 'echarts';
 import './SAIResults.css';
 
 const fmt = (v, digits = 4) => {
@@ -116,11 +118,141 @@ const SAIResults = ({ saiResults }) => {
         )}
       </div>
 
-      {granularity === 'per_layer' && per_layer_sai.length > 0 && (
-        <div className="result-card result-card--sai-layers">
-          <h4 className="result-card-title">
-            <span className="card-icon">📊</span> Per-layer SAI
-          </h4>
+      {granularity === 'per_layer' && per_layer_sai.length > 0 && (() => {
+        const layerNames = per_layer_sai.map((e) => e.layer);
+
+        const fPropOption = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' },
+            formatter: (params) =>
+              `<strong>${params[0].axisValue}</strong><br/>` +
+              params.map((p) => `${p.marker} ${p.seriesName}: ${Number(p.value).toFixed(4)}`).join('<br/>'),
+          },
+          legend: { data: ['F_prop s@0', 'F_prop s@1'], textStyle: { color: '#57606a', fontSize: 11 } },
+          grid: { left: 8, right: 16, top: 36, bottom: 8, containLabel: true },
+          xAxis: {
+            type: 'category',
+            data: layerNames,
+            axisLabel: { rotate: 18, color: '#57606a', fontSize: 10 },
+            axisLine: { lineStyle: { color: '#ccc' } },
+          },
+          yAxis: {
+            type: 'value',
+            min: 0,
+            max: 1,
+            name: 'F_prop',
+            nameTextStyle: { color: '#57606a', fontSize: 10 },
+            axisLabel: { formatter: (v) => v.toFixed(2), color: '#57606a', fontSize: 10 },
+            splitLine: { lineStyle: { color: '#eee' } },
+          },
+          series: [
+            {
+              name: 'F_prop s@0',
+              type: 'bar',
+              barGap: '8%',
+              data: per_layer_sai.map((e) => e.summary.f_prop_s0 ?? 0),
+              itemStyle: { color: '#1565c0', borderRadius: [3, 3, 0, 0] },
+              label: { show: per_layer_sai.length <= 6, position: 'top', color: '#1565c0', fontSize: 9, formatter: (p) => Number(p.value).toFixed(2) },
+            },
+            {
+              name: 'F_prop s@1',
+              type: 'bar',
+              data: per_layer_sai.map((e) => e.summary.f_prop_s1 ?? 0),
+              itemStyle: { color: '#c62828', borderRadius: [3, 3, 0, 0] },
+              label: { show: per_layer_sai.length <= 6, position: 'top', color: '#c62828', fontSize: 9, formatter: (p) => Number(p.value).toFixed(2) },
+            },
+          ],
+        };
+
+        const saiBarOption = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' },
+            formatter: (params) =>
+              `<strong>${params[0].axisValue}</strong><br/>` +
+              params.map((p) => `${p.marker} ${p.seriesName}: ${p.value !== null ? Number(p.value).toFixed(4) : 'N/A'}`).join('<br/>'),
+          },
+          legend: { data: ['SAI_prop', 'MAI_misc'], textStyle: { color: '#57606a', fontSize: 11 } },
+          grid: { left: 8, right: 16, top: 36, bottom: 8, containLabel: true },
+          xAxis: {
+            type: 'category',
+            data: layerNames,
+            axisLabel: { rotate: 18, color: '#57606a', fontSize: 10 },
+            axisLine: { lineStyle: { color: '#ccc' } },
+          },
+          yAxis: {
+            type: 'value',
+            min: -1,
+            max: 1,
+            name: 'SAI',
+            nameTextStyle: { color: '#57606a', fontSize: 10 },
+            axisLabel: { formatter: (v) => v.toFixed(1), color: '#57606a', fontSize: 10 },
+            splitLine: { lineStyle: { color: '#eee' } },
+          },
+          series: [
+            {
+              name: 'SAI_prop',
+              type: 'bar',
+              barGap: '8%',
+              markLine: {
+                silent: true,
+                symbol: 'none',
+                data: [{ yAxis: 0, lineStyle: { color: '#888', width: 1.5, type: 'solid' } }],
+                label: { show: false },
+              },
+              data: per_layer_sai.map((e) => {
+                const v = e.summary.sai;
+                const color = v === null ? '#888' : v > 0.1 ? '#c62828' : v < -0.1 ? '#1565c0' : '#2e7d32';
+                return { value: v ?? null, itemStyle: { color, borderRadius: (v === null || v >= 0) ? [3, 3, 0, 0] : [0, 0, 3, 3] } };
+              }),
+              label: { show: per_layer_sai.length <= 6, position: 'inside', color: '#fff', fontSize: 9, formatter: (p) => p.value !== null ? Number(p.value).toFixed(2) : 'N/A', textShadowColor: '#000', textShadowBlur: 2 },
+            },
+            {
+              name: 'MAI_misc',
+              type: 'bar',
+              data: per_layer_sai.map((e) => {
+                const v = e.summary.mai_misc;
+                const color = v === null ? '#aaa' : v > 0.1 ? '#ef9a9a' : v < -0.1 ? '#90caf9' : '#a5d6a7';
+                return { value: v ?? null, itemStyle: { color, borderRadius: v !== null && v >= 0 ? [3, 3, 0, 0] : [0, 0, 3, 3] } };
+              }),
+              label: { show: per_layer_sai.length <= 6, position: 'inside', color: '#333', fontSize: 9, formatter: (p) => p.value !== null ? Number(p.value).toFixed(2) : 'N/A' },
+            },
+          ],
+        };
+
+        return (
+          <div className="result-card result-card--sai-layers">
+            <h4 className="result-card-title">
+              <span className="card-icon">📊</span> Per-layer SAI
+            </h4>
+
+            <div className="sai-layer-charts">
+              <div className="sai-layer-chart-card">
+                <p className="sai-layer-chart-label">
+                  F<sub>prop</sub> por capa — fracción de inyecciones que propagaron a la salida
+                </p>
+                <ReactECharts
+                  echarts={echarts}
+                  option={fPropOption}
+                  style={{ height: 240 }}
+                  notMerge={true}
+                />
+              </div>
+              <div className="sai-layer-chart-card">
+                <p className="sai-layer-chart-label">
+                  SAI<sub>prop</sub> y MAI<sub>misc</sub> por capa
+                  &nbsp;<span className="sai-layer-chart-hint">(azul = s@0 dominante · rojo = s@1 dominante · verde = simétrico)</span>
+                </p>
+                <ReactECharts
+                  echarts={echarts}
+                  option={saiBarOption}
+                  style={{ height: 240 }}
+                  notMerge={true}
+                />
+              </div>
+            </div>
+
           <div className="sai-table-wrapper">
             <table className="sai-table">
               <thead>
@@ -171,10 +303,11 @@ const SAIResults = ({ saiResults }) => {
             </table>
           </div>
           <p className="sai-legend">
-            Bar centered at 0 — left (blue) = more sensitive to s@0, right (red) = more sensitive to s@1.
+            Bar centered at 0 — blue = more sensitive to s@0, red = more sensitive to s@1, green = symmetric.
           </p>
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 };
