@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Zap,
   Rocket,
@@ -9,7 +10,8 @@ import {
   Database,
   Layers,
   Hash,
-  Play
+  Play,
+  History
 } from 'lucide-react';
 import Header from '../components/Header';
 import ModelSelector from '../components/cnn/ModelSelector';
@@ -23,6 +25,7 @@ import './FaultInjector.css';
 import '../components/MetricsChart.css';
 
 const FaultInjector = () => {
+  const navigate = useNavigate();
   const [selectedModel, setSelectedModel] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -1096,7 +1099,17 @@ const FaultInjector = () => {
 
               {activeTab === 'analysis' && (
                 <div className="tab-panel">
-                  <h3 className="panel-title">Fault Injection Campaign</h3>
+                  <div className="panel-header-row">
+                    <h3 className="panel-title">Fault Injection Campaign</h3>
+                    <button
+                      className="sai-history-shortcut"
+                      onClick={() => navigate('/sai-history')}
+                      title="View SAI campaign history"
+                    >
+                      <History size={16} />
+                      SAI History
+                    </button>
+                  </div>
                   <p className="panel-description">
                     Run fault injection campaigns to analyze the impact on multiple samples.
                   </p>
