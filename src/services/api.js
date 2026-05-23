@@ -211,27 +211,84 @@ export const faultInjectorService = {
     }
   },
 
+  // Obtiene las capas reales del modelo desde el backend (cualquier CNN).
   getAvailableLayers: async (modelPath) => {
     try {
-      // This function could be implemented in the backend to get available layers
-      // For now, return typical CNN layers
+      const response = await authenticatedFetch(
+        `${API_URL}/models/layers/?model_path=${encodeURIComponent(modelPath)}`
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Error: ${response.status}`);
+      }
+
+      const data = await response.json();
       return {
-        layers: [
-          { name: 'conv2d_1', type: 'convolutional', description: 'First convolutional layer' },
-          { name: 'maxpooling2d_1', type: 'pooling', description: 'First maxpooling layer' },
-          { name: 'conv2d_3', type: 'convolutional', description: 'Second convolutional layer' },
-          { name: 'maxpooling2d_2', type: 'pooling', description: 'Second maxpooling layer' },
-          { name: 'flatten', type: 'flatten', description: 'Flatten layer' },
-          { name: 'dense_6', type: 'dense', description: 'First dense layer' },
-          { name: 'dense_7', type: 'dense', description: 'Second dense layer' },
-          { name: 'dense_8', type: 'dense', description: 'Output layer' }
-        ]
+        ...data,
+        layers: (data.layers || []).map((layer) => ({
+          ...layer,
+          description: layer.output_shape
+            ? `${layer.type} ${JSON.stringify(layer.output_shape)}`
+            : layer.type,
+        })),
       };
     } catch (error) {
       console.error('Error fetching available layers:', error);
       throw error;
     }
   }
+};
+
+// Servicio para el módulo de construcción y entrenamiento de CNN
+export const trainingService = {
+  // Helper interno para GET autenticados que devuelven JSON
+  _get: async (path) => {
+    const response = await authenticatedFetch(`${API_URL}${path}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Error: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  // Helper interno para POST autenticados que devuelven JSON
+  _post: async (path, body) => {
+    const response = await authenticatedFetch(`${API_URL}${path}`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      timeout: 60000,
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Error: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  getDatasets: () => trainingService._get('/datasets/'),
+
+  getDatasetPreview: (name, n = 8) =>
+    trainingService._get(`/datasets/${encodeURIComponent(name)}/preview?n=${n}`),
+
+  getLayerTypes: () => trainingService._get('/cnn/layer-types/'),
+
+  getTemplates: () => trainingService._get('/cnn/templates/'),
+
+  getTemplate: (name, dataset) =>
+    trainingService._get(
+      `/cnn/template/${encodeURIComponent(name)}?dataset=${encodeURIComponent(dataset)}`
+    ),
+
+  buildModel: (spec) => trainingService._post('/cnn/build/', spec),
+
+  startTraining: (request) => trainingService._post('/training/start/', request),
+
+  getTrainingStatus: (jobId) =>
+    trainingService._get(`/training/status/${encodeURIComponent(jobId)}`),
+
+  getTrainingResult: (jobId) =>
+    trainingService._get(`/training/result/${encodeURIComponent(jobId)}`),
 };
 
 // Servicios de autenticación (opcional - ya están en AuthContext)
@@ -277,6 +334,38 @@ export const authService = {
       console.error("Error verifying token:", error);
       throw error;
     }
+  },
+};
+
+export const hlsService = {
+  quantize: async (modelName, totalBits = 16, intBits = 6) => {
+    const response = await authenticatedFetch(`${API_URL}/hls/quantize/`, {
+      method: 'POST',
+      body: JSON.stringify({ model_name: modelName, total_bits: totalBits, int_bits: intBits }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `Error ${response.status}`);
+    return data;
+  },
+
+  convert: async (config) => {
+    const response = await authenticatedFetch(`${API_URL}/hls/convert/`, {
+      method: 'POST',
+      body: JSON.stringify(config),
+      timeout: 120000,
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `Error ${response.status}`);
+    return data;
+  },
+
+  downloadProject: async (sessionId) => {
+    const token = localStorage.getItem('access_token');
+    const response = await fetch(`${API_URL}/hls/download/${sessionId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    return response.blob();
   },
 };
 

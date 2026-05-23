@@ -7,9 +7,11 @@ import Header from "./components/Header";
 import ModelUpload from "./components/ModelUpload";
 import FaultInjectorCard from "./components/FaultInjectorCard";
 import VHDLToolsCard from "./components/VHDLToolsCard";
+import CNNStudioCard from "./components/CNNStudioCard";
 import FaultInjector from './pages/FaultInjector';
 import VHDLTools from './pages/VHDLTools';
 import SAIHistory from './pages/SAIHistory';
+import CNNStudio from './pages/CNNStudio';
 import "./App.css";
 import "./pages/HomePage.css"; // Importar estilos específicos
 
@@ -30,6 +32,10 @@ const HomePage = () => {
 
   const handleVHDLToolsClick = () => {
     navigate('/vhdl-tools');
+  };
+
+  const handleCNNStudioClick = () => {
+    navigate('/cnn-studio');
   };
 
   return (
@@ -98,6 +104,9 @@ const HomePage = () => {
               <div onClick={handleVHDLToolsClick}>
                 <VHDLToolsCard />
               </div>
+              <div onClick={handleCNNStudioClick}>
+                <CNNStudioCard />
+              </div>
             </div>
 
           </div>
@@ -117,6 +126,7 @@ const App = () => {
              <Route path="/fault-injector" element={<FaultInjector />} />
              <Route path="/vhdl-tools" element={<VHDLTools />} />
              <Route path="/sai-history" element={<SAIHistory />} />
+             <Route path="/cnn-studio" element={<CNNStudio />} />
            </Routes>
         </Router>
       </ProtectedRoute>

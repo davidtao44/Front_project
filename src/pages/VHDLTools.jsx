@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { 
-  Cpu, 
-  LayoutGrid, 
-  Image, 
-  Scale, 
-  Zap, 
-  Flame 
+import {
+  Cpu,
+  LayoutGrid,
+  Image,
+  Scale,
+  Zap,
+  Flame,
+  Microchip
 } from 'lucide-react';
 import Header from '../components/Header';
 import ModelSelector from '../components/cnn/ModelSelector';
 import ImageToVHDL from '../components/cnn/ImageToVHDL';
 import ModelToVHDL from '../components/cnn/ModelToVHDL';
+import HLSSynthesis from '../components/cnn/HLSSynthesis';
 import GoldenSimulationHardware from '../components/GoldenSimulationHardware';
 import HardwareFaultInjection from '../components/HardwareFaultInjection';
 import './VHDLTools.css';
@@ -73,14 +75,21 @@ const VHDLTools = () => {
                 <span className="tab-icon"><Image size={18} /></span>
                 Image to VHDL
               </button>
-              <button 
+              <button
                 className={`tab-button ${activeTab === 'vhdl' ? 'active' : ''}`}
                 onClick={() => setActiveTab('vhdl')}
               >
                 <span className="tab-icon"><Scale size={18} /></span>
                 Model to VHDL
               </button>
-              <button 
+              <button
+                className={`tab-button ${activeTab === 'hls-synthesis' ? 'active' : ''}`}
+                onClick={() => setActiveTab('hls-synthesis')}
+              >
+                <span className="tab-icon"><Microchip size={18} /></span>
+                HLS Synthesis
+              </button>
+              <button
                 className={`tab-button ${activeTab === 'golden-simulation' ? 'active' : ''}`}
                 onClick={() => setActiveTab('golden-simulation')}
               >
@@ -130,6 +139,19 @@ const VHDLTools = () => {
                 </div>
               )}
               
+              {activeTab === 'hls-synthesis' && (
+                <div className="tab-panel">
+                  <h3 className="panel-title">HLS Hardware Synthesis</h3>
+                  <p className="panel-description">
+                    Convert a trained CNN model to a synthesizable HLS project for FPGA deployment.
+                    Step 1 quantizes weights to fixed-point format (ap_fixed) so you can validate
+                    precision loss before synthesis. Step 2 generates the HLS C++ project via hls4ml,
+                    ready for Vivado HLS / Vitis HLS.
+                  </p>
+                  <HLSSynthesis selectedModel={selectedModel} />
+                </div>
+              )}
+
               {activeTab === 'golden-simulation' && (
                 <div className="tab-panel">
                   <h3 className="panel-title">Golden Hardware Simulation</h3>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { faultInjectorService } from '../services/api';
 import BitSelector from './BitSelector';
 import KernelVisualizer from './KernelVisualizer';
 import './WeightFaultConfig.css';
@@ -26,18 +27,33 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
     { value: 'stuck_at_1', label: 'Stuck-at-1', description: 'Forces the bit to 1' }
   ];
 
-  // Typical layers of LeNet-5
-  const defaultLayers = [
-    { name: 'conv2d_1', type: 'Conv2D', weights: { kernel: [5, 5, 1, 6], bias: [6] } },
-    { name: 'conv2d_3', type: 'Conv2D', weights: { kernel: [5, 5, 6, 16], bias: [16] } },
-    { name: 'dense_6', type: 'Dense', weights: { kernel: [400, 120], bias: [120] } },
-    { name: 'dense_7', type: 'Dense', weights: { kernel: [120, 84], bias: [84] } },
-    { name: 'dense_8', type: 'Dense', weights: { kernel: [84, 10], bias: [10] } }
-  ];
-
+  // Carga las capas con pesos del modelo seleccionado (cualquier CNN).
   useEffect(() => {
-    setAvailableLayers(defaultLayers);
-  }, []);
+    if (selectedModel) {
+      loadAvailableLayers();
+    }
+  }, [selectedModel]);
+
+  const loadAvailableLayers = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await faultInjectorService.getAvailableLayers(selectedModel.path);
+      const layersWithWeights = (response.layers || [])
+        .filter((layer) => layer.has_weights)
+        .map((layer) => ({
+          name: layer.name,
+          type: layer.type,
+          weights: { kernel: layer.kernel_shape, bias: layer.bias_shape },
+        }));
+      setAvailableLayers(layersWithWeights);
+    } catch (err) {
+      setError('Error loading model layers');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
 
 
@@ -205,6 +221,8 @@ const WeightFaultConfig = ({ selectedModel, onConfigChange, initialConfig = null
           {/* Layer selection */}
           <div className="layer-selection">
             <h4>Select Layer</h4>
+            {isLoading && <p className="loading-text">Loading model layers...</p>}
+            {error && <p className="error-text">{error}</p>}
             <div className="layer-selector">
               <select
                 value={selectedLayer}
