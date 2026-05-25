@@ -25,11 +25,11 @@ const CHART_DEFS = {
   },
   fProp: {
     title: 'F_prop — Propagation factor',
-    caption: 'F_prop - Factor de propagacion',
+    caption: 'F_prop - Propagation factor',
   },
   fMisc: {
     title: 'F_misc — Misclassification factor',
-    caption: 'F_misc - Factor de misclasificacion',
+    caption: 'F_misc - Misclassification factor',
   },
 };
 
@@ -40,8 +40,8 @@ const SEQUENTIAL = ['#0b3a5c', '#2166ac', '#74add1', '#fdae61', '#f46d43', '#b21
 
 const isNum = (v) => v !== null && v !== undefined && !Number.isNaN(v);
 
-// Criticidad de una campaña = mayor magnitud entre todas sus métricas.
-// Sirve para ordenar el eje de posiciones y para el filtro de umbral.
+// Criticality of a campaign = greatest magnitude among all its metrics.
+// Used to order the Y-axis positions and for the threshold filter.
 const critScore = (c) => {
   let m = 0;
   for (const v of [c.sai, c.mai_misc, c.f_prop_s0, c.f_prop_s1, c.f_misc_s0, c.f_misc_s1]) {
@@ -50,8 +50,8 @@ const critScore = (c) => {
   return m;
 };
 
-// Factor de misclasificación de una campaña = el mayor entre s@0 y s@1.
-// Es la métrica con la que se ordena la tabla Top-N.
+// Misclassification factor of a campaign = the greatest between s@0 and s@1.
+// This is the metric used to sort the Top-N table.
 const miscScore = (c) => {
   let m = -1;
   for (const v of [c.f_misc_s0, c.f_misc_s1]) {
@@ -63,9 +63,9 @@ const miscScore = (c) => {
 const fmt2 = (v) => (isNum(v) ? Number(v).toFixed(2) : '—');
 const fmt4 = (v) => (isNum(v) ? Number(v).toFixed(4) : '—');
 
-// Construye la opción de un heatmap 2D: X = bit (0-31), Y = posición de
-// kernel, color = valor de la métrica. Las posiciones ya vienen ordenadas
-// por criticidad (la más crítica primero); `inverse` las pinta arriba.
+// Builds the option for a 2D heatmap: X = bit (0-31), Y = kernel position,
+// color = metric value. Positions are already sorted by criticality (most
+// critical first); `inverse` renders them at the top.
 const buildHeatmapOption = ({
   campaigns,
   metricKey,
@@ -99,11 +99,11 @@ const buildHeatmapOption = ({
         return `
           <div style="font-family: monospace; font-size: 12px; line-height: 1.5;">
             <strong>${metricLabel} = ${fmt4(v)}</strong><br/>
-            Posición: ${c.position_label}<br/>
+            Position: ${c.position_label}<br/>
             Bit: ${c.bit_position}<br/>
-            Campaña: ${c.campaign_id}<br/>
-            Modelo: ${c.model_name || '—'}<br/>
-            Fecha: ${date}
+            Campaign: ${c.campaign_id}<br/>
+            Model: ${c.model_name || '—'}<br/>
+            Date: ${date}
           </div>`;
       },
     },
@@ -122,7 +122,7 @@ const buildHeatmapOption = ({
     yAxis: {
       type: 'category',
       data: orderedPositions,
-      name: 'Posición de kernel',
+      name: 'Kernel Position',
       nameTextStyle: { color: '#3d3d3d' },
       inverse: true,
       splitArea: { show: true },
@@ -190,16 +190,16 @@ const SAIHeatmap = ({ refreshKey }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState(null);
 
-  // Controles de la nueva visualización.
+  // Visualization controls.
   const [showValues, setShowValues] = useState(false);
   const [threshold, setThreshold] = useState(0);
   const [fpView, setFpView] = useState('s1'); // F_prop: s@1 / s@0
   const [fmView, setFmView] = useState('s1'); // F_misc: s@1 / s@0
 
-  // Gráfica maximizada en pantalla completa (null | 'sai' | 'mai' | 'fProp' | 'fMisc').
+  // Maximized chart on full screen (null | 'sai' | 'mai' | 'fProp' | 'fMisc').
   const [maximized, setMaximized] = useState(null);
 
-  // Refs a cada instancia de ECharts para capturarlas como PNG en el PDF.
+  // Refs to each ECharts instance for capturing as PNG in PDF.
   const saiRef = useRef(null);
   const maiRef = useRef(null);
   const fPropRef = useRef(null);
@@ -231,8 +231,8 @@ const SAIHeatmap = ({ refreshKey }) => {
     fetchData();
   }, [fetchData, refreshKey]);
 
-  // Auto-refresca cuando la pestaña vuelve a estar visible (por ejemplo,
-  // tras correr una campaña en la pestaña principal y volver a esta).
+  // Auto-refresh when tab becomes visible (e.g., after running a campaign
+  // in the main tab and returning to this tab).
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -260,7 +260,7 @@ const SAIHeatmap = ({ refreshKey }) => {
       .map(([name, count]) => ({ name, count }));
   }, [groups]);
 
-  // Si el modelo seleccionado desaparece tras un refresh, vuelve a "Todos".
+  // If selected model disappears after refresh, revert to "All models".
   useEffect(() => {
     if (
       selectedModel !== ALL_MODELS &&
@@ -283,8 +283,8 @@ const SAIHeatmap = ({ refreshKey }) => {
     [filteredGroups, selectedKey]
   );
 
-  // Posiciones de kernel ordenadas por criticidad (la más crítica primero).
-  // Compartido por las 4 gráficas para que el eje Y sea consistente.
+  // Kernel positions sorted by criticality (most critical first).
+  // Shared across 4 charts to keep Y-axis consistent.
   const { orderedPositions, posIndex } = useMemo(() => {
     if (!selectedGroup) return { orderedPositions: [], posIndex: new Map() };
     const best = new Map();
@@ -301,8 +301,8 @@ const SAIHeatmap = ({ refreshKey }) => {
     return { orderedPositions: ordered, posIndex: index };
   }, [selectedGroup]);
 
-  // Top-N campañas con mayor factor de misclasificación (tabla con valores
-  // exactos). Se descartan las que no tienen F_misc definido.
+  // Top-N campaigns with highest misclassification factor (table with exact
+  // values). Campaigns without F_misc defined are excluded.
   const topCampaigns = useMemo(() => {
     if (!selectedGroup) return [];
     return [...selectedGroup.campaigns]
@@ -349,7 +349,7 @@ const SAIHeatmap = ({ refreshKey }) => {
     };
   }, [selectedGroup, orderedPositions, posIndex, showValues, threshold, fpView, fmView]);
 
-  // Exporta las 4 gráficas del grupo visible a un PDF A4 horizontal.
+  // Exports all 4 charts of the visible group to a landscape A4 PDF.
   const handleExportPdf = useCallback(() => {
     if (!selectedGroup) return;
     setIsExporting(true);
@@ -377,20 +377,20 @@ const SAIHeatmap = ({ refreshKey }) => {
         meta: {
           layer: selectedGroup.layer,
           targetType: selectedGroup.target_type,
-          model: selectedModel === ALL_MODELS ? 'Todos los modelos' : selectedModel,
+          model: selectedModel === ALL_MODELS ? 'All models' : selectedModel,
           campaignCount: campaigns.length,
           positionCount: new Set(campaigns.map((c) => c.position_label)).size,
           generatedAt: new Date(),
         },
       });
     } catch (e) {
-      setError('No se pudo exportar el PDF: ' + (e.message || e));
+      setError('Could not export PDF: ' + (e.message || e));
     } finally {
       setIsExporting(false);
     }
   }, [selectedGroup, selectedModel]);
 
-  // Exporta solo la gráfica maximizada a un PDF a página completa.
+  // Exports only the maximized chart to a full-page PDF.
   const handleExportSingle = useCallback(() => {
     if (!selectedGroup || !maximized) return;
     setIsExporting(true);
@@ -411,20 +411,20 @@ const SAIHeatmap = ({ refreshKey }) => {
         meta: {
           layer: selectedGroup.layer,
           targetType: selectedGroup.target_type,
-          model: selectedModel === ALL_MODELS ? 'Todos los modelos' : selectedModel,
+          model: selectedModel === ALL_MODELS ? 'All models' : selectedModel,
           campaignCount: campaigns.length,
           positionCount: new Set(campaigns.map((c) => c.position_label)).size,
           generatedAt: new Date(),
         },
       });
     } catch (e) {
-      setError('No se pudo exportar el PDF: ' + (e.message || e));
+      setError('Could not export PDF: ' + (e.message || e));
     } finally {
       setIsExporting(false);
     }
   }, [selectedGroup, maximized, selectedModel]);
 
-  // Cerrar la vista maximizada con la tecla Escape.
+  // Close maximized view with Escape key.
   useEffect(() => {
     if (!maximized) return;
     const onKey = (e) => {
@@ -459,7 +459,7 @@ const SAIHeatmap = ({ refreshKey }) => {
         <div className="sai-heatmap-controls">
           {availableModels.length > 0 && (
             <label className="sai-heatmap-model">
-              <span className="sai-heatmap-model-label">Modelo:</span>
+              <span className="sai-heatmap-model-label">Model:</span>
               <select
                 className="sai-heatmap-model-select"
                 value={selectedModel}
@@ -467,7 +467,7 @@ const SAIHeatmap = ({ refreshKey }) => {
                 disabled={isLoading}
               >
                 <option value={ALL_MODELS}>
-                  Todos los modelos (
+                  All models (
                   {availableModels.reduce((acc, m) => acc + m.count, 0)})
                 </option>
                 {availableModels.map((m) => (
@@ -490,9 +490,9 @@ const SAIHeatmap = ({ refreshKey }) => {
             className="sai-heatmap-export"
             onClick={handleExportPdf}
             disabled={isLoading || isExporting || !selectedGroup}
-            title="Exportar reporte PDF de las 4 gráficas"
+            title="Export PDF report of all 4 charts"
           >
-            {isExporting ? '⏳ Exportando...' : '📄 Exportar PDF'}
+            {isExporting ? '⏳ Exporting...' : '📄 Export PDF'}
           </button>
         </div>
       </div>
@@ -534,7 +534,7 @@ const SAIHeatmap = ({ refreshKey }) => {
 
           {selectedGroup && charts && (
             <>
-              <div className="sai-heatmap-toolbar">
+              {/* <div className="sai-heatmap-toolbar">
                 <label className="sai-toolbar-item">
                   <input
                     type="checkbox"
@@ -562,20 +562,20 @@ const SAIHeatmap = ({ refreshKey }) => {
                   exacto · usa la barra lateral para desplazarte por las
                   posiciones
                 </span>
-              </div>
+              </div> */}
 
               {topCampaigns.length > 0 && (
                 <div className="sai-topn">
                   <h5 className="sai-topn-title">
-                    🔥 Top {topCampaigns.length} campañas con mayor factor de
-                    misclasificación
+                    🔥 Top {topCampaigns.length} campaigns with highest
+                    misclassification factor
                   </h5>
                   <div className="sai-topn-wrapper">
                     <table className="sai-topn-table">
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>Posición</th>
+                          <th>Position</th>
                           <th>Bit</th>
                           <th>SAI</th>
                           <th>MAI</th>
@@ -583,7 +583,7 @@ const SAIHeatmap = ({ refreshKey }) => {
                           <th>F_prop s@1</th>
                           <th>F_misc s@0</th>
                           <th>F_misc s@1</th>
-                          <th>F_misc máx</th>
+                          <th>F_misc max</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -615,7 +615,7 @@ const SAIHeatmap = ({ refreshKey }) => {
                   <button
                     className="sai-heatmap-maximize"
                     onClick={() => setMaximized('sai')}
-                    title="Maximizar gráfico"
+                    title="Maximize chart"
                   >
                     ⛶
                   </button>
@@ -634,7 +634,7 @@ const SAIHeatmap = ({ refreshKey }) => {
                   <button
                     className="sai-heatmap-maximize"
                     onClick={() => setMaximized('mai')}
-                    title="Maximizar gráfico"
+                    title="Maximize chart"
                   >
                     ⛶
                   </button>
@@ -654,7 +654,7 @@ const SAIHeatmap = ({ refreshKey }) => {
                   <button
                     className="sai-heatmap-maximize"
                     onClick={() => setMaximized('fProp')}
-                    title="Maximizar gráfico"
+                    title="Maximize chart"
                   >
                     ⛶
                   </button>
@@ -674,7 +674,7 @@ const SAIHeatmap = ({ refreshKey }) => {
                   <button
                     className="sai-heatmap-maximize"
                     onClick={() => setMaximized('fMisc')}
-                    title="Maximizar gráfico"
+                    title="Maximize chart"
                   >
                     ⛶
                   </button>
@@ -689,11 +689,7 @@ const SAIHeatmap = ({ refreshKey }) => {
               </div>
 
               <p className="sai-heatmap-legend">
-                Eje X = posición de bit (0–31) · Eje Y = posición de kernel,
-                ordenada con la más crítica arriba. SAI/MAI usan escala
-                divergente (azul = s@0 dominante, rojo = s@1 dominante);
-                F_prop/F_misc usan escala 0→1 (rojo = factor alto). Cada celda
-                es una campaña individual.
+                X-axis = bit position (0–31) · Y-axis = kernel position, ordered with the most critical at the top. SAI/MAI use a divergent scale (blue = dominant s@0, red = dominant s@1); F_prop/F_misc use a 0→1 scale (red = high factor). Each cell is an individual campaign.
               </p>
             </>
           )}
@@ -720,14 +716,14 @@ const SAIHeatmap = ({ refreshKey }) => {
                   className="sai-heatmap-export"
                   onClick={handleExportSingle}
                   disabled={isExporting}
-                  title="Exportar esta gráfica a PDF"
+                  title="Export this chart to PDF"
                 >
-                  {isExporting ? '⏳ Exportando...' : '📄 Exportar PDF'}
+                  {isExporting ? '⏳ Exporting...' : '📄 Export PDF'}
                 </button>
                 <button
                   className="sai-modal-close"
                   onClick={() => setMaximized(null)}
-                  title="Cerrar (Esc)"
+                  title="Close (Esc)"
                 >
                   ✕
                 </button>

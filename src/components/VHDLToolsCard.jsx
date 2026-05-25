@@ -21,8 +21,8 @@ const VHDLToolsCard = ({ onClick }) => {
       
       <div className="card-content">
         <p className="card-description">
-          Conjunto de herramientas para la conversión y extracción de datos de redes neuronales 
-          a formato VHDL para implementación en hardware.
+          Toolset for converting and extracting neural network data
+          to VHDL format for hardware implementation.
         </p>
         
         <div className="card-features">

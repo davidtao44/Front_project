@@ -38,14 +38,14 @@ const VHDLTools = () => {
                 Hardware Interoperability Module
               </h1>
                 <p className="page-subtitle">
-                Set of tools for the conversion and data extraction of LeNet-5 CNNs to VHDL format
+                Set of tools for the conversion and data extraction DNNs to VHDL format
               </p>
-              <div className="architecture-info">
+              {/* <div className="architecture-info">
                   <span className="architecture-badge">🎯 Optimized for LeNet-5</span>
                   <p className="architecture-description">
                     These tools are specifically designed to work with the LeNet-5 architecture
                   </p>
-              </div>
+              </div> */}
             </div>
             <div className="header-image">
                 <img 
@@ -53,7 +53,7 @@ const VHDLTools = () => {
                   alt="LeNet-5 Architecture" 
                   className="lenet-architecture-image"
                 />
-                <p className="image-caption">LeNet-5 Architecture</p>
+                <p className="image-caption">DNN Architecture</p>
             </div>
           </div>
         </div>

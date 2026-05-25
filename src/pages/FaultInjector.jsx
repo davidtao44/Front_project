@@ -575,14 +575,14 @@ const FaultInjector = () => {
                 Reliability Assessment Module
               </h1>
               <p className="page-subtitle">
-                Tool for fault injection in CNNs: LeNet-5
+                Tool for fault injection in DNNs
               </p>
-              <div className="architecture-info">
+              {/* <div className="architecture-info">
                 <span className="architecture-badge">🎯 Optimized for LeNet-5</span>
                 <p className="architecture-description">
                   This tool is specifically designed and optimized to work with the LeNet-5 architecture
                 </p>
-              </div>
+              </div> */}
             </div>
             <div className="header-image">
               <img
@@ -590,7 +590,7 @@ const FaultInjector = () => {
                 alt="LeNet-5 Architecture"
                 className="lenet-architecture-image"
               />
-              <p className="image-caption">LeNet-5 Architecture</p>
+              <p className="image-caption">DNN Architecture</p>
             </div>
           </div>
         </div>

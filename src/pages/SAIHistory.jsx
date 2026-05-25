@@ -12,10 +12,7 @@ const SAIHistory = () => {
             <span>📊</span> SAI / MAI Historic Heatmaps
           </h2>
           <p className="sai-history-page-subtitle">
-            Mapa de calor del histórico de campañas SAI guardadas. Cada celda es
-            una campaña individual (1 capa × 1 posición × 1 bit) y el color marca
-            la criticidad del fallo. Las campañas con más de un fallo no se
-            almacenan y no aparecen aquí.
+            Heat map of the history of saved UPS campaigns. Each cell represents an individual campaign (1 layer × 1 position × 1 bit), and the color indicates the severity of the failure. Campaigns with more than one failure are not stored and do not appear here.
           </p>
         </div>
         <SAIHeatmap refreshKey={0} />

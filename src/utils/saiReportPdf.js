@@ -1,10 +1,9 @@
 /**
- * Generación del reporte PDF de las gráficas SAI/MAI.
+ * Generates the SAI/MAI charts PDF report.
  *
- * Se ejecuta 100% en el cliente: recibe las imágenes PNG ya capturadas de
- * cada instancia de ECharts (vía getDataURL) y arma un PDF A4 horizontal
- * con banda de título, línea de metadatos, tabla resumen y las 4 gráficas
- * en cuadrícula 2x2.
+ * Runs 100% on the client: receives PNG images already captured from each
+ * ECharts instance (via getDataURL) and creates a landscape A4 PDF with a
+ * title header, metadata line, summary table, and 4 charts in a 2x2 grid.
  */
 import { jsPDF } from 'jspdf';
 
@@ -29,7 +28,7 @@ const statOf = (campaigns, key) => {
   return { count: vals.length, min, max, avg: sum / vals.length };
 };
 
-/** Construye las filas de la tabla resumen a partir de las campañas. */
+/** Builds summary table rows from the campaigns. */
 export const buildSAISummary = (campaigns) => [
   { label: 'SAI', ...statOf(campaigns, 'sai') },
   { label: 'MAI_misc', ...statOf(campaigns, 'mai_misc') },
@@ -39,22 +38,22 @@ export const buildSAISummary = (campaigns) => [
   { label: 'F_misc (stuck_at_1)', ...statOf(campaigns, 'f_misc_s1') },
 ];
 
-// Las leyendas usan solo ASCII/Latin-1: la fuente estándar de jsPDF no
-// soporta flechas Unicode (↑↓), así que se evitan a propósito.
+// Captions use only ASCII/Latin-1: jsPDF's standard font does not support
+// Unicode arrows (↑↓), so they are intentionally avoided.
 const CHARTS = [
   { key: 'sai', caption: 'SAI - Stuck-at Asymmetry Index' },
   { key: 'mai', caption: 'MAI - Misclassification Asymmetry Index' },
-  { key: 'fProp', caption: 'F_prop - Factor de propagacion (s@1 / s@0)' },
-  { key: 'fMisc', caption: 'F_misc - Factor de misclasificacion (s@1 / s@0)' },
+  { key: 'fProp', caption: 'F_prop - Propagation factor (s@1 / s@0)' },
+  { key: 'fMisc', caption: 'F_misc - Misclassification factor (s@1 / s@0)' },
 ];
 
 const safe = (s) => String(s).replace(/[^a-zA-Z0-9_-]+/g, '_');
 
 /**
- * Genera y descarga el PDF.
+ * Generates and downloads the PDF.
  * @param {Object}   p
- * @param {Object}   p.images   - { sai, mai, fProp, fMisc } data-URLs PNG (o null)
- * @param {Array}    p.summary  - filas de buildSAISummary()
+ * @param {Object}   p.images   - { sai, mai, fProp, fMisc } PNG data-URLs (or null)
+ * @param {Array}    p.summary  - rows from buildSAISummary()
  * @param {Object}   p.meta     - { layer, targetType, model, campaignCount,
  *                                  positionCount, generatedAt: Date }
  */
@@ -71,42 +70,42 @@ export const exportSAIReportPdf = ({ images, summary, meta }) => {
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(15);
-  doc.text('SAI / MAI  -  Reporte de campanas', margin, 11);
+  doc.text('SAI / MAI  -  Campaign Report', margin, 11);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(170, 180, 195);
   doc.text(
-    `Generado: ${meta.generatedAt.toLocaleString()}     HURA Fault Injection Platform`,
+    `Generated: ${meta.generatedAt.toLocaleString()}     HURA Fault Injection Platform`,
     margin,
     17.5
   );
 
-  // --- Línea de metadatos ---
+  // --- Metadata line ---
   let y = 30;
   doc.setTextColor(40, 40, 40);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.text(
-    `Capa: ${meta.layer}      Target: ${meta.targetType}      ` +
-      `Modelo: ${meta.model}      Campanas: ${meta.campaignCount}      ` +
-      `Posiciones de kernel: ${meta.positionCount}`,
+    `Layer: ${meta.layer}      Target: ${meta.targetType}      ` +
+      `Model: ${meta.model}      Campaigns: ${meta.campaignCount}      ` +
+      `Kernel Positions: ${meta.positionCount}`,
     margin,
     y
   );
 
-  // --- Tabla resumen ---
+  // --- Summary table ---
   y += 8;
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
-  doc.text('Resumen numerico', margin, y);
+  doc.text('Numerical Summary', margin, y);
   y += 3;
 
   const cols = [
-    { title: 'Metrica', w: 56, align: 'left' },
-    { title: 'Puntos', w: 28, align: 'right' },
-    { title: 'Minimo', w: 32, align: 'right' },
-    { title: 'Maximo', w: 32, align: 'right' },
-    { title: 'Promedio', w: 34, align: 'right' },
+    { title: 'Metric', w: 56, align: 'left' },
+    { title: 'Count', w: 28, align: 'right' },
+    { title: 'Minimum', w: 32, align: 'right' },
+    { title: 'Maximum', w: 32, align: 'right' },
+    { title: 'Average', w: 34, align: 'right' },
   ];
   const tableW = cols.reduce((a, c) => a + c.w, 0);
   const rowH = 6.2;
@@ -121,7 +120,7 @@ export const exportSAIReportPdf = ({ images, summary, meta }) => {
     });
   };
 
-  // encabezado
+  // header row
   doc.setFillColor(33, 150, 243);
   doc.rect(margin, y, tableW, rowH, 'F');
   doc.setTextColor(255, 255, 255);
@@ -130,7 +129,7 @@ export const exportSAIReportPdf = ({ images, summary, meta }) => {
   drawRow(cols.map((c) => c.title), rowH);
   y += rowH;
 
-  // filas de datos
+  // data rows
   doc.setFont('helvetica', 'normal');
   summary.forEach((row, i) => {
     if (i % 2 === 1) {
@@ -145,11 +144,11 @@ export const exportSAIReportPdf = ({ images, summary, meta }) => {
     y += rowH;
   });
 
-  // borde exterior de la tabla
+  // table border
   doc.setDrawColor(200, 205, 212);
   doc.rect(margin, tableTop, tableW, y - tableTop);
 
-  // --- Cuadrícula 2x2 de gráficas ---
+  // --- 2x2 grid of charts ---
   const gridTop = y + 6;
   const gridBottom = pageH - 10;
   const colGap = 8;
@@ -161,7 +160,7 @@ export const exportSAIReportPdf = ({ images, summary, meta }) => {
     const cellX = margin + (idx % 2) * (cellW + colGap);
     const cellY = gridTop + Math.floor(idx / 2) * (cellH + rowGap);
 
-    // leyenda de la gráfica
+    // chart legend
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8.5);
     doc.setTextColor(45, 45, 45);
@@ -174,11 +173,11 @@ export const exportSAIReportPdf = ({ images, summary, meta }) => {
     if (!imgData) {
       doc.setFont('helvetica', 'italic');
       doc.setTextColor(150, 150, 150);
-      doc.text('(grafica no disponible)', cellX + 2, imgTop + 7);
+      doc.text('(chart not available)', cellX + 2, imgTop + 7);
       return;
     }
 
-    // ajustar la imagen al recuadro conservando la proporción
+    // fit image to box preserving aspect ratio
     const props = doc.getImageProperties(imgData);
     const ratio = props.width / props.height;
     let drawW = cellW;
@@ -192,23 +191,23 @@ export const exportSAIReportPdf = ({ images, summary, meta }) => {
     doc.addImage(imgData, 'PNG', drawX, drawY, drawW, drawH);
   });
 
-  // --- Pie de página ---
+  // --- Footer ---
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(150, 150, 150);
   doc.text('HURA - SAI/MAI Historic Report', margin, pageH - 5);
-  doc.text('Pagina 1 de 1', pageW - margin, pageH - 5, { align: 'right' });
+  doc.text('Page 1 of 1', pageW - margin, pageH - 5, { align: 'right' });
 
-  // --- Descargar ---
+  // --- Download ---
   const stamp = meta.generatedAt.toISOString().slice(0, 10).replace(/-/g, '');
   doc.save(`SAI_report_${safe(meta.layer)}_${safe(meta.targetType)}_${stamp}.pdf`);
 };
 
 /**
- * Genera y descarga un PDF de una sola gráfica a página completa.
+ * Generates and downloads a single-chart full-page PDF.
  * @param {Object} p
- * @param {string} p.image   - data-URL PNG de la gráfica (o null)
- * @param {string} p.caption - leyenda/título de la gráfica (solo ASCII)
+ * @param {string} p.image   - PNG data-URL of the chart (or null)
+ * @param {string} p.caption - legend/title of the chart (ASCII only)
  * @param {Object} p.meta    - { layer, targetType, model, campaignCount,
  *                               positionCount, generatedAt: Date }
  */
@@ -219,7 +218,7 @@ export const exportSingleChartPdf = ({ image, caption, meta }) => {
   const margin = 12;
   const contentW = pageW - margin * 2;
 
-  // --- Banda de título ---
+  // --- Title header ---
   doc.setFillColor(14, 18, 24);
   doc.rect(0, 0, pageW, 22, 'F');
   doc.setTextColor(255, 255, 255);
@@ -230,32 +229,32 @@ export const exportSingleChartPdf = ({ image, caption, meta }) => {
   doc.setFontSize(8.5);
   doc.setTextColor(170, 180, 195);
   doc.text(
-    `Generado: ${meta.generatedAt.toLocaleString()}     HURA Fault Injection Platform`,
+    `Generated: ${meta.generatedAt.toLocaleString()}     HURA Fault Injection Platform`,
     margin,
     17.5
   );
 
-  // --- Línea de metadatos ---
+  // --- Metadata line ---
   const y = 30;
   doc.setTextColor(40, 40, 40);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.text(
-    `Capa: ${meta.layer}      Target: ${meta.targetType}      ` +
-      `Modelo: ${meta.model}      Campanas: ${meta.campaignCount}      ` +
-      `Posiciones de kernel: ${meta.positionCount}`,
+    `Layer: ${meta.layer}      Target: ${meta.targetType}      ` +
+      `Model: ${meta.model}      Campaigns: ${meta.campaignCount}      ` +
+      `Kernel Positions: ${meta.positionCount}`,
     margin,
     y
   );
 
-  // --- Gráfica a página completa ---
+  // --- Full-page chart ---
   const imgTop = y + 6;
   const imgBoxH = pageH - imgTop - 12;
 
   if (!image) {
     doc.setFont('helvetica', 'italic');
     doc.setTextColor(150, 150, 150);
-    doc.text('(grafica no disponible)', margin + 2, imgTop + 7);
+    doc.text('(chart not available)', margin + 2, imgTop + 7);
   } else {
     const props = doc.getImageProperties(image);
     const ratio = props.width / props.height;
@@ -270,14 +269,14 @@ export const exportSingleChartPdf = ({ image, caption, meta }) => {
     doc.addImage(image, 'PNG', drawX, drawY, drawW, drawH);
   }
 
-  // --- Pie de página ---
+  // --- Footer ---
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(150, 150, 150);
   doc.text('HURA - SAI/MAI Historic Report', margin, pageH - 5);
-  doc.text('Pagina 1 de 1', pageW - margin, pageH - 5, { align: 'right' });
+  doc.text('Page 1 of 1', pageW - margin, pageH - 5, { align: 'right' });
 
-  // --- Descargar ---
+  // --- Download ---
   const stamp = meta.generatedAt.toISOString().slice(0, 10).replace(/-/g, '');
   doc.save(`SAI_chart_${safe(caption)}_${stamp}.pdf`);
 };

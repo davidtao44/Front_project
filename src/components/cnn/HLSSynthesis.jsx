@@ -6,6 +6,8 @@ import styles from './HLSSynthesis.module.css';
 const TOTAL_BITS_OPTIONS = [8, 16, 32];
 const BACKEND_OPTIONS = ['Vivado', 'Vitis', 'VivadoAccelerator'];
 const REUSE_OPTIONS = [1, 2, 4, 8, 16];
+const IO_TYPE_OPTIONS = ['io_parallel', 'io_stream'];
+const STRATEGY_OPTIONS = ['Latency', 'Resource'];
 
 const BOARD_PRESETS = [
   { label: 'Pynq-Z2',      family: 'Zynq-7000',        part: 'xc7z020clg400-1'      },
@@ -17,6 +19,11 @@ const BOARD_PRESETS = [
 ];
 
 const DEFAULT_BOARD = BOARD_PRESETS[0]; // Pynq-Z2
+
+// Boards pequeñas (Zynq-7020, Artix-7) no pueden con io_parallel + reuse=1.
+// Forzamos defaults conservadores para que Vitis HLS 2025.1 no explote.
+const SMALL_BOARD_FAMILIES = ['Zynq-7000', 'Artix-7'];
+const isSmallBoard = (board) => SMALL_BOARD_FAMILIES.includes(board?.family);
 
 const apFixedLabel = (total, int) => `ap_fixed<${total},${int}>`;
 
@@ -32,14 +39,35 @@ const HLSSynthesis = ({ selectedModel }) => {
   const [useQuantized, setUseQuantized] = useState(true);
 
   // ── Step 2: Convert ───────────────────────────────────────────────────
-  const [backend, setBackend] = useState('Vivado');
-  const [reuseFactorIdx, setReuseFactorIdx] = useState(0);
-  const [clockPeriod, setClockPeriod] = useState(5);
+  // Defaults conservadores porque DEFAULT_BOARD es Pynq-Z2 (Zynq-7020 pequeña).
+  const [backend, setBackend] = useState('Vitis');
+  const [reuseFactorIdx, setReuseFactorIdx] = useState(2); // REUSE_OPTIONS[2] = 4
+  const [clockPeriod, setClockPeriod] = useState(10);
+  const [ioType, setIoType] = useState('io_stream');
+  const [strategy, setStrategy] = useState('Resource');
   const [selectedBoard, setSelectedBoard] = useState(DEFAULT_BOARD);
   const [customPart, setCustomPart] = useState('');
   const [converting, setConverting] = useState(false);
   const [convertResult, setConvertResult] = useState(null);
   const [convertError, setConvertError] = useState(null);
+
+  // Cuando el usuario cambia de placa, reaplicamos defaults sensatos.
+  // Conservadores para FPGAs pequeñas; agresivos para las grandes.
+  useEffect(() => {
+    if (isSmallBoard(selectedBoard)) {
+      setBackend('Vitis');
+      setIoType('io_stream');
+      setStrategy('Resource');
+      setReuseFactorIdx(2); // 4
+      setClockPeriod(10);
+    } else if (selectedBoard.label !== 'Custom') {
+      setBackend('Vitis');
+      setIoType('io_parallel');
+      setStrategy('Latency');
+      setReuseFactorIdx(0); // 1
+      setClockPeriod(5);
+    }
+  }, [selectedBoard]);
 
   // FPGA parts disponibles en Vitis HLS (cargados desde backend)
   const [availableParts, setAvailableParts] = useState([]);
@@ -194,7 +222,8 @@ const HLSSynthesis = ({ selectedModel }) => {
           precision,
           reuse_factor: REUSE_OPTIONS[reuseFactorIdx],
           clock_period: clockPeriod,
-          io_type: 'io_parallel',
+          io_type: ioType,
+          strategy,
           part: activePart,
         }),
       });
@@ -468,6 +497,46 @@ const HLSSynthesis = ({ selectedModel }) => {
                 {quantizeResult
                   ? 'Synced from quantization step'
                   : 'Set in Step 1 (or uses default ap_fixed<16,6>)'}
+              </span>
+            </div>
+
+            {/* IO Type */}
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>IO Type</span>
+              <div className={styles.bitButtons}>
+                {IO_TYPE_OPTIONS.map(t => (
+                  <button
+                    key={t}
+                    className={`${styles.bitBtn} ${ioType === t ? styles.activeBit : ''}`}
+                    onClick={() => setIoType(t)}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+              <span className={styles.fieldHint}>
+                io_stream serializa las capas (menos área, recomendado para FPGAs pequeñas);
+                io_parallel desenrolla toda la red
+              </span>
+            </div>
+
+            {/* Strategy */}
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>Strategy</span>
+              <div className={styles.bitButtons}>
+                {STRATEGY_OPTIONS.map(s => (
+                  <button
+                    key={s}
+                    className={`${styles.bitBtn} ${strategy === s ? styles.activeBit : ''}`}
+                    onClick={() => setStrategy(s)}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+              <span className={styles.fieldHint}>
+                Resource reutiliza multiplicadores según reuse_factor;
+                Latency desenrolla para máxima velocidad
               </span>
             </div>
 
