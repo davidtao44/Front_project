@@ -16,7 +16,7 @@ const VHDLToolsCard = ({ onClick }) => {
         <div className="card-icon vhdl-tools-icon">
           <Cpu size={28} />
         </div>
-        <h3 className="card-title">Hardware Interoperability Module</h3>
+        <h3 className="card-title">Hardware Interoperability Tool</h3>
       </div>
       
       <div className="card-content">

@@ -94,7 +94,7 @@ const CNNStudio = () => {
       setModelName(spec.name);
       setError(null);
     } catch (e) {
-      setError(`No se pudo cargar la plantilla: ${e.message}`);
+      setError(`Could not load template: ${e.message}`);
     }
   };
 
@@ -161,10 +161,10 @@ const CNNStudio = () => {
       <Header />
       <div className="studio-content">
         <div className="studio-header">
-          <h1>CNN Studio — Construcción y Entrenamiento</h1>
+          <h1>CNN Studio — Design and Training</h1>
           <p>
-            Diseña una arquitectura CNN, entrénala con un dataset de Keras y úsala
-            luego en el inyector de fallos.
+            Design a CNN architecture, train it with a Keras dataset, and use it
+            later in the fault injector.
           </p>
         </div>
 
@@ -199,17 +199,17 @@ const CNNStudio = () => {
         <section className="studio-card">
           <h2>2 · Arquitectura</h2>
           {!selectedDataset && (
-            <p className="studio-hint">Selecciona primero un dataset.</p>
+            <p className="studio-hint">Select a dataset first.</p>
           )}
           {selectedDataset && (
             <>
               <div className="template-row">
-                <label>Partir de una plantilla:</label>
+                <label>Start from a template:</label>
                 <select
                   defaultValue=""
                   onChange={(e) => loadTemplate(e.target.value)}
                 >
-                  <option value="">— ninguna —</option>
+                  <option value="">— none —</option>
                   {templates.map((t) => (
                     <option key={t.name} value={t.name}>
                       {t.name} ({t.description})
@@ -230,7 +230,7 @@ const CNNStudio = () => {
               <div className="layers-editor">
                 {layers.length === 0 && (
                   <p className="studio-hint">
-                    Sin capas. Carga una plantilla o añade capas manualmente.
+                    No layers. Load a template or add layers manually.
                   </p>
                 )}
                 {layers.map((layer, index) => {

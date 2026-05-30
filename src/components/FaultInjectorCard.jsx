@@ -16,7 +16,7 @@ const FaultInjectorCard = ({ onClick }) => {
         <div className="card-icon fault-injector-icon">
           <Zap size={28} />
         </div>
-        <h3 className="card-title">Reliability Assessment Module</h3>
+        <h3 className="card-title">Reliability Assessment Tool</h3>
       </div>
       
       <div className="card-content">

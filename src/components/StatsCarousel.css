@@ -1,0 +1,520 @@
+.stats-carousel-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  align-items: center;
+  padding: 2.5rem;
+  background: transparent;
+  border-radius: var(--radius-lg);
+  border: none;
+  width: 100%;
+  max-width: 800px;
+}
+
+.carousel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+  width: 100%;
+  min-height: 520px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animation-frame {
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1;
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  min-height: 420px;
+}
+
+.stats-animation {
+  width: 100%;
+  height: 100%;
+  max-width: 360px;
+  max-height: 360px;
+}
+
+/* Animaciones Red Neural - Fault Injection */
+.network-layer {
+  animation: layerPulse 0.6s ease-in-out infinite;
+}
+
+.layer-1 {
+  animation-delay: 0s;
+}
+
+.layer-2 {
+  animation-delay: 0.2s;
+}
+
+.layer-3 {
+  animation-delay: 0.4s;
+}
+
+@keyframes layerPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.injected-bits {
+  animation: none;
+}
+
+.error-pulse-1 {
+  animation: errorPulse1 3s ease-in-out infinite;
+}
+
+.error-pulse-2 {
+  animation: errorPulse2 3s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+.error-pulse-3 {
+  animation: errorPulse3 3s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+@keyframes errorPulse1 {
+  0%, 100% {
+    opacity: 0;
+    r: 2px;
+  }
+  20% {
+    opacity: 1;
+    r: 5px;
+  }
+  40% {
+    opacity: 0.8;
+    r: 4px;
+  }
+  60% {
+    opacity: 0.4;
+    r: 6px;
+  }
+  100% {
+    opacity: 0;
+    r: 8px;
+  }
+}
+
+@keyframes errorPulse2 {
+  0%, 100% {
+    opacity: 0;
+    r: 2px;
+  }
+  20% {
+    opacity: 1;
+    r: 5px;
+  }
+  40% {
+    opacity: 0.8;
+    r: 4px;
+  }
+  60% {
+    opacity: 0.4;
+    r: 6px;
+  }
+  100% {
+    opacity: 0;
+    r: 8px;
+  }
+}
+
+@keyframes errorPulse3 {
+  0%, 100% {
+    opacity: 0;
+    r: 2px;
+  }
+  20% {
+    opacity: 1;
+    r: 5px;
+  }
+  40% {
+    opacity: 0.8;
+    r: 4px;
+  }
+  60% {
+    opacity: 0.4;
+    r: 6px;
+  }
+  100% {
+    opacity: 0;
+    r: 8px;
+  }
+}
+
+.propagation {
+  animation: none;
+}
+
+.ripple-1 {
+  animation: rippleProp 2s ease-out infinite;
+}
+
+.ripple-2 {
+  animation: rippleProp 2s ease-out infinite;
+  animation-delay: 0.3s;
+}
+
+@keyframes rippleProp {
+  0% {
+    r: 15px;
+    opacity: 1;
+  }
+  100% {
+    r: 60px;
+    opacity: 0;
+  }
+}
+
+.chart-bars {
+  animation: chartBuild 2s ease-in-out infinite;
+}
+
+@keyframes chartBuild {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+
+.bar-1 {
+  animation: barGrow1 2s ease-in-out infinite;
+}
+
+.bar-2 {
+  animation: barGrow2 2s ease-in-out infinite;
+}
+
+.bar-3 {
+  animation: barGrow3 2s ease-in-out infinite;
+}
+
+.bar-4 {
+  animation: barGrow4 2s ease-in-out infinite;
+}
+
+@keyframes barGrow1 {
+  0% {
+    height: 0;
+    y: 220;
+  }
+  50% {
+    height: 60;
+  }
+  100% {
+    height: 60;
+    y: 160;
+  }
+}
+
+@keyframes barGrow2 {
+  0% {
+    height: 0;
+    y: 220;
+  }
+  30% {
+    height: 0;
+    y: 220;
+  }
+  80% {
+    height: 120;
+    y: 100;
+  }
+  100% {
+    height: 120;
+    y: 100;
+  }
+}
+
+@keyframes barGrow3 {
+  0% {
+    height: 0;
+    y: 220;
+  }
+  40% {
+    height: 0;
+    y: 220;
+  }
+  100% {
+    height: 150;
+    y: 70;
+  }
+}
+
+@keyframes barGrow4 {
+  0% {
+    height: 0;
+    y: 220;
+  }
+  50% {
+    height: 0;
+    y: 220;
+  }
+  100% {
+    height: 100;
+    y: 120;
+  }
+}
+
+.trend-line {
+  animation: trendDraw 2s ease-in-out infinite;
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+}
+
+@keyframes trendDraw {
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Animaciones VHDL Gen - Código escribiéndose */
+.vhdl-code {
+  background-color: #1a202c;
+}
+
+.code-lines {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+.code-line-1 {
+  animation: typeEffect 0.5s steps(13, end) forwards;
+}
+
+.code-line-2 {
+  animation: typeEffect 0.6s steps(26, end) forwards;
+  animation-delay: 0.5s;
+  opacity: 0;
+}
+
+.code-line-3 {
+  animation: typeEffect 0.4s steps(11, end) forwards;
+  animation-delay: 1.2s;
+  opacity: 0;
+}
+
+.code-line-4 {
+  animation: typeEffect 0.5s steps(17, end) forwards;
+  animation-delay: 1.7s;
+  opacity: 0;
+}
+
+.code-line-5 {
+  animation: typeEffect 0.3s steps(5, end) forwards;
+  animation-delay: 2.3s;
+  opacity: 0;
+}
+
+.code-line-6 {
+  animation: typeEffect 0.4s steps(15, end) forwards;
+  animation-delay: 2.7s;
+  opacity: 0;
+}
+
+.code-line-7 {
+  animation: typeEffect 0.5s steps(19, end) forwards;
+  animation-delay: 3.2s;
+  opacity: 0;
+}
+
+.code-line-8 {
+  animation: typeEffect 0.4s steps(14, end) forwards;
+  animation-delay: 3.8s;
+  opacity: 0;
+}
+
+.code-line-9 {
+  animation: typeEffect 0.3s steps(8, end) forwards;
+  animation-delay: 4.3s;
+  opacity: 0;
+}
+
+@keyframes typeEffect {
+  to {
+    opacity: 1;
+  }
+}
+
+.code-cursor {
+  animation: none;
+}
+
+.cursor {
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 49%, 100% {
+    opacity: 1;
+  }
+  50%, 99% {
+    opacity: 0;
+  }
+}
+
+.compile-progress {
+  animation: compileProgress 5s ease-in-out infinite;
+}
+
+@keyframes compileProgress {
+  0%, 10% {
+    width: 0;
+  }
+  90%, 100% {
+    width: 176px;
+  }
+}
+
+/* Información del carousel */
+.carousel-info {
+  text-align: center;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+.carousel-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin: 0 0 0.75rem 0;
+}
+
+.carousel-description {
+  font-size: 1.05rem;
+  color: var(--color-text-main);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 450px;
+}
+
+/* Controles */
+.carousel-controls {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.carousel-btn {
+  display: none;
+}
+
+.carousel-indicators {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2.5px solid;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.indicator:hover {
+  transform: scale(1.25);
+}
+
+.indicator.active {
+  opacity: 1;
+}
+
+.indicator:not(.active) {
+  opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stats-carousel-container {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .carousel-content {
+    min-height: 350px;
+  }
+
+  .animation-frame {
+    max-width: 250px;
+    padding: 1rem;
+  }
+
+  .carousel-title {
+    font-size: 1.15rem;
+  }
+
+  .carousel-description {
+    font-size: 0.85rem;
+  }
+
+  .carousel-controls {
+    gap: 1rem;
+  }
+
+  .carousel-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-carousel-container {
+    padding: 1.25rem;
+  }
+
+  .animation-frame {
+    max-width: 200px;
+  }
+
+  .carousel-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 1.1rem;
+  }
+
+  .indicator {
+    width: 10px;
+    height: 10px;
+  }
+}

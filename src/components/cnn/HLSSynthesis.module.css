@@ -8,11 +8,19 @@
 .modelRow {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
   padding: 1rem 1.25rem;
   background: var(--color-bg-body);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+}
+
+.modelInfoBlock {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
 }
 
 .modelLabel {
@@ -26,6 +34,31 @@
   font-size: 0.875rem;
   color: var(--color-text-main);
   font-family: monospace;
+  word-break: break-all;
+}
+
+.modelBadgeQuant {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #c4b5fd;
+}
+
+.modelBadgeOrig {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #075985;
+  border: 1px solid #7dd3fc;
 }
 
 .noModel {
@@ -373,60 +406,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* ── Step 3: Vitis HLS pipeline card ────────────────────────────────── */
-.step3Card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.pipelineGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-}
-
-@media (max-width: 900px) {
-  .pipelineGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.pipelineStep {
-  padding: 1.25rem;
-  border-right: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.pipelineStep:last-child {
-  border-right: none;
-}
-
-.pipelineStep.disabled {
-  opacity: 0.45;
-  pointer-events: none;
-}
-
-.pipelineStepHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.pipelineLabel {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--color-text-dark);
-}
-
-.pipelineDesc {
-  font-size: 0.75rem;
-  color: var(--color-text-main);
-}
-
 /* ── Board selector ──────────────────────────────────────────────────── */
 .boardGrid {
   display: grid;
@@ -457,26 +436,6 @@
 .boardBtnActive {
   border-color: var(--color-primary);
   background: rgba(var(--color-primary-rgb, 79,70,229), 0.08);
-}
-
-.boardBtnDisabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  border-color: var(--color-border);
-  background: var(--color-bg-body);
-}
-
-.boardBtnDisabled:hover {
-  border-color: var(--color-border);
-  background: var(--color-bg-body);
-}
-
-.boardUnavailable {
-  font-size: 0.65rem;
-  color: var(--color-error);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
 }
 
 .boardName {

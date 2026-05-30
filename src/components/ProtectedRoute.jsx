@@ -33,7 +33,7 @@ const ProtectedRoute = ({ children }) => {
             fontSize: '16px',
             margin: 0
           }}>
-            Cargando...
+            Loading...
           </p>
           <style>
             {`

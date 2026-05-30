@@ -15,6 +15,7 @@ import ModelToVHDL from '../components/cnn/ModelToVHDL';
 import HLSSynthesis from '../components/cnn/HLSSynthesis';
 import GoldenSimulationHardware from '../components/GoldenSimulationHardware';
 import HardwareFaultInjection from '../components/HardwareFaultInjection';
+import VHDLSynthesisVisualization from '../components/VHDLSynthesisVisualization';
 import './VHDLTools.css';
 
 const VHDLTools = () => {
@@ -35,7 +36,7 @@ const VHDLTools = () => {
             <div className="header-text">
               <h1 className="page-title">
                 <span className="title-icon"><Cpu size={32} /></span>
-                Hardware Interoperability Module
+                Hardware Interoperability Tool
               </h1>
                 <p className="page-subtitle">
                 Set of tools for the conversion and data extraction DNNs to VHDL format
@@ -48,12 +49,8 @@ const VHDLTools = () => {
               </div> */}
             </div>
             <div className="header-image">
-                <img 
-                  src="/LeNet-5.png" 
-                  alt="LeNet-5 Architecture" 
-                  className="lenet-architecture-image"
-                />
-                <p className="image-caption">DNN Architecture</p>
+                <VHDLSynthesisVisualization />
+                <p className="image-caption">VHDL Synthesis Process</p>
             </div>
           </div>
         </div>

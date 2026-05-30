@@ -19,6 +19,7 @@ import WeightFaultConfig from '../components/WeightFaultConfig';
 import MetricsChart from '../components/MetricsChart';
 import FaultMetricsComparison from '../components/FaultMetricsComparison';
 import SAIResults from '../components/SAIResults';
+import FaultInjectionVisualization from '../components/FaultInjectionVisualization';
 import { faultInjectorService, faultCampaignService } from '../services/api';
 import { API_BASE_URL } from '../config/api';
 import './FaultInjector.css';
@@ -232,7 +233,7 @@ const FaultInjector = () => {
     setCampaignError(null);
     setCampaignResults(null);
     setCampaignProgress(0);
-    setCampaignPhase('Iniciando campaña...');
+    setCampaignPhase('Starting campaign...');
     setElapsedTime(0);
     startTimeRef.current = Date.now();
 
@@ -273,7 +274,7 @@ const FaultInjector = () => {
               resolve(job_id);
             } else if (status.status === 'error') {
               clearInterval(progressTickRef.current);
-              reject(new Error(status.error || 'Error en la campaña'));
+              reject(new Error(status.error || 'Campaign error'));
             }
           } catch (pollError) {
             clearInterval(progressTickRef.current);
@@ -293,7 +294,7 @@ const FaultInjector = () => {
       clearInterval(progressTickRef.current);
       setCampaignProgress(0);
       setCampaignPhase('');
-      setCampaignError(error.message || 'Error ejecutando campaña de fallos');
+      setCampaignError(error.message || 'Error running fault injection campaign');
     } finally {
       setIsCampaignLoading(false);
     }
@@ -572,7 +573,7 @@ const FaultInjector = () => {
             <div className="header-text">
               <h1 className="page-title">
                 <span className="title-icon"><Zap size={32} /></span>
-                Reliability Assessment Module
+                Reliability Assessment Tool
               </h1>
               <p className="page-subtitle">
                 Tool for fault injection in DNNs
@@ -585,12 +586,8 @@ const FaultInjector = () => {
               </div> */}
             </div>
             <div className="header-image">
-              <img
-                src="/LeNet-5.png"
-                alt="LeNet-5 Architecture"
-                className="lenet-architecture-image"
-              />
-              <p className="image-caption">DNN Architecture</p>
+              <FaultInjectionVisualization />
+              <p className="image-caption">Fault Injection Process</p>
             </div>
           </div>
         </div>
@@ -712,8 +709,8 @@ const FaultInjector = () => {
                         <div className="error-message">
                           <div className="error-icon"><AlertTriangle size={24} /></div>
                           <p style={{
-                            color: error.includes('🔥 Error Numérico Detectado') ? '#ffffff' : undefined,
-                            textShadow: error.includes('🔥 Error Numérico Detectado') ? '1px 1px 2px rgba(0, 0, 0, 0.5)' : undefined,
+                            color: error.includes('🔥 Numeric Error Detected') ? '#ffffff' : undefined,
+                            textShadow: error.includes('🔥 Numeric Error Detected') ? '1px 1px 2px rgba(0, 0, 0, 0.5)' : undefined,
                             whiteSpace: 'pre-line'
                           }}>{error}</p>
                         </div>
@@ -952,8 +949,8 @@ const FaultInjector = () => {
                         <div className="error-message">
                           <div className="error-icon">⚠️</div>
                           <p style={{
-                            color: error.includes('🔥 Error Numérico Detectado') ? 'rgb(255,255,255)' : undefined,
-                            textShadow: error.includes('🔥 Error Numérico Detectado') ? '1px 1px 2px rgba(0, 0, 0, 0.5)' : undefined,
+                            color: error.includes('🔥 Numeric Error Detected') ? 'rgb(255,255,255)' : undefined,
+                            textShadow: error.includes('🔥 Numeric Error Detected') ? '1px 1px 2px rgba(0, 0, 0, 0.5)' : undefined,
                             whiteSpace: 'pre-line'
                           }}>{error}</p>
                         </div>
@@ -1235,7 +1232,7 @@ const FaultInjector = () => {
                         {isCampaignLoading ? (
                           <>
                             <span className="loading-spinner"></span>
-                            Ejecutando campaña...
+                            Running campaign...
                           </>
                         ) : (
                           <>

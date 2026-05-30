@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { API_BASE_URL } from '../../config/api';
 import styles from './HLSSynthesis.module.css';
@@ -21,7 +21,7 @@ const BOARD_PRESETS = [
 const DEFAULT_BOARD = BOARD_PRESETS[0]; // Pynq-Z2
 
 // Boards pequeñas (Zynq-7020, Artix-7) no pueden con io_parallel + reuse=1.
-// Forzamos defaults conservadores para que Vitis HLS 2025.1 no explote.
+// Forzamos defaults conservadores para que Vitis HLS no explote al sintetizar.
 const SMALL_BOARD_FAMILIES = ['Zynq-7000', 'Artix-7'];
 const isSmallBoard = (board) => SMALL_BOARD_FAMILIES.includes(board?.family);
 
@@ -39,7 +39,6 @@ const HLSSynthesis = ({ selectedModel }) => {
   const [useQuantized, setUseQuantized] = useState(true);
 
   // ── Step 2: Convert ───────────────────────────────────────────────────
-  // Defaults conservadores porque DEFAULT_BOARD es Pynq-Z2 (Zynq-7020 pequeña).
   const [backend, setBackend] = useState('Vitis');
   const [reuseFactorIdx, setReuseFactorIdx] = useState(2); // REUSE_OPTIONS[2] = 4
   const [clockPeriod, setClockPeriod] = useState(10);
@@ -52,7 +51,6 @@ const HLSSynthesis = ({ selectedModel }) => {
   const [convertError, setConvertError] = useState(null);
 
   // Cuando el usuario cambia de placa, reaplicamos defaults sensatos.
-  // Conservadores para FPGAs pequeñas; agresivos para las grandes.
   useEffect(() => {
     if (isSmallBoard(selectedBoard)) {
       setBackend('Vitis');
@@ -69,112 +67,23 @@ const HLSSynthesis = ({ selectedModel }) => {
     }
   }, [selectedBoard]);
 
-  // FPGA parts disponibles en Vitis HLS (cargados desde backend)
-  const [availableParts, setAvailableParts] = useState([]);
-  const [partsLoading, setPartsLoading] = useState(true);
+  // Si el usuario cambia el modelo seleccionado, descartamos los resultados
+  // de pasos previos para evitar enviar el modelo equivocado al backend.
+  useEffect(() => {
+    setQuantizeResult(null);
+    setQuantizeError(null);
+    setConvertResult(null);
+    setConvertError(null);
+  }, [selectedModel?.filename]);
 
   const activePart = selectedBoard.label === 'Custom' ? customPart : selectedBoard.part;
   const partIsValid = activePart.trim().length > 0;
-
-  // Determina si una placa está instalada en Vitis HLS
-  const isBoardAvailable = (board) => {
-    if (partsLoading || availableParts.length === 0) return true; // desconocido = asumimos disponible
-    if (board.label === 'Custom') return true;
-    const baseMatch = board.part.toLowerCase().match(/^(x[cvqs][a-z]?\w+)/);
-    if (!baseMatch) return false;
-    const base = baseMatch[1];
-    return availableParts.some((p) => p.toLowerCase() === base);
-  };
-
-  // ── Step 3: Vitis HLS pipeline ────────────────────────────────────────
-  const [csynthJob, setCsynthJob] = useState(null);   // { job_id, status, phase, report }
-  const [cosimJob, setCosimJob]   = useState(null);
-  const [exportJob, setExportJob] = useState(null);
-  const pollRef = useRef({});
-
-  const sessionId = convertResult?.session_id;
-
-  const pollJob = (jobId, setter) => {
-    if (pollRef.current[jobId]) return;
-    pollRef.current[jobId] = setInterval(async () => {
-      try {
-        const res = await authenticatedFetch(`${API_BASE_URL}/hls/job/${jobId}`);
-        const data = await res.json();
-        setter(data);
-        if (data.status === 'completed' || data.status === 'error') {
-          clearInterval(pollRef.current[jobId]);
-          delete pollRef.current[jobId];
-        }
-      } catch (_) {}
-    }, 5000);
-  };
-
-  useEffect(() => () => Object.values(pollRef.current).forEach(clearInterval), []);
-
-  // Cargar partes instaladas en Vitis HLS
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await authenticatedFetch(`${API_BASE_URL}/hls/vitis/parts`);
-        if (res.ok) {
-          const data = await res.json();
-          setAvailableParts(data.parts || []);
-        }
-      } catch (_) {
-        // Si falla, dejamos el array vacío y todo se marca como disponible
-      } finally {
-        setPartsLoading(false);
-      }
-    })();
-  }, []);
-
-  const handleRunCsynth = async () => {
-    if (!sessionId) return;
-    const res = await authenticatedFetch(`${API_BASE_URL}/hls/run/csynth/${sessionId}`, { method: 'POST' });
-    const data = await res.json();
-    setCsynthJob({ job_id: data.job_id, status: 'pending', phase: 'Iniciando...' });
-    pollJob(data.job_id, setCsynthJob);
-  };
-
-  const handleRunCosim = async () => {
-    if (!sessionId || !activeModelName) return;
-    const res = await authenticatedFetch(`${API_BASE_URL}/hls/run/cosim/${sessionId}`, {
-      method: 'POST',
-      body: JSON.stringify({ model_name: activeModelName }),
-    });
-    const data = await res.json();
-    setCosimJob({ job_id: data.job_id, status: 'pending', phase: 'Iniciando...' });
-    pollJob(data.job_id, setCosimJob);
-  };
-
-  const handleRunExport = async () => {
-    if (!sessionId) return;
-    const res = await authenticatedFetch(`${API_BASE_URL}/hls/run/export/${sessionId}`, { method: 'POST' });
-    const data = await res.json();
-    setExportJob({ job_id: data.job_id, status: 'pending', phase: 'Iniciando...' });
-    pollJob(data.job_id, setExportJob);
-  };
-
-  const handleDownloadIP = async () => {
-    if (!sessionId) return;
-    const token = localStorage.getItem('access_token');
-    const res = await fetch(`${API_BASE_URL}/hls/download/ip/${sessionId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) return;
-    const blob = await res.blob();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `ip_core_${sessionId}.zip`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  };
 
   const maxIntBits = totalBits - 1;
   const safeIntBits = Math.min(intBits, maxIntBits);
   const precision = apFixedLabel(totalBits, safeIntBits);
 
-  // the model name sent to backend (filename only, not full path)
+  // El nombre que se envía al backend (filename, no la ruta completa).
   const activeModelName =
     useQuantized && quantizeResult
       ? quantizeResult.quantized_model
@@ -260,11 +169,26 @@ const HLSSynthesis = ({ selectedModel }) => {
 
       {/* Active model indicator */}
       <div className={styles.modelRow}>
-        <span className={styles.modelLabel}>Working model:</span>
-        {selectedModel
-          ? <span className={styles.modelName}>{activeModelName}</span>
-          : <span className={styles.noModel}>No model selected — go to "Select Architecture" first</span>
-        }
+        {selectedModel ? (
+          <>
+            <div className={styles.modelInfoBlock}>
+              <span className={styles.modelLabel}>Selected model:</span>
+              <span className={styles.modelName}>{selectedModel.filename}</span>
+            </div>
+            <div className={styles.modelInfoBlock}>
+              <span className={styles.modelLabel}>Will be sent as:</span>
+              <span className={styles.modelName}>{activeModelName}</span>
+              {useQuantized && quantizeResult
+                ? <span className={styles.modelBadgeQuant}>quantized</span>
+                : <span className={styles.modelBadgeOrig}>original</span>
+              }
+            </div>
+          </>
+        ) : (
+          <span className={styles.noModel}>
+            No model selected — go to "Select Architecture" first
+          </span>
+        )}
       </div>
 
       <div className={styles.stepsGrid}>
@@ -417,8 +341,8 @@ const HLSSynthesis = ({ selectedModel }) => {
 
           <div className={styles.stepBody}>
             <p style={{ fontSize: '0.82rem', color: 'var(--color-text-main)', margin: 0 }}>
-              Converts the model to synthesizable C++ via <strong>hls4ml</strong>. No Vivado
-              required — download the project and synthesize locally.
+              Converts the model to synthesizable C++ via <strong>hls4ml</strong>. Download the
+              project and synthesize locally with Vivado HLS / Vitis HLS.
             </p>
 
             {/* Backend */}
@@ -439,30 +363,19 @@ const HLSSynthesis = ({ selectedModel }) => {
             <div className={styles.field}>
               <span className={styles.fieldLabel}>Target FPGA board</span>
               <div className={styles.boardGrid}>
-                {BOARD_PRESETS.map(board => {
-                  const available = isBoardAvailable(board);
-                  return (
-                    <button
-                      key={board.label}
-                      className={`${styles.boardBtn} ${selectedBoard.label === board.label ? styles.boardBtnActive : ''} ${!available ? styles.boardBtnDisabled : ''}`}
-                      onClick={() => available && setSelectedBoard(board)}
-                      disabled={!available}
-                      title={
-                        !available
-                          ? `${board.label} — part not installed in Vitis HLS`
-                          : (board.part || 'Enter custom part number')
-                      }
-                    >
-                      <span className={styles.boardName}>{board.label}</span>
-                      {board.family && (
-                        <span className={styles.boardFamily}>{board.family}</span>
-                      )}
-                      {!available && (
-                        <span className={styles.boardUnavailable}>not installed</span>
-                      )}
-                    </button>
-                  );
-                })}
+                {BOARD_PRESETS.map(board => (
+                  <button
+                    key={board.label}
+                    className={`${styles.boardBtn} ${selectedBoard.label === board.label ? styles.boardBtnActive : ''}`}
+                    onClick={() => setSelectedBoard(board)}
+                    title={board.part || 'Enter custom part number'}
+                  >
+                    <span className={styles.boardName}>{board.label}</span>
+                    {board.family && (
+                      <span className={styles.boardFamily}>{board.family}</span>
+                    )}
+                  </button>
+                ))}
               </div>
 
               {/* Part number display / input */}
@@ -515,8 +428,8 @@ const HLSSynthesis = ({ selectedModel }) => {
                 ))}
               </div>
               <span className={styles.fieldHint}>
-                io_stream serializa las capas (menos área, recomendado para FPGAs pequeñas);
-                io_parallel desenrolla toda la red
+                io_stream serializes layers (less area, recommended for small FPGAs);
+                io_parallel unrolls the entire network
               </span>
             </div>
 
@@ -535,8 +448,8 @@ const HLSSynthesis = ({ selectedModel }) => {
                 ))}
               </div>
               <span className={styles.fieldHint}>
-                Resource reutiliza multiplicadores según reuse_factor;
-                Latency desenrolla para máxima velocidad
+                Resource reuses multipliers based on reuse_factor;
+                Latency unrolls for maximum speed
               </span>
             </div>
 
@@ -636,147 +549,6 @@ const HLSSynthesis = ({ selectedModel }) => {
         </div>
 
       </div>
-
-      {/* ── Step 3: Vitis HLS synthesis pipeline ────────────────────── */}
-      {convertResult && (
-        <div className={styles.step3Card}>
-          <div className={styles.stepHeader}>
-            <span className={styles.stepBadge} style={{ background: '#7c3aed' }}>3</span>
-            <h4 className={styles.stepTitle}>Vitis HLS Synthesis Pipeline</h4>
-            <span className={styles.stepOptional}>requires Vitis HLS on server</span>
-          </div>
-
-          <div className={styles.pipelineGrid}>
-
-            {/* 3a — C Synthesis */}
-            <div className={styles.pipelineStep}>
-              <div className={styles.pipelineStepHeader}>
-                <span className={styles.pipelineLabel}>C Synthesis</span>
-                <span className={styles.pipelineDesc}>C++ → VHDL/Verilog</span>
-              </div>
-              <button
-                className={styles.primaryBtn}
-                onClick={handleRunCsynth}
-                disabled={!!csynthJob && csynthJob.status === 'running'}
-              >
-                {csynthJob?.status === 'running'
-                  ? <><span className={styles.spinner} /> {csynthJob.phase}</>
-                  : csynthJob?.status === 'completed' ? 'Re-run C Synthesis' : 'Run C Synthesis'
-                }
-              </button>
-
-              {csynthJob?.status === 'completed' && csynthJob.report && (
-                <div className={`${styles.resultBox} ${styles.success}`} style={{ marginTop: '0.75rem' }}>
-                  <p className={styles.resultTitle}>✓ Synthesis complete</p>
-                  {csynthJob.report.timing && (
-                    <ul className={styles.statsList}>
-                      <li className={styles.statItem}>
-                        <span className={styles.statKey}>Clock estimated:</span>
-                        {csynthJob.report.timing.clock_estimated_ns} ns
-                        ({csynthJob.report.timing.frequency_mhz} MHz)
-                        {csynthJob.report.timing.meets_timing
-                          ? <span style={{ color: '#16a34a', fontWeight: 600 }}> ✓ timing met</span>
-                          : <span style={{ color: '#d97706', fontWeight: 600 }}> ✕ timing violation</span>
-                        }
-                      </li>
-                    </ul>
-                  )}
-                  {csynthJob.report.resources && (
-                    <table className={styles.layerTable} style={{ marginTop: '0.5rem' }}>
-                      <thead>
-                        <tr><th>Resource</th><th>Used</th><th>Available</th><th>%</th></tr>
-                      </thead>
-                      <tbody>
-                        {['LUT', 'FF', 'DSP', 'BRAM_18K'].map(r => (
-                          <tr key={r}>
-                            <td>{r}</td>
-                            <td>{csynthJob.report.resources.total[r] ?? '-'}</td>
-                            <td>{csynthJob.report.resources.available[r] ?? '-'}</td>
-                            <td>{csynthJob.report.resources.utilization_pct[r] ?? '-'}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              )}
-              {csynthJob?.status === 'error' && (
-                <div className={`${styles.resultBox} ${styles.error}`} style={{ marginTop: '0.75rem' }}>
-                  <p className={styles.resultTitle}>✕ Error</p>
-                  <p style={{ fontSize: '0.78rem', margin: 0 }}>{csynthJob.error}</p>
-                </div>
-              )}
-            </div>
-
-            {/* 3b — Co-Simulation */}
-            <div className={`${styles.pipelineStep} ${csynthJob?.status !== 'completed' ? styles.disabled : ''}`}>
-              <div className={styles.pipelineStepHeader}>
-                <span className={styles.pipelineLabel}>Co-Simulation</span>
-                <span className={styles.pipelineDesc}>Testbench vs RTL</span>
-              </div>
-              <button
-                className={styles.primaryBtn}
-                onClick={handleRunCosim}
-                disabled={csynthJob?.status !== 'completed' || cosimJob?.status === 'running'}
-              >
-                {cosimJob?.status === 'running'
-                  ? <><span className={styles.spinner} /> {cosimJob.phase}</>
-                  : cosimJob?.status === 'completed' ? 'Re-run Co-Sim' : 'Run Co-Simulation'
-                }
-              </button>
-
-              {cosimJob?.status === 'completed' && (
-                <div className={`${styles.resultBox} ${styles.success}`} style={{ marginTop: '0.75rem' }}>
-                  <p className={styles.resultTitle}>
-                    {cosimJob.result?.passed ? '✓ Co-Sim PASSED — RTL matches C model' : '✕ Co-Sim FAILED'}
-                  </p>
-                </div>
-              )}
-              {cosimJob?.status === 'error' && (
-                <div className={`${styles.resultBox} ${styles.error}`} style={{ marginTop: '0.75rem' }}>
-                  <p className={styles.resultTitle}>✕ Error</p>
-                  <p style={{ fontSize: '0.78rem', margin: 0 }}>{cosimJob.error}</p>
-                </div>
-              )}
-            </div>
-
-            {/* 3c — Export IP Core */}
-            <div className={`${styles.pipelineStep} ${csynthJob?.status !== 'completed' ? styles.disabled : ''}`}>
-              <div className={styles.pipelineStepHeader}>
-                <span className={styles.pipelineLabel}>Export RTL</span>
-                <span className={styles.pipelineDesc}>IP Core (.zip)</span>
-              </div>
-              <button
-                className={styles.primaryBtn}
-                onClick={handleRunExport}
-                disabled={csynthJob?.status !== 'completed' || exportJob?.status === 'running'}
-              >
-                {exportJob?.status === 'running'
-                  ? <><span className={styles.spinner} /> {exportJob.phase}</>
-                  : exportJob?.status === 'completed' ? 'Re-export' : 'Export IP Core'
-                }
-              </button>
-
-              {exportJob?.status === 'completed' && (
-                <div className={`${styles.resultBox} ${styles.success}`} style={{ marginTop: '0.75rem' }}>
-                  <p className={styles.resultTitle}>✓ IP Core listo</p>
-                  <button className={styles.downloadBtn} style={{ marginTop: '0.5rem' }} onClick={handleDownloadIP}>
-                    Download IP Core (.zip)
-                  </button>
-                </div>
-              )}
-              {exportJob?.status === 'error' && (
-                <div className={`${styles.resultBox} ${styles.error}`} style={{ marginTop: '0.75rem' }}>
-                  <p className={styles.resultTitle}>✕ Error</p>
-                  <p style={{ fontSize: '0.78rem', margin: 0 }}>{exportJob.error}</p>
-                </div>
-              )}
-            </div>
-
-          </div>
-        </div>
-      )}
-
     </div>
   );
 };

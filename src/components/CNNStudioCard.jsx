@@ -16,7 +16,7 @@ const CNNStudioCard = ({ onClick }) => {
         <div className="card-icon fault-injector-icon">
           <Layers size={28} />
         </div>
-        <h3 className="card-title">CNN Builder &amp; Training Module</h3>
+        <h3 className="card-title">CNN Builder &amp; Training Tool</h3>
       </div>
 
       <div className="card-content">

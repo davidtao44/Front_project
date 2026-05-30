@@ -236,7 +236,7 @@ const FaultInjectionConfig = ({ selectedModel, onConfigChange, initialConfig = n
                                 onChange={(e) => handleParameterChange(layer.name, 'std_dev', parseFloat(e.target.value))}
                               />
                               <span className="field-description">
-                                Desviación estándar del ruido gaussiano
+                                Standard deviation of Gaussian noise
                               </span>
                             </div>
                           </div>

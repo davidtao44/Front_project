@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -8,22 +8,63 @@ import ModelUpload from "./components/ModelUpload";
 import FaultInjectorCard from "./components/FaultInjectorCard";
 import VHDLToolsCard from "./components/VHDLToolsCard";
 import CNNStudioCard from "./components/CNNStudioCard";
+import StatsCarousel from "./components/StatsCarousel";
 import FaultInjector from './pages/FaultInjector';
 import VHDLTools from './pages/VHDLTools';
 import SAIHistory from './pages/SAIHistory';
 import CNNStudio from './pages/CNNStudio';
 import "./App.css";
-import "./pages/HomePage.css"; // Importar estilos específicos
+import "./pages/HomePage.css";
 
 import { UploadCloud, Cpu } from "lucide-react";
 
 const HomePage = () => {
   const [selectedModel, setSelectedModel] = useState(null);
   const navigate = useNavigate();
+  const dashboardRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    }, { threshold: 0.1 });
+
+    if (dashboardRef.current) {
+      observer.observe(dashboardRef.current);
+    }
+
+    return () => {
+      if (dashboardRef.current) {
+        observer.unobserve(dashboardRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const toolCards = document.querySelectorAll('.tools-grid > div');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    toolCards.forEach(card => {
+      observer.observe(card);
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   const handleSelectModel = (model) => {
     setSelectedModel(model);
-    console.log("Modelo seleccionado:", model);
+    console.log("Model selected:", model);
   };
 
   const handleFaultInjectorClick = () => {
@@ -41,74 +82,68 @@ const HomePage = () => {
   return (
     <div className="home-container">
       <Header />
-      
-      {/* HERO SECTION */}
+
+      {/* HERO SECTION - Improved */}
       <section className="hero-section">
         <div className="hero-content">
-          <h1 className="hero-title">
-            HURA <br />
-            <span>framework</span>
-          </h1>
-          <p className="hero-subtitle">
-            Comprehensive platform for fault injection, reliability assessment 
-            and automatic VHDL code generation for LeNet-5 CNNs.
-          </p>
-          
+          <div>
+            <h1 className="hero-title">
+              HURA
+              <span>framework</span>
+            </h1>
+            <p className="hero-subtitle">
+              Comprehensive platform for fault injection, reliability assessment
+              and automatic VHDL code generation for LeNet-5 CNNs.
+            </p>
+          </div>
+
           <div className="hero-stats">
-            <div className="stat-item">
-              <span className="stat-value">CNN</span>
-              <span className="stat-label">Architectures</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-value">FI</span>
-              <span className="stat-label">Fault Injection</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-value">VHDL</span>
-              <span className="stat-label">HW Generation</span>
-            </div>
+            <StatsCarousel />
           </div>
         </div>
       </section>
 
-      {/* DASHBOARD GRID */}
-      <section className="dashboard-section">
+      {/* DASHBOARD GRID - Two Column Layout */}
+      <section className="dashboard-section" ref={dashboardRef}>
         <div className="dashboard-grid">
-          
-          {/* Columna Izquierda: Gestión de Modelos */}
+
+          {/* Left Column: Model Management */}
           <div className="models-column">
             <div className="section-header">
               <h3>
-                <UploadCloud size={24} />
-                Trained Model Importer Module
+                <UploadCloud size={28} />
+                Model Manager
               </h3>
-              <p className="section-desc">Upload your pre-trained architectures to start the analysis.</p>
+              <p className="section-desc">
+                Upload pre-trained CNN models to begin your analysis. Supported formats: .h5 and .keras
+              </p>
             </div>
             <ModelUpload />
           </div>
 
-          {/* Columna Derecha: Herramientas Principales */}
+          {/* Right Column: Analysis Tools */}
           <div className="tools-column">
             <div className="section-header">
               <h3>
-                <Cpu size={24} />
+                <Cpu size={28} />
                 Analysis Tools
               </h3>
-              <p className="section-desc">Select a tool to evaluate robustness or generate hardware.</p>
+              <p className="section-desc">
+                Choose a tool to evaluate robustness, inject faults, or generate hardware implementations.
+              </p>
             </div>
-            
+
             <div className="tools-grid">
-              <div onClick={handleFaultInjectorClick}>
+              <div onClick={handleFaultInjectorClick} style={{ cursor: 'pointer' }}>
                 <FaultInjectorCard />
               </div>
-              <div onClick={handleVHDLToolsClick}>
+              <div onClick={handleVHDLToolsClick} style={{ cursor: 'pointer' }}>
                 <VHDLToolsCard />
               </div>
-              <div onClick={handleCNNStudioClick}>
+              <div onClick={handleCNNStudioClick} style={{ cursor: 'pointer' }}>
                 <CNNStudioCard />
               </div>
             </div>
-
           </div>
         </div>
       </section>

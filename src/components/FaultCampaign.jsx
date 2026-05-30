@@ -377,9 +377,9 @@ const FaultCampaign = () => {
           <div className="sai-history-warning">
             <span className="warn-icon">⚠️</span>
             <span>
-              <strong>Esta campaña SAI no quedará registrada en el histórico.</strong>{' '}
-              El histórico solo almacena campañas con <strong>1 capa, 1 posición y 1 bit</strong>.
-              La campaña se ejecutará normalmente pero los resultados no serán persistidos.
+              <strong>This SAI campaign will not be recorded in the history.</strong>{' '}
+              History only stores campaigns with <strong>1 layer, 1 position, and 1 bit</strong>.
+              The campaign will run normally but results will not be persisted.
             </span>
           </div>
         )}
